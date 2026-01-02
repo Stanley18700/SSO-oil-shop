@@ -1,0 +1,64 @@
+{
+  "common": {
+    "appName": "SSO Oil Shop",
+    "login": "Login",
+    "logout": "Logout",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "add": "Add",
+    "back": "Back",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "auth": {
+    "username": "Username",
+    "password": "Password",
+    "loginTitle": "Admin Login",
+    "loginButton": "Sign In",
+    "loginError": "Invalid username or password",
+    "loginSuccess": "Login successful!"
+  },
+  "admin": {
+    "dashboard": "Admin Dashboard",
+    "addOil": "Add New Oil",
+    "editOil": "Edit Oil",
+    "oilList": "Oil Products",
+    "customerView": "Customer View",
+    "noOils": "No oils found. Add your first oil product!"
+  },
+  "oil": {
+    "nameEn": "Name (English)",
+    "nameMy": "Name (Myanmar)",
+    "descriptionEn": "Description (English)",
+    "descriptionMy": "Description (Myanmar)",
+    "price": "Price per Unit (MMK)",
+    "imageUrl": "Image URL",
+    "isActive": "Active",
+    "created": "Created",
+    "updated": "Updated"
+  },
+  "customer": {
+    "title": "Available Oils",
+    "pricePerUnit": "Price per unit",
+    "calculator": "Mix Calculator",
+    "selectOils": "Select oils and enter percentages",
+    "totalPercentage": "Total Percentage",
+    "totalPrice": "Total Price",
+    "mustEqual100": "Total must equal 100%",
+    "calculate": "Calculate Price",
+    "percentage": "Percentage",
+    "mmk": "MMK"
+  },
+  "messages": {
+    "oilCreated": "Oil created successfully!",
+    "oilUpdated": "Oil updated successfully!",
+    "oilDeleted": "Oil deleted successfully!",
+    "deleteConfirm": "Are you sure you want to delete this oil?",
+    "fillAllFields": "Please fill in all required fields",
+    "invalidPercentage": "Percentages must add up to 100%"
+  }
+}
+
