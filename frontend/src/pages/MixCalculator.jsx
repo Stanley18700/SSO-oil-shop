@@ -161,17 +161,17 @@ export const MixCalculator = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow-md sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-3">
+      {/* Header - Mobile optimized */}
+      <header className="bg-white shadow-md sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
               <button
                 onClick={() => navigate('/')}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
               >
                 <svg
-                  className="w-6 h-6 text-gray-600"
+                  className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -184,23 +184,25 @@ export const MixCalculator = () => {
                   />
                 </svg>
               </button>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+              <h1 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-800 truncate">
                 {t.customer.calculator}
               </h1>
             </div>
 
-            <LanguageToggle
-              language={language}
-              onLanguageChange={setLanguage}
-            />
+            <div className="flex-shrink-0">
+              <LanguageToggle
+                language={language}
+                onLanguageChange={setLanguage}
+              />
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Progress Stepper - Visual guide */}
-        <div className="mb-8 max-w-3xl mx-auto">
-          <div className="flex items-center justify-between relative">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 pb-24">
+        {/* Progress Stepper - Visual guide - Mobile optimized */}
+        <div className="mb-6 max-w-3xl mx-auto">
+          <div className="flex items-center justify-between relative px-2">
             <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 -translate-y-1/2 z-0"></div>
             <div 
               className="absolute top-1/2 left-0 h-1 bg-primary-500 -translate-y-1/2 z-0 transition-all duration-500"
@@ -208,11 +210,11 @@ export const MixCalculator = () => {
             ></div>
             
             {[1, 2, 3].map((step) => (
-              <div key={step} className="relative z-10 flex flex-col items-center">
+              <div key={step} className="relative z-10 flex flex-col items-center flex-1">
                 <div 
-                  className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl transition-all duration-300 shadow-lg ${
+                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-bold text-lg sm:text-xl transition-all duration-300 shadow-lg ${
                     currentStep === step 
-                      ? 'bg-primary-500 text-white scale-125 border-4 border-white' 
+                      ? 'bg-primary-500 text-white scale-110 sm:scale-125 border-4 border-white' 
                       : currentStep > step 
                       ? 'bg-green-500 text-white' 
                       : 'bg-white text-gray-400 border-2 border-gray-200'
@@ -220,7 +222,7 @@ export const MixCalculator = () => {
                 >
                   {currentStep > step ? '✓' : step}
                 </div>
-                <span className={`mt-2 text-sm font-bold ${currentStep === step ? 'text-primary-600' : 'text-gray-500'}`}>
+                <span className={`mt-1 text-xs sm:text-sm font-bold text-center ${currentStep === step ? 'text-primary-600' : 'text-gray-500'}`}>
                   {step === 1 ? (language === 'en' ? 'Select' : 'ရွေးချယ်ရန်') : 
                    step === 2 ? (language === 'en' ? 'Mix' : 'ရောစပ်ရန်') : 
                    (language === 'en' ? 'Result' : 'ရလဒ်')}
@@ -251,17 +253,17 @@ export const MixCalculator = () => {
           <div className="max-w-4xl mx-auto">
             {/* STEP 1: SELECT OILS */}
             {currentStep === 1 && (
-              <div className="animate-fadeIn">
-                <div className="text-center mb-8">
-                  <h2 className="text-3xl font-bold text-gray-800 mb-2">
+              <div className="animate-fadeIn pb-24">
+                <div className="text-center mb-6">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
                     {language === 'en' ? 'Choose Your Oils' : 'ဆီများ ရွေးချယ်ပါ'}
                   </h2>
-                  <p className="text-lg text-gray-600">
+                  <p className="text-base sm:text-lg text-gray-600">
                     {language === 'en' ? 'Select at least 2 oils to mix' : 'အနည်းဆုံး ဆီ ၂ မျိုး ရွေးချယ်ပါ'}
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6 mb-6">
                   {oils.map((oil) => (
                     <OilCard
                       key={oil.id}
@@ -274,70 +276,73 @@ export const MixCalculator = () => {
                   ))}
                 </div>
 
-                <div className="sticky bottom-6 bg-white p-4 rounded-2xl shadow-2xl border border-gray-100 flex items-center justify-between gap-4">
-                  <div className="text-lg font-bold text-gray-700">
-                    {hasSelectedOils ? (
-                      <span>{Object.keys(selectedOils).length} {language === 'en' ? 'Selected' : 'ခု ရွေးထားသည်'}</span>
-                    ) : (
-                      <span className="text-gray-400">{language === 'en' ? 'None Selected' : 'မရွေးရသေးပါ'}</span>
-                    )}
+                {/* Fixed footer for mobile */}
+                <div className="fixed bottom-0 left-0 right-0 bg-white p-3 sm:p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] border-t border-gray-100 z-40">
+                  <div className="max-w-4xl mx-auto flex items-center gap-3">
+                    <div className="text-sm sm:text-lg font-bold text-gray-700 flex-shrink-0">
+                      {hasSelectedOils ? (
+                        <span>{Object.keys(selectedOils).length} {language === 'en' ? 'Selected' : 'ခု'}</span>
+                      ) : (
+                        <span className="text-gray-400">{language === 'en' ? 'None' : 'မရွေးရသေး'}</span>
+                      )}
+                    </div>
+                    <button
+                      disabled={Object.keys(selectedOils).length < 2}
+                      onClick={nextStep}
+                      className="btn-primary flex-1 py-3 sm:py-4 text-base sm:text-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:grayscale font-bold"
+                    >
+                      <span className="truncate">{language === 'en' ? 'Continue' : 'ရှေ့သို့'}</span>
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </button>
                   </div>
-                  <button
-                    disabled={Object.keys(selectedOils).length < 2}
-                    onClick={nextStep}
-                    className="btn-primary flex-1 py-4 text-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:grayscale"
-                  >
-                    {language === 'en' ? 'Continue to Mixing' : 'ရှေ့သို့'}
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </button>
                 </div>
               </div>
             )}
 
-            {/* STEP 2: SET PERCENTAGES */}
+             {/* STEP 2: SET WEIGHTS */}
             {currentStep === 2 && (
-               <div className="animate-fadeIn">
-                <div className="text-center mb-8">
-                  <h2 className="text-3xl font-bold text-gray-800 mb-2">
+              <div className="animate-fadeIn pb-32">
+                <div className="text-center mb-6">
+                  <h2 className="text-xl sm:text-3xl font-bold text-gray-800 mb-2">
                     {language === 'en' ? 'Enter Weights (Ticals)' : 'အလေးချိန် ထည့်ပါ (ကျပ်သား)'}
                   </h2>
-                  <p className="text-lg text-gray-600">
+                  <p className="text-sm sm:text-lg text-gray-600">
                     {language === 'en' ? 'How many Ticals of each oil?' : 'ဆီ တစ်မျိုးချင်းစီ မည်မျှ ကျပ်သား?'}
                   </p>
                 </div>
 
-                {/* Sticky Total Weight Indicator */}
-                <div className={`sticky top-24 z-20 mb-8 p-6 rounded-2xl shadow-xl border-2 transition-all ${
+                {/* Sticky Total Weight Indicator - Mobile optimized */}
+                <div className={`sticky top-16 sm:top-20 z-20 mb-6 p-4 sm:p-6 rounded-2xl shadow-xl border-2 transition-all ${
                   isValidMix ? 'bg-green-50 border-green-500' : 'bg-white border-primary-200'
                 }`}>
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <span className="text-xl font-bold text-gray-700 block">
-                        {language === 'en' ? 'Total Weight' : 'စုစုပေါင်း အလေးချိန်'}
+                  <div className="flex items-center justify-between mb-2 sm:mb-3 gap-2">
+                    <div className="flex-1">
+                      <span className="text-base sm:text-xl font-bold text-gray-700 block">
+                        {language === 'en' ? 'Total Weight' : 'စုစုပေါင်း'}
                       </span>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-xs sm:text-sm text-gray-500">
                         {language === 'en' ? '100 Ticals = 1 Viss' : '၁၀၀ ကျပ်သား = ၁ ပိဿာ'}
                       </span>
                     </div>
-                    <div className="text-right">
-                      <span className={`text-4xl font-black block ${
+                    <div className="text-right flex-shrink-0">
+                      <span className={`text-2xl sm:text-4xl font-black block ${
                         isValidMix ? 'text-green-600' : 'text-primary-600'
                       }`}>
                         {totalViss.toFixed(2)}
                       </span>
-                      <span className="text-lg font-bold text-gray-600">
-                        {language === 'en' ? 'Viss (ပိဿာ)' : 'ပိဿာ'}
+                      <span className="text-sm sm:text-lg font-bold text-gray-600">
+                        {language === 'en' ? 'Viss' : 'ပိဿာ'}
                       </span>
-                      <div className="text-sm text-gray-500 mt-1">
+                      <div className="text-xs sm:text-sm text-gray-500 mt-1">
                         {totalTicals} {language === 'en' ? 'Ticals' : 'ကျပ်သား'}
                       </div>
                     </div>
                   </div>
                   {totalTicals === 0 && (
-                    <p className="text-center mt-3 font-bold text-lg text-primary-600">
-                      {language === 'en' ? 'Enter weights to calculate price' : 'ဈေးနှုန်း တွက်ချက်ရန် အလေးချိန် ထည့်ပါ'}
+                    <p className="text-center mt-2 font-bold text-sm sm:text-lg text-primary-600">
+                      {language === 'en' ? 'Enter weights to calculate' : 'အလေးချိန် ထည့်ပါ'}
                     </p>
                   )}
                 </div>
@@ -395,24 +400,24 @@ export const MixCalculator = () => {
                   })}
                 </div>
 
-                {/* Footer Navigation */}
-                <div className="fixed bottom-0 left-0 w-full bg-white p-6 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] border-t border-gray-100 flex gap-4 z-30">
+                {/* Footer Navigation - Mobile optimized */}
+                <div className="fixed bottom-0 left-0 w-full bg-white p-3 sm:p-6 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] border-t border-gray-100 flex gap-2 sm:gap-4 z-40">
                   <button
                     onClick={prevStep}
-                    className="btn-secondary flex-1 py-5 text-xl flex items-center justify-center gap-2 font-bold"
+                    className="btn-secondary flex-1 py-3 sm:py-5 text-base sm:text-xl flex items-center justify-center gap-1 sm:gap-2 font-bold"
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 17l-5-5m0 0l5-5m-5 5h12" />
                     </svg>
-                    {language === 'en' ? 'Back' : 'နောက်သို့'}
+                    <span className="hidden sm:inline">{language === 'en' ? 'Back' : 'နောက်သို့'}</span>
                   </button>
                   <button
                     disabled={!isValidMix}
                     onClick={nextStep}
-                    className="btn-primary flex-[2] py-5 text-xl flex items-center justify-center gap-2 font-black shadow-xl"
+                    className="btn-primary flex-[2] py-3 sm:py-5 text-base sm:text-xl flex items-center justify-center gap-1 sm:gap-2 font-black shadow-xl disabled:opacity-50"
                   >
-                    {language === 'en' ? 'Calculate Result' : 'တွက်ချက်မည်'}
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span className="truncate">{language === 'en' ? 'Calculate' : 'တွက်ချက်မည်'}</span>
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
                   </button>
