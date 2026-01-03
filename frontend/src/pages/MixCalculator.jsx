@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getOils } from '../api/api';
 import { OilCard } from '../components/OilCard';
 import { LanguageToggle } from '../components/LanguageToggle';
+import { getUnitLabel, formatQuantityWithUnit } from '../utils/units';
 import enTranslations from '../i18n/en.json';
 import myTranslations from '../i18n/my.json';
 
@@ -20,6 +21,7 @@ export const MixCalculator = () => {
   const [selectedOils, setSelectedOils] = useState({});
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [quantity, setQuantity] = useState(1); // How many Viss/Liters customer wants
 
   const t = language === 'en' ? enTranslations : myTranslations;
 
@@ -49,21 +51,24 @@ export const MixCalculator = () => {
         ...prev,
         [oilId]: { percentage: 0 },
       }));
-      // Move to step 2 when first oil is selected
-      if (Object.keys(selectedOils).length === 0) {
-        setCurrentStep(2);
-      }
     } else {
       setSelectedOils((prev) => {
         const newSelected = { ...prev };
         delete newSelected[oilId];
-        // Go back to step 1 if no oils selected
-        if (Object.keys(newSelected).length === 0) {
-          setCurrentStep(1);
-        }
         return newSelected;
       });
     }
+  };
+
+  // Navigation handlers
+  const nextStep = () => {
+    if (currentStep < 3) setCurrentStep(prev => prev + 1);
+    window.scrollTo(0, 0); // Scroll to top on step change
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) setCurrentStep(prev => prev - 1);
+    window.scrollTo(0, 0);
   };
 
   // Handle percentage input change
@@ -73,11 +78,6 @@ export const MixCalculator = () => {
       ...prev,
       [oilId]: { percentage: Math.max(0, Math.min(100, percentage)) },
     }));
-    
-    // Auto-advance to step 3 when user starts entering percentages
-    if (currentStep === 2 && percentage > 0) {
-      setCurrentStep(3);
-    }
   };
 
   // Handle finish calculation
@@ -96,6 +96,7 @@ export const MixCalculator = () => {
     setSelectedOils({});
     setCurrentStep(1);
     setShowSuccessModal(false);
+    setQuantity(1);
   };
 
   // Quick percentage buttons
@@ -118,7 +119,8 @@ export const MixCalculator = () => {
       })
       .join('\n');
     
-    const shareText = `${t.common.appName}\n${mixDetails}\n${language === 'en' ? 'Total Price' : 'စုစုပေါင်း ဈေးနှုန်း'}: ${totalPrice?.toLocaleString()} MMK`;
+    const unitLabel = getUnitLabel(commonUnit, language);
+    const shareText = `${t.common.appName}\n\n${mixDetails}\n\n${language === 'en' ? 'Price per' : 'ဈေးနှုန်း'} ${unitLabel}: ${pricePerUnit?.toLocaleString()} MMK\n${language === 'en' ? 'Quantity' : 'အရေအတွက်'}: ${quantity} ${unitLabel}\n${language === 'en' ? 'Total Price' : 'စုစုပေါင်း ဈေးနှုန်း'}: ${totalPrice?.toLocaleString()} MMK`;
     
     navigator.clipboard.writeText(shareText).then(() => {
       alert(language === 'en' ? 'Calculation copied to clipboard!' : 'တွက်ချက်မှုကို ကူးယူပြီးပါပြီ!');
@@ -148,9 +150,15 @@ export const MixCalculator = () => {
     return totalPrice;
   };
 
-  const totalPrice = calculateTotalPrice();
+  const pricePerUnit = calculateTotalPrice();
+  const totalPrice = pricePerUnit ? pricePerUnit * quantity : null;
   const isValidMix = totalPercentage === 100;
   const hasSelectedOils = Object.keys(selectedOils).length > 0;
+  
+  // Get the common unit from selected oils (assuming all use same unit)
+  const commonUnit = hasSelectedOils 
+    ? oils.find(o => o.id === parseInt(Object.keys(selectedOils)[0]))?.unit || 'viss'
+    : 'viss';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -191,64 +199,35 @@ export const MixCalculator = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Step-by-step Instructions */}
-        <div className="card mb-8">
-          <h2 className="text-tablet-xl font-bold text-gray-800 mb-6">
-            {language === 'en' ? 'How to Calculate Mixed Oil Price' : 'ရောစပ်ဆီ ဈေးနှုန်း တွက်ချက်နည်း'}
-          </h2>
-          
-          <div className="space-y-4">
-            {/* Step 1 */}
-            <div className={`flex gap-4 p-4 rounded-lg transition-all ${currentStep >= 1 ? 'bg-green-50 border-2 border-green-300' : 'bg-gray-50 border-2 border-gray-200'}`}>
-              <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${currentStep >= 1 ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'}`}>
-                {currentStep > 1 ? '✓' : '1'}
+        {/* Progress Stepper - Visual guide */}
+        <div className="mb-8 max-w-3xl mx-auto">
+          <div className="flex items-center justify-between relative">
+            <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 -translate-y-1/2 z-0"></div>
+            <div 
+              className="absolute top-1/2 left-0 h-1 bg-primary-500 -translate-y-1/2 z-0 transition-all duration-500"
+              style={{ width: `${((currentStep - 1) / 2) * 100}%` }}
+            ></div>
+            
+            {[1, 2, 3].map((step) => (
+              <div key={step} className="relative z-10 flex flex-col items-center">
+                <div 
+                  className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl transition-all duration-300 shadow-lg ${
+                    currentStep === step 
+                      ? 'bg-primary-500 text-white scale-125 border-4 border-white' 
+                      : currentStep > step 
+                      ? 'bg-green-500 text-white' 
+                      : 'bg-white text-gray-400 border-2 border-gray-200'
+                  }`}
+                >
+                  {currentStep > step ? '✓' : step}
+                </div>
+                <span className={`mt-2 text-sm font-bold ${currentStep === step ? 'text-primary-600' : 'text-gray-500'}`}>
+                  {step === 1 ? (language === 'en' ? 'Select' : 'ရွေးချယ်ရန်') : 
+                   step === 2 ? (language === 'en' ? 'Mix' : 'ရောစပ်ရန်') : 
+                   (language === 'en' ? 'Result' : 'ရလဒ်')}
+                </span>
               </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-tablet mb-1">
-                  {language === 'en' ? 'Step 1: Select Oils' : 'အဆင့် ၁ - ဆီများ ရွေးချယ်ပါ'}
-                </h3>
-                <p className="text-gray-600">
-                  {language === 'en' ? 'Check the boxes on the oils you want to mix (at least 2)' : 'ရောစပ်လိုသော ဆီများကို အမှန်ခြစ်ပါ (အနည်းဆုံး ၂ခု)'}
-                </p>
-              </div>
-            </div>
-
-            {/* Step 2 */}
-            <div className={`flex gap-4 p-4 rounded-lg transition-all ${currentStep >= 2 ? 'bg-blue-50 border-2 border-blue-300' : 'bg-gray-50 border-2 border-gray-200'}`}>
-              <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${currentStep >= 2 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-600'}`}>
-                {currentStep > 2 ? '✓' : '2'}
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-tablet mb-1">
-                  {language === 'en' ? 'Step 2: Enter Percentages' : 'အဆင့် ၂ - ရာခိုင်နှုန်း ထည့်ပါ'}
-                </h3>
-                <p className="text-gray-600">
-                  {language === 'en' ? 'Enter the percentage for each oil (total must equal 100%)' : 'ဆီတစ်ခုချင်းစီအတွက် ရာခိုင်နှုန်း ထည့်ပါ (စုစုပေါင်း ၁၀၀% ဖြစ်ရမည်)'}
-                </p>
-              </div>
-            </div>
-
-            {/* Step 3 */}
-            <div className={`flex gap-4 p-4 rounded-lg transition-all ${currentStep >= 3 && isValidMix ? 'bg-purple-50 border-2 border-purple-300' : 'bg-gray-50 border-2 border-gray-200'}`}>
-              <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${currentStep >= 3 && isValidMix ? 'bg-purple-500 text-white' : 'bg-gray-300 text-gray-600'}`}>
-                3
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-tablet mb-1">
-                  {language === 'en' ? 'Step 3: View Result' : 'အဆင့် ၃ - ရလဒ် ကြည့်ပါ'}
-                </h3>
-                <p className="text-gray-600">
-                  {language === 'en' ? 'See your calculated mixed oil price and save it!' : 'တွက်ချက်ထားသော ဆီဈေးနှုန်းကို ကြည့်၍ သိမ်းပါ!'}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Important note */}
-          <div className="mt-6 bg-primary-50 border-l-4 border-primary-500 p-4 rounded">
-            <p className="text-tablet font-semibold text-primary-800">
-              💡 {t.customer.mustEqual100}
-            </p>
+            ))}
           </div>
         </div>
 
@@ -270,285 +249,321 @@ export const MixCalculator = () => {
             </div>
           </div>
         ) : (
-          <div className="space-y-8">
-            {/* Sticky Calculation Summary - Always visible on tablet */}
-            {hasSelectedOils && (
-              <div className="card sticky top-20 z-20 bg-gradient-to-br from-white to-gray-50 shadow-xl border-2 border-primary-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-2xl font-bold text-gray-800">
-                    {language === 'en' ? '📊 Current Mix' : '📊 လက်ရှိရောစပ်မှု'}
-                  </h3>
-                  <div className={`text-3xl font-bold ${
-                    isValidMix ? 'text-green-600' : totalPercentage > 100 ? 'text-red-600' : 'text-orange-600'
-                  }`}>
-                    {totalPercentage.toFixed(0)}%
-                  </div>
-                </div>
-                
-                {/* Progress bar */}
-                <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden mb-4">
-                  <div
-                    className={`h-full transition-all duration-300 ${
-                      isValidMix ? 'bg-green-500' : totalPercentage > 100 ? 'bg-red-500' : 'bg-orange-500'
-                    }`}
-                    style={{ width: `${Math.min(totalPercentage, 100)}%` }}
-                  />
+          <div className="max-w-4xl mx-auto">
+            {/* STEP 1: SELECT OILS */}
+            {currentStep === 1 && (
+              <div className="animate-fadeIn">
+                <div className="text-center mb-8">
+                  <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                    {language === 'en' ? 'Choose Your Oils' : 'ဆီများ ရွေးချယ်ပါ'}
+                  </h2>
+                  <p className="text-lg text-gray-600">
+                    {language === 'en' ? 'Select at least 2 oils to mix' : 'အနည်းဆုံး ဆီ ၂ မျိုး ရွေးချယ်ပါ'}
+                  </p>
                 </div>
 
-                {/* Total Price */}
-                {isValidMix && (
-                  <div className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-300 rounded-xl p-6 text-center">
-                    <p className="text-lg text-gray-600 mb-2">{t.customer.totalPrice}</p>
-                    <p className="text-5xl font-bold text-green-600 mb-1">
-                      {totalPrice?.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </p>
-                    <p className="text-xl text-gray-600">{t.customer.mmk}</p>
-                    
-                    <button
-                      onClick={handleFinish}
-                      className="btn-primary w-full mt-4 py-4 text-xl flex items-center justify-center gap-2"
-                    >
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      {language === 'en' ? 'Done - View Summary' : 'ပြီးပါပြီ - အကျဉ်းချုပ်'}
-                    </button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-10">
+                  {oils.map((oil) => (
+                    <OilCard
+                      key={oil.id}
+                      oil={oil}
+                      language={language}
+                      showCheckbox={true}
+                      checked={!!selectedOils[oil.id]}
+                      onCheckChange={(checked) => handleOilToggle(oil.id, checked)}
+                    />
+                  ))}
+                </div>
+
+                <div className="sticky bottom-6 bg-white p-4 rounded-2xl shadow-2xl border border-gray-100 flex items-center justify-between gap-4">
+                  <div className="text-lg font-bold text-gray-700">
+                    {hasSelectedOils ? (
+                      <span>{Object.keys(selectedOils).length} {language === 'en' ? 'Selected' : 'ခု ရွေးထားသည်'}</span>
+                    ) : (
+                      <span className="text-gray-400">{language === 'en' ? 'None Selected' : 'မရွေးရသေးပါ'}</span>
+                    )}
                   </div>
-                )}
+                  <button
+                    disabled={Object.keys(selectedOils).length < 2}
+                    onClick={nextStep}
+                    className="btn-primary flex-1 py-4 text-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:grayscale"
+                  >
+                    {language === 'en' ? 'Continue to Mixing' : 'ရှေ့သို့'}
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             )}
 
-            {/* Oil selection grid - FULL WIDTH for tablet */}
-            <div>
-              <h2 className="text-3xl font-bold text-gray-800 mb-6">
-                {language === 'en' ? '🛢️ Select Oils to Mix' : '🛢️ ရောစပ်ရန် ဆီများရွေးပါ'}
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {oils.map((oil) => (
-                  <OilCard
-                    key={oil.id}
-                    oil={oil}
-                    language={language}
-                    showCheckbox={true}
-                    checked={!!selectedOils[oil.id]}
-                    onCheckChange={(checked) => handleOilToggle(oil.id, checked)}
-                  />
-                ))}
-              </div>
-            </div>
+            {/* STEP 2: SET PERCENTAGES */}
+            {currentStep === 2 && (
+              <div className="animate-fadeIn">
+                <div className="text-center mb-8">
+                  <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                    {language === 'en' ? 'Set Mixing Proportions' : 'ရောစပ်မည့် ရာခိုင်နှုန်း သတ်မှတ်ပါ'}
+                  </h2>
+                  <p className="text-lg text-gray-600">
+                    {language === 'en' ? 'Adjust percentages to reach 100%' : 'စုစုပေါင်း ၁၀၀% ဖြစ်အောင် ညှိပါ'}
+                  </p>
+                </div>
 
-            {/* Calculator panel - Below oils for better tablet UX */}
-            {hasSelectedOils && (
-              <div className="card">
-                <h2 className="text-3xl font-bold text-gray-800 mb-6">
-                  {language === 'en' ? '🎯 Enter Percentages' : '🎯 ရာခိုင်နှုန်း ထည့်ပါ'}
-                </h2>
+                {/* Sticky Total Indicator */}
+                <div className={`sticky top-24 z-20 mb-8 p-6 rounded-2xl shadow-xl border-2 transition-all ${
+                  isValidMix ? 'bg-green-50 border-green-500' : 'bg-white border-primary-200'
+                }`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xl font-bold text-gray-700">
+                      {language === 'en' ? 'Total Percentage' : 'စုစုပေါင်း ရာခိုင်နှုန်း'}
+                    </span>
+                    <span className={`text-4xl font-black ${
+                      isValidMix ? 'text-green-600' : totalPercentage > 100 ? 'text-red-600' : 'text-primary-600'
+                    }`}>
+                      {totalPercentage.toFixed(0)}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden shadow-inner">
+                    <div
+                      className={`h-full transition-all duration-500 ${
+                        isValidMix ? 'bg-green-500' : totalPercentage > 100 ? 'bg-red-500' : 'bg-primary-500'
+                      }`}
+                      style={{ width: `${Math.min(totalPercentage, 100)}%` }}
+                    />
+                  </div>
+                  {totalPercentage !== 100 && (
+                    <p className={`text-center mt-3 font-bold text-lg ${totalPercentage > 100 ? 'text-red-600' : 'text-primary-600'}`}>
+                      {totalPercentage > 100 
+                        ? (language === 'en' ? `Reduce by ${(totalPercentage - 100).toFixed(0)}%` : `${(totalPercentage - 100).toFixed(0)}% လျှော့ပါ`)
+                        : (language === 'en' ? `Add ${(100 - totalPercentage).toFixed(0)}% more` : `${(100 - totalPercentage).toFixed(0)}% ထပ်ပေါင်းပါ`)
+                      }
+                    </p>
+                  )}
+                </div>
 
-                {/* Selected oils with percentage inputs - LARGER for tablet */}
-                <div className="space-y-6 mb-6">
+                <div className="space-y-6 mb-24">
                   {Object.entries(selectedOils).map(([oilId, data]) => {
                     const oil = oils.find((o) => o.id === parseInt(oilId));
                     if (!oil) return null;
-
                     const name = language === 'en' ? oil.name_en : oil.name_my;
 
                     return (
-                      <div key={oilId} className="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                      <div key={oilId} className="card border-2 border-gray-100 hover:border-primary-100 transition-all p-6">
                         <div className="flex items-center justify-between mb-4">
-                          <span className="text-2xl font-bold text-gray-800">
-                            {name}
-                          </span>
-                          <button
-                            onClick={() => handleOilToggle(oilId, false)}
-                            className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors"
-                            style={{ minWidth: '44px', minHeight: '44px' }}
-                          >
-                            <svg
-                              className="w-6 h-6"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </button>
+                          <h3 className="text-2xl font-bold text-gray-800">{name}</h3>
+                          <div className="text-primary-600 font-bold bg-primary-50 px-3 py-1 rounded-lg text-center">
+                            <div>{parseFloat(oil.price_per_unit).toLocaleString()} MMK</div>
+                            <div className="text-xs text-gray-600 font-normal">
+                              {language === 'en' ? 'per' : 'တစ်'} {getUnitLabel(oil.unit || 'viss', language)}
+                            </div>
+                          </div>
                         </div>
 
-                        {/* Percentage Input - LARGER for tablet */}
-                        <div className="flex items-center gap-3 mb-4">
+                        <div className="flex items-center gap-4 mb-4">
                           <input
                             type="number"
-                            min="0"
-                            max="100"
-                            step="0.1"
                             value={data.percentage || ''}
-                            onChange={(e) =>
-                              handlePercentageChange(oilId, e.target.value)
-                            }
-                            className="input-field flex-1 text-3xl py-5 px-5 font-bold text-center"
+                            onChange={(e) => handlePercentageChange(oilId, e.target.value)}
+                            className="flex-1 text-4xl font-black text-center py-5 border-4 border-gray-100 rounded-2xl focus:border-primary-500 transition-all outline-none"
                             placeholder="0"
-                            style={{ minHeight: '70px' }}
                           />
-                          <span className="text-3xl font-bold text-gray-600">
-                            %
-                          </span>
+                          <span className="text-4xl font-black text-gray-400">%</span>
                         </div>
 
-                        {/* Quick Percentage Buttons - LARGER */}
-                        <div className="grid grid-cols-4 gap-3 mb-4">
-                          {[25, 50, 75, 100].map((percent) => (
+                        <div className="grid grid-cols-4 gap-3">
+                          {[25, 33, 50, 100].map((percent) => (
                             <button
                               key={percent}
                               onClick={() => handleQuickPercentage(oilId, percent)}
-                              className="bg-primary-100 hover:bg-primary-200 active:bg-primary-300 text-primary-700 font-bold py-3 px-4 rounded-lg transition-colors text-lg"
-                              style={{ minHeight: '50px' }}
+                              className="bg-gray-100 hover:bg-primary-500 hover:text-white text-gray-700 font-bold py-4 rounded-xl transition-all text-xl shadow-sm"
                             >
                               {percent}%
                             </button>
                           ))}
-                        </div>
-
-                        <div className="text-lg text-gray-600 font-semibold text-center bg-gray-50 py-3 rounded-lg">
-                          {parseFloat(oil.price_per_unit).toLocaleString()} {t.customer.mmk} / {language === 'en' ? 'unit' : 'ယူနစ်'}
                         </div>
                       </div>
                     );
                   })}
                 </div>
 
-                {/* Reset Button */}
-                <button
-                  onClick={handleReset}
-                  className="btn-secondary w-full py-4 text-xl flex items-center justify-center gap-2"
-                  style={{ minHeight: '60px' }}
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  {language === 'en' ? 'Start Over' : 'ပြန်စ မည်'}
-                </button>
+                {/* Quantity Input - How many Viss/Liters */}
+                <div className="card bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 p-6 mb-24">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                    {language === 'en' ? '🛒 How much do you need?' : '🛒 မည်မျှ လိုအပ်ပါသလဲ?'}
+                  </h3>
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="number"
+                      value={quantity}
+                      onChange={(e) => setQuantity(Math.max(0.1, parseFloat(e.target.value) || 1))}
+                      min="0.1"
+                      step="0.5"
+                      className="flex-1 text-4xl font-black text-center py-5 border-4 border-blue-200 rounded-2xl focus:border-blue-500 transition-all outline-none bg-white"
+                      placeholder="1"
+                    />
+                    <span className="text-3xl font-black text-gray-700 bg-blue-100 px-4 py-3 rounded-xl">
+                      {getUnitLabel(commonUnit, language)}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-5 gap-3 mt-4">
+                    {[1, 2, 5, 10, 20].map((qty) => (
+                      <button
+                        key={qty}
+                        onClick={() => setQuantity(qty)}
+                        className="bg-blue-100 hover:bg-blue-500 hover:text-white text-blue-700 font-bold py-3 rounded-xl transition-all text-lg"
+                      >
+                        {qty}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Footer Navigation */}
+                <div className="fixed bottom-0 left-0 w-full bg-white p-6 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] border-t border-gray-100 flex gap-4 z-30">
+                  <button
+                    onClick={prevStep}
+                    className="btn-secondary flex-1 py-5 text-xl flex items-center justify-center gap-2 font-bold"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+                    </svg>
+                    {language === 'en' ? 'Back' : 'နောက်သို့'}
+                  </button>
+                  <button
+                    disabled={!isValidMix}
+                    onClick={nextStep}
+                    className="btn-primary flex-[2] py-5 text-xl flex items-center justify-center gap-2 font-black shadow-xl"
+                  >
+                    {language === 'en' ? 'Calculate Result' : 'တွက်ချက်မည်'}
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 3: RESULT SUMMARY */}
+            {currentStep === 3 && (
+              <div className="animate-fadeIn">
+                <div className="text-center mb-8">
+                  <div className="inline-flex items-center justify-center w-24 h-24 bg-green-100 text-green-600 rounded-full mb-6">
+                    <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h2 className="text-4xl font-black text-gray-800 mb-2">
+                    {language === 'en' ? 'Mix Ready!' : 'ရောစပ်မှု အဆင်သင့်ဖြစ်ပါပြီ!'}
+                  </h2>
+                </div>
+
+                <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 mb-10">
+                  {/* Price per Unit */}
+                  <div className="bg-blue-500 p-6 text-white text-center border-b-4 border-blue-600">
+                    <p className="text-lg opacity-90 mb-1 font-bold">
+                      {language === 'en' ? 'Mixed Oil Price per' : 'ရောစပ်ဆီ ဈေးနှုန်း'} {getUnitLabel(commonUnit, language)}
+                    </p>
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-4xl font-black leading-none">
+                        {pricePerUnit?.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+                      <span className="text-xl font-bold">MMK</span>
+                    </div>
+                  </div>
+                  
+                  {/* Total Price for Quantity */}
+                  <div className="bg-primary-500 p-8 text-white text-center">
+                    <p className="text-sm opacity-90 mb-2">
+                      {formatQuantityWithUnit(quantity, commonUnit, language)}
+                    </p>
+                    <p className="text-xl opacity-90 mb-2 uppercase tracking-widest font-bold">
+                      {language === 'en' ? 'Total Price' : 'စုစုပေါင်း ဈေးနှုန်း'}
+                    </p>
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-6xl font-black leading-none">
+                        {totalPrice?.toLocaleString(undefined, {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        })}
+                      </span>
+                      <span className="text-2xl font-bold self-end mb-2">MMK</span>
+                    </div>
+                  </div>
+
+                  <div className="p-8">
+                    <h3 className="text-xl font-bold text-gray-400 uppercase tracking-wider mb-6 border-b pb-4">
+                      {language === 'en' ? 'Composition' : 'ပါဝင်မှု အစိတ်အပိုင်းများ'}
+                    </h3>
+                    <div className="space-y-6">
+                      {Object.entries(selectedOils).map(([oilId, data]) => {
+                        const oil = oils.find((o) => o.id === parseInt(oilId));
+                        if (!oil) return null;
+                        const name = language === 'en' ? oil.name_en : oil.name_my;
+                        return (
+                          <div key={oilId} className="flex justify-between items-center group">
+                            <div className="flex flex-col">
+                              <span className="text-2xl font-black text-gray-800">{name}</span>
+                              <span className="text-gray-500 font-bold">
+                                {parseFloat(oil.price_per_unit).toLocaleString()} MMK / {getUnitLabel(oil.unit || 'viss', language)}
+                              </span>
+                            </div>
+                            <div className="text-3xl font-black text-primary-600 bg-primary-50 px-4 py-2 rounded-2xl">
+                              {data.percentage}%
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 mb-20">
+                  <div className="flex gap-4">
+                    <button
+                      onClick={handlePrint}
+                      className="flex-1 bg-blue-600 text-white font-black py-5 rounded-2xl text-xl flex items-center justify-center gap-3 shadow-lg"
+                    >
+                      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                      </svg>
+                      {language === 'en' ? 'Print' : 'ပရင့်'}
+                    </button>
+                    <button
+                      onClick={handleShare}
+                      className="flex-1 bg-green-600 text-white font-black py-5 rounded-2xl text-xl flex items-center justify-center gap-3 shadow-lg"
+                    >
+                      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                      </svg>
+                      {language === 'en' ? 'Share' : 'မျှဝေမည်'}
+                    </button>
+                  </div>
+                  <button
+                    onClick={handleReset}
+                    className="w-full bg-white text-gray-700 border-4 border-gray-100 font-black py-5 rounded-2xl text-xl shadow-md"
+                  >
+                    {language === 'en' ? 'Start New Calculation' : 'အသစ်ပြန်တွက်မည်'}
+                  </button>
+                  <button
+                    onClick={() => navigate('/')}
+                    className="w-full text-primary-600 font-bold py-4 text-lg"
+                  >
+                    {language === 'en' ? 'Back to Home' : 'ပင်မစာမျက်နှာသို့'}
+                  </button>
+                </div>
               </div>
             )}
           </div>
         )}
       </main>
 
-      {/* Success Modal */}
-      {showSuccessModal && isValidMix && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
-            <div className="p-6 md:p-8">
-              {/* Success Icon */}
-              <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
-                  <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
-                  {language === 'en' ? 'Calculation Complete!' : 'တွက်ချက်မှု အောင်မြင်ပါပြီ!'}
-                </h2>
-                <p className="text-tablet text-gray-600">
-                  {language === 'en' ? 'Here\'s your mixed oil price summary' : 'သင်၏ ရောစပ်ဆီ ဈေးနှုန်း အကျဉ်းချုပ်'}
-                </p>
-              </div>
-
-              {/* Summary Details */}
-              <div className="bg-gray-50 rounded-xl p-6 mb-6">
-                <h3 className="font-bold text-tablet-lg mb-4 text-gray-800">
-                  {language === 'en' ? 'Mix Composition:' : 'ရောစပ်မှု အစိတ်အပိုင်းများ:'}
-                </h3>
-                <div className="space-y-3">
-                  {Object.entries(selectedOils).map(([oilId, data]) => {
-                    const oil = oils.find((o) => o.id === parseInt(oilId));
-                    if (!oil) return null;
-                    const name = language === 'en' ? oil.name_en : oil.name_my;
-                    return (
-                      <div key={oilId} className="flex justify-between items-center py-2 border-b border-gray-200">
-                        <div>
-                          <span className="font-semibold text-gray-800">{name}</span>
-                          <span className="text-primary-600 font-bold ml-2">{data.percentage}%</span>
-                        </div>
-                        <span className="text-gray-600">
-                          {parseFloat(oil.price_per_unit).toLocaleString()} {t.customer.mmk}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Final Price */}
-                <div className="mt-6 pt-6 border-t-2 border-gray-300">
-                  <div className="flex justify-between items-center">
-                    <span className="text-tablet-lg font-bold text-gray-800">
-                      {language === 'en' ? 'Your Mixed Oil Price:' : 'ရောစပ်ဆီ ဈေးနှုန်း:'}
-                    </span>
-                    <div className="text-right">
-                      <p className="text-3xl font-bold text-green-600">
-                        {totalPrice.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </p>
-                      <p className="text-tablet text-gray-600">{t.customer.mmk} / {language === 'en' ? 'unit' : 'ယူနစ်'}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="space-y-3">
-                {/* Print & Share buttons */}
-                <div className="flex gap-3">
-                  <button
-                    onClick={handlePrint}
-                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center gap-2"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                    {language === 'en' ? 'Print' : 'ပရင့်ထုတ်မည်'}
-                  </button>
-                  <button
-                    onClick={handleShare}
-                    className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center gap-2"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                    </svg>
-                    {language === 'en' ? 'Share' : 'မျှဝေမည်'}
-                  </button>
-                </div>
-
-                {/* Main action buttons */}
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleReset}
-                    className="btn-secondary flex-1 py-4"
-                  >
-                    {language === 'en' ? 'Calculate Again' : 'ထပ် တွက်မည်'}
-                  </button>
-                  <button
-                    onClick={handleCloseAndReturn}
-                    className="btn-primary flex-1 py-4"
-                  >
-                    {language === 'en' ? 'OK - Back to Home' : 'ကောင်းပြီ - ပင်မစာမျက်နှာ'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Keep the original modal but only as a backup/reference or remove it since Step 3 is now a dedicated screen */}
+      {/* (Removed showSuccessModal as Step 3 replaces it for better tablet UX) */}
     </div>
   );
 };
+
 

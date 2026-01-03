@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getUnitOptions } from '../utils/units';
 
 /**
  * OilForm component
@@ -11,6 +12,7 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
     description_en: '',
     description_my: '',
     price_per_unit: '',
+    unit: 'viss',
     image_url: '',
     is_active: true,
   });
@@ -26,6 +28,7 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
         description_en: oil.description_en || '',
         description_my: oil.description_my || '',
         price_per_unit: oil.price_per_unit || '',
+        unit: oil.unit || 'viss',
         image_url: oil.image_url || '',
         is_active: oil.is_active !== undefined ? oil.is_active : true,
       });
@@ -174,6 +177,32 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
         {errors.price_per_unit && (
           <p className="text-red-500 text-sm mt-1">{errors.price_per_unit}</p>
         )}
+      </div>
+
+      {/* Unit of Measurement */}
+      <div>
+        <label className="block text-base sm:text-tablet font-semibold text-gray-700 mb-2">
+          Measurement Unit *
+        </label>
+        <select
+          name="unit"
+          value={formData.unit}
+          onChange={handleChange}
+          className="input-field text-base sm:text-lg py-3 font-semibold"
+          style={{ minHeight: '50px' }}
+        >
+          {getUnitOptions('en').map(option => {
+            const myOption = getUnitOptions('my').find(u => u.value === option.value);
+            return (
+              <option key={option.value} value={option.value}>
+                {option.label} ({myOption?.label || option.label})
+              </option>
+            );
+          })}
+        </select>
+        <p className="text-sm text-gray-500 mt-2">
+          💡 <strong>Viss (ပဲ)</strong> is the traditional Myanmar weight unit (~1.633 kg). Most oil shops in Myanmar use Viss.
+        </p>
       </div>
 
       {/* Image URL */}

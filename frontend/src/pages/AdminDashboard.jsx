@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getOils, createOil, updateOil, deleteOil } from '../api/api';
 import { useAuth } from '../auth/useAuth';
 import { OilForm } from '../components/OilForm';
+import { getUnitLabel } from '../utils/units';
 import enTranslations from '../i18n/en.json';
 
 /**
@@ -225,9 +226,12 @@ export const AdminDashboard = () => {
 
                 {/* Price */}
                 <div className="mb-4 bg-primary-50 rounded-lg p-3">
-                  <p className="text-sm text-gray-600 mb-1">Price per unit</p>
+                  <p className="text-sm text-gray-600 mb-1">Price</p>
                   <p className="text-2xl font-bold text-primary-700">
                     {parseFloat(oil.price_per_unit).toLocaleString()} <span className="text-base">MMK</span>
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    per {getUnitLabel(oil.unit || 'viss', 'en')}
                   </p>
                 </div>
 

@@ -18,6 +18,7 @@ model Oil {
   description_en String   @db.Text
   description_my String   @db.Text
   price_per_unit Decimal  @db.Decimal(10, 2)
+  unit           String   @default("viss") @db.VarChar(20) // viss, liter, kg
   image_url      String?  @db.VarChar(500)
   is_active      Boolean  @default(true)
   created_at     DateTime @default(now())

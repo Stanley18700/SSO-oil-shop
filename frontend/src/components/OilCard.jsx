@@ -1,3 +1,5 @@
+import { getUnitLabel } from '../utils/units';
+
 /**
  * OilCard component
  * Displays oil information in a card format
@@ -7,6 +9,7 @@ export const OilCard = ({ oil, language, onClick, showCheckbox, checked, onCheck
   const name = language === 'en' ? oil.name_en : oil.name_my;
   const description = language === 'en' ? oil.description_en : oil.description_my;
   const priceLabel = language === 'en' ? 'MMK' : 'ကျပ်';
+  const unitLabel = getUnitLabel(oil.unit || 'viss', language);
 
   return (
     <div
@@ -66,15 +69,18 @@ export const OilCard = ({ oil, language, onClick, showCheckbox, checked, onCheck
         <p className="text-tablet text-gray-600 mb-4 line-clamp-2 min-h-[3rem]">
           {description}
         </p>
-        <div className="flex items-baseline justify-between">
-          <div>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-baseline gap-2">
             <span className="text-tablet-xl font-bold text-primary-600">
               {parseFloat(oil.price_per_unit).toLocaleString()}
             </span>
-            <span className="text-tablet text-gray-500 ml-2">{priceLabel}</span>
+            <span className="text-tablet text-gray-500">{priceLabel}</span>
+          </div>
+          <div className="text-sm text-gray-600 font-semibold">
+            {language === 'en' ? 'per' : 'တစ်'} {unitLabel}
           </div>
           {!oil.is_active && (
-            <span className="text-sm bg-red-100 text-red-600 px-2 py-1 rounded">
+            <span className="text-sm bg-red-100 text-red-600 px-2 py-1 rounded inline-block w-fit">
               Inactive
             </span>
           )}

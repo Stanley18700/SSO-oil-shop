@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "oils" ADD COLUMN     "unit" VARCHAR(20) NOT NULL DEFAULT 'viss';
