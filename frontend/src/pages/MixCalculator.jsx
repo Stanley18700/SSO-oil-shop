@@ -347,53 +347,58 @@ export const MixCalculator = () => {
                   )}
                 </div>
 
-                <div className="space-y-4 sm:space-y-6 mb-24">
+                <div className="space-y-3 sm:space-y-4 md:space-y-6 mb-24">
                   {Object.entries(selectedOils).map(([oilId, data]) => {
                     const oil = oils.find((o) => o.id === parseInt(oilId));
                     if (!oil) return null;
                     const name = language === 'en' ? oil.name_en : oil.name_my;
 
                     return (
-                      <div key={oilId} className="card border-2 border-gray-100 hover:border-primary-100 transition-all p-3 sm:p-6">
-                        <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
-                          <h3 className="text-base sm:text-2xl font-bold text-gray-800 truncate flex-1">{name}</h3>
-                          <div className="text-primary-600 font-bold bg-primary-50 px-2 sm:px-3 py-1 rounded-lg text-center flex-shrink-0">
-                            <div className="text-sm sm:text-base">{parseFloat(oil.price_per_unit).toLocaleString()} MMK</div>
-                            <div className="text-[10px] sm:text-xs text-gray-600 font-normal whitespace-nowrap">
+                      <div key={oilId} className="bg-white rounded-xl sm:rounded-2xl border-2 border-gray-100 hover:border-primary-100 transition-all p-3 sm:p-4 md:p-6 shadow-sm">
+                        <div className="flex items-start justify-between mb-3 gap-2">
+                          <h3 className="text-sm sm:text-lg md:text-2xl font-bold text-gray-800 flex-1 leading-tight pt-0.5">{name}</h3>
+                          <div className="text-primary-600 font-bold bg-primary-50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-right flex-shrink-0">
+                            <div className="text-xs sm:text-sm md:text-base leading-tight">{parseFloat(oil.price_per_unit).toLocaleString()} MMK</div>
+                            <div className="text-[9px] sm:text-[10px] md:text-xs text-gray-600 font-normal whitespace-nowrap leading-tight">
                               {language === 'en' ? 'per' : 'တစ်'} {getUnitLabel(oil.unit || 'viss', language)}
                             </div>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
-                          <input
-                            type="number"
-                            value={data.ticals || ''}
-                            onChange={(e) => handleWeightChange(oilId, e.target.value)}
-                            className="flex-1 text-2xl sm:text-4xl font-black text-center py-3 sm:py-5 border-2 sm:border-4 border-gray-100 rounded-xl sm:rounded-2xl focus:border-primary-500 transition-all outline-none"
-                            placeholder="0"
-                            min="0"
-                            step="1"
-                          />
-                          <span className="text-sm sm:text-2xl font-black text-gray-600 bg-gray-100 px-2 sm:px-3 py-2 rounded-lg whitespace-nowrap text-center" style={{minWidth: '60px'}}>
-                            {language === 'en' ? 'Ticals' : 'ကျပ်သား'}
-                          </span>
+                        {/* Fully Responsive Input Group */}
+                        <div className="w-full mb-3 sm:mb-4">
+                          <div className="flex items-stretch border-2 sm:border-4 border-gray-100 rounded-xl sm:rounded-2xl focus-within:border-primary-500 transition-all bg-white overflow-hidden shadow-sm">
+                            <input
+                              type="number"
+                              value={data.ticals || ''}
+                              onChange={(e) => handleWeightChange(oilId, e.target.value)}
+                              className="flex-1 text-xl sm:text-2xl md:text-4xl font-black text-center py-3 sm:py-4 md:py-5 outline-none bg-transparent min-w-0 px-2"
+                              placeholder="0"
+                              min="0"
+                              step="1"
+                            />
+                            <div className="flex items-center justify-center bg-gray-50 px-2 sm:px-4 md:px-6 text-[11px] sm:text-sm md:text-xl font-bold text-gray-600 border-l-2 border-gray-200 shrink-0">
+                              <span className="whitespace-nowrap">
+                                {language === 'en' ? 'Ticals' : 'ကျပ်သား'}
+                              </span>
+                            </div>
+                          </div>
                         </div>
 
-                        {/* Quick Tical Buttons - Common weights */}
-                        <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
+                        {/* Quick Tical Buttons - Fully Responsive */}
+                        <div className="grid grid-cols-5 gap-1 sm:gap-1.5 md:gap-2">
                           {[10, 25, 50, 75, 100].map((ticals) => (
                             <button
                               key={ticals}
                               onClick={() => handleQuickWeight(oilId, ticals)}
-                              className="bg-gray-100 hover:bg-primary-500 active:bg-primary-600 hover:text-white text-gray-700 font-bold py-2 sm:py-3 rounded-lg sm:rounded-xl transition-all text-sm sm:text-lg shadow-sm"
+                              className="bg-gray-100 hover:bg-primary-500 active:bg-primary-600 hover:text-white text-gray-700 font-bold py-1.5 sm:py-2 md:py-3 rounded-md sm:rounded-lg md:rounded-xl transition-all text-xs sm:text-sm md:text-lg shadow-sm"
                             >
                               {ticals}
                             </button>
                           ))}
                         </div>
-                        <p className="text-[10px] sm:text-xs text-gray-500 mt-1.5 sm:mt-2 text-center">
-                          {language === 'en' ? '💡 Tap quick buttons or type custom amount' : '💡 အမြန်ခလုတ် သို့မဟုတ် စိတ်ကြိုက် ရိုက်ထည့်ပါ'}
+                        <p className="text-[9px] sm:text-[10px] md:text-xs text-gray-500 mt-1 sm:mt-1.5 md:mt-2 text-center leading-tight">
+                          {language === 'en' ? '💡 Tap buttons or type amount' : '💡 ခလုတ် သို့မဟုတ် ရိုက်ထည့်ပါ'}
                         </p>
                       </div>
                     );
