@@ -163,12 +163,12 @@ export const MixCalculator = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header - Mobile optimized */}
       <header className="bg-white shadow-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 flex-1 min-w-0">
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-3">
+          <div className="flex items-center justify-between gap-1 sm:gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 flex-1 min-w-0">
               <button
                 onClick={() => navigate('/')}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+                className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
               >
                 <svg
                   className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600"
@@ -184,7 +184,7 @@ export const MixCalculator = () => {
                   />
                 </svg>
               </button>
-              <h1 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-800 truncate">
+              <h1 className="text-base sm:text-2xl md:text-3xl font-bold text-gray-800 truncate">
                 {t.customer.calculator}
               </h1>
             </div>
@@ -199,22 +199,22 @@ export const MixCalculator = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 pb-24">
+      <main className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-3 sm:py-4 pb-24">
         {/* Progress Stepper - Visual guide - Mobile optimized */}
-        <div className="mb-6 max-w-3xl mx-auto">
-          <div className="flex items-center justify-between relative px-2">
-            <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 -translate-y-1/2 z-0"></div>
+        <div className="mb-4 sm:mb-6 max-w-3xl mx-auto">
+          <div className="flex items-center justify-between relative px-1 sm:px-2">
+            <div className="absolute top-1/2 left-0 w-full h-0.5 sm:h-1 bg-gray-200 -translate-y-1/2 z-0"></div>
             <div 
-              className="absolute top-1/2 left-0 h-1 bg-primary-500 -translate-y-1/2 z-0 transition-all duration-500"
+              className="absolute top-1/2 left-0 h-0.5 sm:h-1 bg-primary-500 -translate-y-1/2 z-0 transition-all duration-500"
               style={{ width: `${((currentStep - 1) / 2) * 100}%` }}
             ></div>
             
             {[1, 2, 3].map((step) => (
               <div key={step} className="relative z-10 flex flex-col items-center flex-1">
                 <div 
-                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-bold text-lg sm:text-xl transition-all duration-300 shadow-lg ${
+                  className={`w-9 h-9 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-bold text-base sm:text-xl transition-all duration-300 shadow-md sm:shadow-lg ${
                     currentStep === step 
-                      ? 'bg-primary-500 text-white scale-110 sm:scale-125 border-4 border-white' 
+                      ? 'bg-primary-500 text-white scale-105 sm:scale-125 border-2 sm:border-4 border-white' 
                       : currentStep > step 
                       ? 'bg-green-500 text-white' 
                       : 'bg-white text-gray-400 border-2 border-gray-200'
@@ -222,7 +222,7 @@ export const MixCalculator = () => {
                 >
                   {currentStep > step ? '✓' : step}
                 </div>
-                <span className={`mt-1 text-xs sm:text-sm font-bold text-center ${currentStep === step ? 'text-primary-600' : 'text-gray-500'}`}>
+                <span className={`mt-0.5 sm:mt-1 text-[10px] sm:text-sm font-bold text-center leading-tight ${currentStep === step ? 'text-primary-600' : 'text-gray-500'}`}>
                   {step === 1 ? (language === 'en' ? 'Select' : 'ရွေးချယ်ရန်') : 
                    step === 2 ? (language === 'en' ? 'Mix' : 'ရောစပ်ရန်') : 
                    (language === 'en' ? 'Result' : 'ရလဒ်')}
@@ -304,95 +304,95 @@ export const MixCalculator = () => {
              {/* STEP 2: SET WEIGHTS */}
             {currentStep === 2 && (
               <div className="animate-fadeIn pb-32">
-                <div className="text-center mb-6">
-                  <h2 className="text-xl sm:text-3xl font-bold text-gray-800 mb-2">
+                <div className="text-center mb-4 sm:mb-6 px-2">
+                  <h2 className="text-lg sm:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">
                     {language === 'en' ? 'Enter Weights (Ticals)' : 'အလေးချိန် ထည့်ပါ (ကျပ်သား)'}
                   </h2>
-                  <p className="text-sm sm:text-lg text-gray-600">
+                  <p className="text-xs sm:text-lg text-gray-600">
                     {language === 'en' ? 'How many Ticals of each oil?' : 'ဆီ တစ်မျိုးချင်းစီ မည်မျှ ကျပ်သား?'}
                   </p>
                 </div>
 
                 {/* Sticky Total Weight Indicator - Mobile optimized */}
-                <div className={`sticky top-16 sm:top-20 z-20 mb-6 p-4 sm:p-6 rounded-2xl shadow-xl border-2 transition-all ${
+                <div className={`sticky top-14 sm:top-20 z-20 mb-4 sm:mb-6 p-3 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl border-2 transition-all ${
                   isValidMix ? 'bg-green-50 border-green-500' : 'bg-white border-primary-200'
                 }`}>
-                  <div className="flex items-center justify-between mb-2 sm:mb-3 gap-2">
-                    <div className="flex-1">
-                      <span className="text-base sm:text-xl font-bold text-gray-700 block">
+                  <div className="flex items-center justify-between gap-2 sm:gap-3">
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm sm:text-xl font-bold text-gray-700 block truncate">
                         {language === 'en' ? 'Total Weight' : 'စုစုပေါင်း'}
                       </span>
-                      <span className="text-xs sm:text-sm text-gray-500">
+                      <span className="text-[10px] sm:text-sm text-gray-500 block">
                         {language === 'en' ? '100 Ticals = 1 Viss' : '၁၀၀ ကျပ်သား = ၁ ပိဿာ'}
                       </span>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <span className={`text-2xl sm:text-4xl font-black block ${
+                      <span className={`text-xl sm:text-4xl font-black block leading-none ${
                         isValidMix ? 'text-green-600' : 'text-primary-600'
                       }`}>
                         {totalViss.toFixed(2)}
                       </span>
-                      <span className="text-sm sm:text-lg font-bold text-gray-600">
+                      <span className="text-xs sm:text-lg font-bold text-gray-600 block">
                         {language === 'en' ? 'Viss' : 'ပိဿာ'}
                       </span>
-                      <div className="text-xs sm:text-sm text-gray-500 mt-1">
+                      <div className="text-[10px] sm:text-sm text-gray-500 mt-0.5 sm:mt-1">
                         {totalTicals} {language === 'en' ? 'Ticals' : 'ကျပ်သား'}
                       </div>
                     </div>
                   </div>
                   {totalTicals === 0 && (
-                    <p className="text-center mt-2 font-bold text-sm sm:text-lg text-primary-600">
+                    <p className="text-center mt-2 font-bold text-xs sm:text-lg text-primary-600">
                       {language === 'en' ? 'Enter weights to calculate' : 'အလေးချိန် ထည့်ပါ'}
                     </p>
                   )}
                 </div>
 
-                <div className="space-y-6 mb-24">
+                <div className="space-y-4 sm:space-y-6 mb-24">
                   {Object.entries(selectedOils).map(([oilId, data]) => {
                     const oil = oils.find((o) => o.id === parseInt(oilId));
                     if (!oil) return null;
                     const name = language === 'en' ? oil.name_en : oil.name_my;
 
                     return (
-                      <div key={oilId} className="card border-2 border-gray-100 hover:border-primary-100 transition-all p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-2xl font-bold text-gray-800">{name}</h3>
-                          <div className="text-primary-600 font-bold bg-primary-50 px-3 py-1 rounded-lg text-center">
-                            <div>{parseFloat(oil.price_per_unit).toLocaleString()} MMK</div>
-                            <div className="text-xs text-gray-600 font-normal">
+                      <div key={oilId} className="card border-2 border-gray-100 hover:border-primary-100 transition-all p-3 sm:p-6">
+                        <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
+                          <h3 className="text-base sm:text-2xl font-bold text-gray-800 truncate flex-1">{name}</h3>
+                          <div className="text-primary-600 font-bold bg-primary-50 px-2 sm:px-3 py-1 rounded-lg text-center flex-shrink-0">
+                            <div className="text-sm sm:text-base">{parseFloat(oil.price_per_unit).toLocaleString()} MMK</div>
+                            <div className="text-[10px] sm:text-xs text-gray-600 font-normal whitespace-nowrap">
                               {language === 'en' ? 'per' : 'တစ်'} {getUnitLabel(oil.unit || 'viss', language)}
                             </div>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-4 mb-4">
+                        <div className="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
                           <input
                             type="number"
                             value={data.ticals || ''}
                             onChange={(e) => handleWeightChange(oilId, e.target.value)}
-                            className="flex-1 text-4xl font-black text-center py-5 border-4 border-gray-100 rounded-2xl focus:border-primary-500 transition-all outline-none"
+                            className="flex-1 text-2xl sm:text-4xl font-black text-center py-3 sm:py-5 border-2 sm:border-4 border-gray-100 rounded-xl sm:rounded-2xl focus:border-primary-500 transition-all outline-none"
                             placeholder="0"
                             min="0"
                             step="1"
                           />
-                          <span className="text-2xl font-black text-gray-600 bg-gray-100 px-3 py-2 rounded-lg">
+                          <span className="text-sm sm:text-2xl font-black text-gray-600 bg-gray-100 px-2 sm:px-3 py-2 rounded-lg whitespace-nowrap text-center" style={{minWidth: '60px'}}>
                             {language === 'en' ? 'Ticals' : 'ကျပ်သား'}
                           </span>
                         </div>
 
                         {/* Quick Tical Buttons - Common weights */}
-                        <div className="grid grid-cols-5 gap-2">
+                        <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
                           {[10, 25, 50, 75, 100].map((ticals) => (
                             <button
                               key={ticals}
                               onClick={() => handleQuickWeight(oilId, ticals)}
-                              className="bg-gray-100 hover:bg-primary-500 hover:text-white text-gray-700 font-bold py-3 rounded-xl transition-all text-lg shadow-sm"
+                              className="bg-gray-100 hover:bg-primary-500 active:bg-primary-600 hover:text-white text-gray-700 font-bold py-2 sm:py-3 rounded-lg sm:rounded-xl transition-all text-sm sm:text-lg shadow-sm"
                             >
                               {ticals}
                             </button>
                           ))}
                         </div>
-                        <p className="text-xs text-gray-500 mt-2 text-center">
+                        <p className="text-[10px] sm:text-xs text-gray-500 mt-1.5 sm:mt-2 text-center">
                           {language === 'en' ? '💡 Tap quick buttons or type custom amount' : '💡 အမြန်ခလုတ် သို့မဟုတ် စိတ်ကြိုက် ရိုက်ထည့်ပါ'}
                         </p>
                       </div>
