@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getUnitOptions } from '../utils/units';
+import { AVAILABLE_UNITS } from '../utils/units';
 
 /**
  * OilForm component
@@ -182,7 +182,7 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
       {/* Unit of Measurement */}
       <div>
         <label className="block text-base sm:text-tablet font-semibold text-gray-700 mb-2">
-          Measurement Unit *
+          Unit of Measurement *
         </label>
         <select
           name="unit"
@@ -191,17 +191,14 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
           className="input-field text-base sm:text-lg py-3 font-semibold"
           style={{ minHeight: '50px' }}
         >
-          {getUnitOptions('en').map(option => {
-            const myOption = getUnitOptions('my').find(u => u.value === option.value);
-            return (
-              <option key={option.value} value={option.value}>
-                {option.label} ({myOption?.label || option.label})
-              </option>
-            );
-          })}
+          {AVAILABLE_UNITS.map(unit => (
+            <option key={unit.value} value={unit.value}>
+              {unit.label_en}
+            </option>
+          ))}
         </select>
         <p className="text-sm text-gray-500 mt-2">
-          💡 <strong>Viss (ပဲ)</strong> is the traditional Myanmar weight unit (~1.633 kg). Most oil shops in Myanmar use Viss.
+          💡 <strong>Viss (ပိဿာ)</strong> is the traditional Myanmar weight unit (~1.6 kg). Most oil shops use Viss.
         </p>
       </div>
 

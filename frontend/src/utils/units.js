@@ -1,85 +1,70 @@
 /**
- * Myanmar traditional measurement units for oil
- * Utilities for handling different weight/volume units
+ * Unit translations and utilities for Myanmar oil measurements
  */
 
-// Unit definitions with translations
-export const UNITS = {
+// Unit display names in English and Myanmar
+export const UNIT_LABELS = {
   viss: {
     en: 'Viss',
-    my: 'ပဲ',
-    description_en: 'Traditional Myanmar unit (≈ 1.633 kg)',
-    description_my: 'မြန်မာ့ရိုးရာ အလေးချိန်စနစ်'
+    my: 'ပိဿာ',
+    symbol: 'ပိဿာ'
   },
   liter: {
     en: 'Liter',
     my: 'လီတာ',
-    description_en: 'Volume measurement',
-    description_my: 'ထုထည် တိုင်းတာမှု'
+    symbol: 'L'
   },
   kg: {
     en: 'Kilogram',
     my: 'ကီလိုဂရမ်',
-    description_en: 'Metric weight unit',
-    description_my: 'မက်ထရစ် အလေးချိန်'
+    symbol: 'kg'
   },
-  kyat_thar: {
-    en: 'Kyat Thar',
-    my: 'ကျပ်သား',
-    description_en: '1/100 of a Viss',
-    description_my: 'ပဲတစ်ခု၏ တစ်ပုံတစ်ရာ'
+  gallon: {
+    en: 'Gallon',
+    my: 'ဂါလံ',
+    symbol: 'gal'
   }
 };
 
+// Available units for admin selection
+export const AVAILABLE_UNITS = [
+  { value: 'viss', label_en: 'Viss (ပိဿာ)', label_my: 'ပိဿာ' },
+  { value: 'liter', label_en: 'Liter (လီတာ)', label_my: 'လီတာ' },
+  { value: 'kg', label_en: 'Kilogram (ကီလိုဂရမ်)', label_my: 'ကီလိုဂရမ်' },
+  { value: 'gallon', label_en: 'Gallon (ဂါလံ)', label_my: 'ဂါလံ' }
+];
+
 /**
- * Get unit label based on language
- * @param {string} unit - Unit key (viss, liter, kg, kyat_thar)
- * @param {string} language - Language code (en, my)
- * @returns {string} Localized unit label
+ * Get the unit display string for a given unit and language
+ * @param {string} unit - The unit code (viss, liter, kg, etc.)
+ * @param {string} language - The language code (en or my)
+ * @returns {string} The localized unit name
  */
 export const getUnitLabel = (unit, language = 'en') => {
-  if (!unit || !UNITS[unit]) {
-    return language === 'en' ? 'Unit' : 'ယူနစ်';
-  }
-  return UNITS[unit][language];
+  const unitData = UNIT_LABELS[unit] || UNIT_LABELS.viss;
+  return language === 'my' ? unitData.my : unitData.en;
 };
 
 /**
- * Get unit description based on language
- * @param {string} unit - Unit key
- * @param {string} language - Language code
- * @returns {string} Localized unit description
+ * Get the unit symbol
+ * @param {string} unit - The unit code
+ * @returns {string} The unit symbol
  */
-export const getUnitDescription = (unit, language = 'en') => {
-  if (!unit || !UNITS[unit]) {
-    return '';
-  }
-  return UNITS[unit][`description_${language}`];
+export const getUnitSymbol = (unit) => {
+  const unitData = UNIT_LABELS[unit] || UNIT_LABELS.viss;
+  return unitData.symbol;
 };
 
 /**
- * Get all available units as options for select dropdown
- * @param {string} language - Language code
- * @returns {Array} Array of {value, label} objects
+ * Format price with unit
+ * @param {number} price - The price value
+ * @param {string} unit - The unit code
+ * @param {string} language - The language code
+ * @returns {string} Formatted price with unit
  */
-export const getUnitOptions = (language = 'en') => {
-  return Object.keys(UNITS).map(key => ({
-    value: key,
-    label: UNITS[key][language]
-  }));
-};
-
-/**
- * Format quantity with unit
- * @param {number} quantity - Amount
- * @param {string} unit - Unit key
- * @param {string} language - Language code
- * @returns {string} Formatted string (e.g., "5 Viss", "3 ပဲ")
- */
-export const formatQuantityWithUnit = (quantity, unit, language = 'en') => {
+export const formatPriceWithUnit = (price, unit, language = 'en') => {
+  const formattedPrice = parseFloat(price).toLocaleString();
   const unitLabel = getUnitLabel(unit, language);
-  return `${quantity} ${unitLabel}`;
+  return `${formattedPrice} MMK / ${unitLabel}`;
 };
 
-// Export for backwards compatibility
-export const AVAILABLE_UNITS = UNITS;

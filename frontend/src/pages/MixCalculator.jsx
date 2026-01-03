@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getOils } from '../api/api';
 import { OilCard } from '../components/OilCard';
 import { LanguageToggle } from '../components/LanguageToggle';
-import { getUnitLabel, formatQuantityWithUnit } from '../utils/units';
+import { getUnitLabel } from '../utils/units';
 import enTranslations from '../i18n/en.json';
 import myTranslations from '../i18n/my.json';
 
@@ -17,11 +17,10 @@ export const MixCalculator = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Selected oils with their percentages
+  // Selected oils with their weights in Ticals (Myanmar weight system)
   const [selectedOils, setSelectedOils] = useState({});
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
-  const [quantity, setQuantity] = useState(1); // How many Viss/Liters customer wants
 
   const t = language === 'en' ? enTranslations : myTranslations;
 
@@ -49,7 +48,7 @@ export const MixCalculator = () => {
     if (isChecked) {
       setSelectedOils((prev) => ({
         ...prev,
-        [oilId]: { percentage: 0 },
+        [oilId]: { ticals: 0 }, // Weight in Ticals instead of percentage
       }));
     } else {
       setSelectedOils((prev) => {
@@ -71,12 +70,12 @@ export const MixCalculator = () => {
     window.scrollTo(0, 0);
   };
 
-  // Handle percentage input change
-  const handlePercentageChange = (oilId, value) => {
-    const percentage = parseFloat(value) || 0;
+  // Handle weight input change (in Ticals)
+  const handleWeightChange = (oilId, value) => {
+    const ticals = parseFloat(value) || 0;
     setSelectedOils((prev) => ({
       ...prev,
-      [oilId]: { percentage: Math.max(0, Math.min(100, percentage)) },
+      [oilId]: { ticals: Math.max(0, ticals) }, // No upper limit on ticals
     }));
   };
 
@@ -96,12 +95,11 @@ export const MixCalculator = () => {
     setSelectedOils({});
     setCurrentStep(1);
     setShowSuccessModal(false);
-    setQuantity(1);
   };
 
-  // Quick percentage buttons
-  const handleQuickPercentage = (oilId, percentage) => {
-    handlePercentageChange(oilId, percentage);
+  // Quick weight buttons (common Tical amounts)
+  const handleQuickWeight = (oilId, ticals) => {
+    handleWeightChange(oilId, ticals);
   };
 
   // Print calculation
@@ -115,44 +113,45 @@ export const MixCalculator = () => {
       .map(([oilId, data]) => {
         const oil = oils.find((o) => o.id === parseInt(oilId));
         const name = language === 'en' ? oil.name_en : oil.name_my;
-        return `${name}: ${data.percentage}%`;
+        return `${name}: ${data.ticals} ${language === 'en' ? 'Ticals' : 'ကျပ်သား'}`;
       })
       .join('\n');
     
-    const unitLabel = getUnitLabel(commonUnit, language);
-    const shareText = `${t.common.appName}\n\n${mixDetails}\n\n${language === 'en' ? 'Price per' : 'ဈေးနှုန်း'} ${unitLabel}: ${pricePerUnit?.toLocaleString()} MMK\n${language === 'en' ? 'Quantity' : 'အရေအတွက်'}: ${quantity} ${unitLabel}\n${language === 'en' ? 'Total Price' : 'စုစုပေါင်း ဈေးနှုန်း'}: ${totalPrice?.toLocaleString()} MMK`;
+    const shareText = `${t.common.appName}\n\n${mixDetails}\n\n${language === 'en' ? 'Total Weight' : 'စုစုပေါင်း အလေးချိန်'}: ${totalViss.toFixed(2)} ${language === 'en' ? 'Viss' : 'ပိဿာ'} (${totalTicals} ${language === 'en' ? 'Ticals' : 'ကျပ်သား'})\n${language === 'en' ? 'Total Price' : 'စုစုပေါင်း ဈေးနှုန်း'}: ${totalPrice?.toLocaleString()} MMK`;
     
     navigator.clipboard.writeText(shareText).then(() => {
       alert(language === 'en' ? 'Calculation copied to clipboard!' : 'တွက်ချက်မှုကို ကူးယူပြီးပါပြီ!');
     });
   };
 
-  // Calculate total percentage
-  const totalPercentage = Object.values(selectedOils).reduce(
-    (sum, oil) => sum + oil.percentage,
+  // Calculate total weight in Ticals
+  const totalTicals = Object.values(selectedOils).reduce(
+    (sum, oil) => sum + oil.ticals,
     0
   );
 
-  // Calculate total price (weighted average)
+  // Convert to Viss (1 Viss = 100 Ticals)
+  const totalViss = totalTicals / 100;
+
+  // Calculate total price based on actual weights
   const calculateTotalPrice = () => {
-    if (totalPercentage !== 100) {
-      return null;
-    }
+    if (totalTicals === 0) return null;
 
     let totalPrice = 0;
     Object.entries(selectedOils).forEach(([oilId, data]) => {
       const oil = oils.find((o) => o.id === parseInt(oilId));
-      if (oil) {
-        totalPrice += (parseFloat(oil.price_per_unit) * data.percentage) / 100;
+      if (oil && data.ticals > 0) {
+        // Price = (price_per_viss * ticals) / 100
+        const vissAmount = data.ticals / 100;
+        totalPrice += parseFloat(oil.price_per_unit) * vissAmount;
       }
     });
 
     return totalPrice;
   };
 
-  const pricePerUnit = calculateTotalPrice();
-  const totalPrice = pricePerUnit ? pricePerUnit * quantity : null;
-  const isValidMix = totalPercentage === 100;
+  const totalPrice = calculateTotalPrice();
+  const isValidMix = totalTicals > 0; // Any amount is valid
   const hasSelectedOils = Object.keys(selectedOils).length > 0;
   
   // Get the common unit from selected oils (assuming all use same unit)
@@ -299,44 +298,46 @@ export const MixCalculator = () => {
 
             {/* STEP 2: SET PERCENTAGES */}
             {currentStep === 2 && (
-              <div className="animate-fadeIn">
+               <div className="animate-fadeIn">
                 <div className="text-center mb-8">
                   <h2 className="text-3xl font-bold text-gray-800 mb-2">
-                    {language === 'en' ? 'Set Mixing Proportions' : 'ရောစပ်မည့် ရာခိုင်နှုန်း သတ်မှတ်ပါ'}
+                    {language === 'en' ? 'Enter Weights (Ticals)' : 'အလေးချိန် ထည့်ပါ (ကျပ်သား)'}
                   </h2>
                   <p className="text-lg text-gray-600">
-                    {language === 'en' ? 'Adjust percentages to reach 100%' : 'စုစုပေါင်း ၁၀၀% ဖြစ်အောင် ညှိပါ'}
+                    {language === 'en' ? 'How many Ticals of each oil?' : 'ဆီ တစ်မျိုးချင်းစီ မည်မျှ ကျပ်သား?'}
                   </p>
                 </div>
 
-                {/* Sticky Total Indicator */}
+                {/* Sticky Total Weight Indicator */}
                 <div className={`sticky top-24 z-20 mb-8 p-6 rounded-2xl shadow-xl border-2 transition-all ${
                   isValidMix ? 'bg-green-50 border-green-500' : 'bg-white border-primary-200'
                 }`}>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xl font-bold text-gray-700">
-                      {language === 'en' ? 'Total Percentage' : 'စုစုပေါင်း ရာခိုင်နှုန်း'}
-                    </span>
-                    <span className={`text-4xl font-black ${
-                      isValidMix ? 'text-green-600' : totalPercentage > 100 ? 'text-red-600' : 'text-primary-600'
-                    }`}>
-                      {totalPercentage.toFixed(0)}%
-                    </span>
+                    <div>
+                      <span className="text-xl font-bold text-gray-700 block">
+                        {language === 'en' ? 'Total Weight' : 'စုစုပေါင်း အလေးချိန်'}
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        {language === 'en' ? '100 Ticals = 1 Viss' : '၁၀၀ ကျပ်သား = ၁ ပိဿာ'}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className={`text-4xl font-black block ${
+                        isValidMix ? 'text-green-600' : 'text-primary-600'
+                      }`}>
+                        {totalViss.toFixed(2)}
+                      </span>
+                      <span className="text-lg font-bold text-gray-600">
+                        {language === 'en' ? 'Viss (ပိဿာ)' : 'ပိဿာ'}
+                      </span>
+                      <div className="text-sm text-gray-500 mt-1">
+                        {totalTicals} {language === 'en' ? 'Ticals' : 'ကျပ်သား'}
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden shadow-inner">
-                    <div
-                      className={`h-full transition-all duration-500 ${
-                        isValidMix ? 'bg-green-500' : totalPercentage > 100 ? 'bg-red-500' : 'bg-primary-500'
-                      }`}
-                      style={{ width: `${Math.min(totalPercentage, 100)}%` }}
-                    />
-                  </div>
-                  {totalPercentage !== 100 && (
-                    <p className={`text-center mt-3 font-bold text-lg ${totalPercentage > 100 ? 'text-red-600' : 'text-primary-600'}`}>
-                      {totalPercentage > 100 
-                        ? (language === 'en' ? `Reduce by ${(totalPercentage - 100).toFixed(0)}%` : `${(totalPercentage - 100).toFixed(0)}% လျှော့ပါ`)
-                        : (language === 'en' ? `Add ${(100 - totalPercentage).toFixed(0)}% more` : `${(100 - totalPercentage).toFixed(0)}% ထပ်ပေါင်းပါ`)
-                      }
+                  {totalTicals === 0 && (
+                    <p className="text-center mt-3 font-bold text-lg text-primary-600">
+                      {language === 'en' ? 'Enter weights to calculate price' : 'ဈေးနှုန်း တွက်ချက်ရန် အလေးချိန် ထည့်ပါ'}
                     </p>
                   )}
                 </div>
@@ -362,60 +363,36 @@ export const MixCalculator = () => {
                         <div className="flex items-center gap-4 mb-4">
                           <input
                             type="number"
-                            value={data.percentage || ''}
-                            onChange={(e) => handlePercentageChange(oilId, e.target.value)}
+                            value={data.ticals || ''}
+                            onChange={(e) => handleWeightChange(oilId, e.target.value)}
                             className="flex-1 text-4xl font-black text-center py-5 border-4 border-gray-100 rounded-2xl focus:border-primary-500 transition-all outline-none"
                             placeholder="0"
+                            min="0"
+                            step="1"
                           />
-                          <span className="text-4xl font-black text-gray-400">%</span>
+                          <span className="text-2xl font-black text-gray-600 bg-gray-100 px-3 py-2 rounded-lg">
+                            {language === 'en' ? 'Ticals' : 'ကျပ်သား'}
+                          </span>
                         </div>
 
-                        <div className="grid grid-cols-4 gap-3">
-                          {[25, 33, 50, 100].map((percent) => (
+                        {/* Quick Tical Buttons - Common weights */}
+                        <div className="grid grid-cols-5 gap-2">
+                          {[10, 25, 50, 75, 100].map((ticals) => (
                             <button
-                              key={percent}
-                              onClick={() => handleQuickPercentage(oilId, percent)}
-                              className="bg-gray-100 hover:bg-primary-500 hover:text-white text-gray-700 font-bold py-4 rounded-xl transition-all text-xl shadow-sm"
+                              key={ticals}
+                              onClick={() => handleQuickWeight(oilId, ticals)}
+                              className="bg-gray-100 hover:bg-primary-500 hover:text-white text-gray-700 font-bold py-3 rounded-xl transition-all text-lg shadow-sm"
                             >
-                              {percent}%
+                              {ticals}
                             </button>
                           ))}
                         </div>
+                        <p className="text-xs text-gray-500 mt-2 text-center">
+                          {language === 'en' ? '💡 Tap quick buttons or type custom amount' : '💡 အမြန်ခလုတ် သို့မဟုတ် စိတ်ကြိုက် ရိုက်ထည့်ပါ'}
+                        </p>
                       </div>
                     );
                   })}
-                </div>
-
-                {/* Quantity Input - How many Viss/Liters */}
-                <div className="card bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 p-6 mb-24">
-                  <h3 className="text-2xl font-bold text-gray-800 mb-4">
-                    {language === 'en' ? '🛒 How much do you need?' : '🛒 မည်မျှ လိုအပ်ပါသလဲ?'}
-                  </h3>
-                  <div className="flex items-center gap-4">
-                    <input
-                      type="number"
-                      value={quantity}
-                      onChange={(e) => setQuantity(Math.max(0.1, parseFloat(e.target.value) || 1))}
-                      min="0.1"
-                      step="0.5"
-                      className="flex-1 text-4xl font-black text-center py-5 border-4 border-blue-200 rounded-2xl focus:border-blue-500 transition-all outline-none bg-white"
-                      placeholder="1"
-                    />
-                    <span className="text-3xl font-black text-gray-700 bg-blue-100 px-4 py-3 rounded-xl">
-                      {getUnitLabel(commonUnit, language)}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-5 gap-3 mt-4">
-                    {[1, 2, 5, 10, 20].map((qty) => (
-                      <button
-                        key={qty}
-                        onClick={() => setQuantity(qty)}
-                        className="bg-blue-100 hover:bg-blue-500 hover:text-white text-blue-700 font-bold py-3 rounded-xl transition-all text-lg"
-                      >
-                        {qty}
-                      </button>
-                    ))}
-                  </div>
                 </div>
 
                 {/* Footer Navigation */}
@@ -458,29 +435,36 @@ export const MixCalculator = () => {
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 mb-10">
-                  {/* Price per Unit */}
+                  {/* Total Weight Display */}
                   <div className="bg-blue-500 p-6 text-white text-center border-b-4 border-blue-600">
                     <p className="text-lg opacity-90 mb-1 font-bold">
-                      {language === 'en' ? 'Mixed Oil Price per' : 'ရောစပ်ဆီ ဈေးနှုန်း'} {getUnitLabel(commonUnit, language)}
+                      {language === 'en' ? 'Total Mixed Oil Weight' : 'စုစုပေါင်း ရောစပ်ဆီ အလေးချိန်'}
                     </p>
-                    <div className="flex items-center justify-center gap-2">
-                      <span className="text-4xl font-black leading-none">
-                        {pricePerUnit?.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </span>
-                      <span className="text-xl font-bold">MMK</span>
+                    <div className="flex items-center justify-center gap-3">
+                      <div className="text-center">
+                        <span className="text-4xl font-black leading-none block">
+                          {totalViss.toFixed(2)}
+                        </span>
+                        <span className="text-sm font-bold opacity-90">
+                          {language === 'en' ? 'Viss (ပိဿာ)' : 'ပိဿာ'}
+                        </span>
+                      </div>
+                      <span className="text-2xl">=</span>
+                      <div className="text-center">
+                        <span className="text-4xl font-black leading-none block">
+                          {totalTicals}
+                        </span>
+                        <span className="text-sm font-bold opacity-90">
+                          {language === 'en' ? 'Ticals (ကျပ်သား)' : 'ကျပ်သား'}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   
-                  {/* Total Price for Quantity */}
+                  {/* Total Price */}
                   <div className="bg-primary-500 p-8 text-white text-center">
-                    <p className="text-sm opacity-90 mb-2">
-                      {formatQuantityWithUnit(quantity, commonUnit, language)}
-                    </p>
                     <p className="text-xl opacity-90 mb-2 uppercase tracking-widest font-bold">
-                      {language === 'en' ? 'Total Price' : 'စုစုပေါင်း ဈေးနှုန်း'}
+                      {language === 'en' ? 'Total Price to Pay' : 'စုစုပေါင်း ပေးရမည့် ဈေးနှုန်း'}
                     </p>
                     <div className="flex items-center justify-center gap-2">
                       <span className="text-6xl font-black leading-none">
@@ -495,23 +479,43 @@ export const MixCalculator = () => {
 
                   <div className="p-8">
                     <h3 className="text-xl font-bold text-gray-400 uppercase tracking-wider mb-6 border-b pb-4">
-                      {language === 'en' ? 'Composition' : 'ပါဝင်မှု အစိတ်အပိုင်းများ'}
+                      {language === 'en' ? 'Mix Breakdown' : 'ရောစပ်မှု အသေးစိတ်'}
                     </h3>
                     <div className="space-y-6">
                       {Object.entries(selectedOils).map(([oilId, data]) => {
                         const oil = oils.find((o) => o.id === parseInt(oilId));
                         if (!oil) return null;
                         const name = language === 'en' ? oil.name_en : oil.name_my;
+                        const vissAmount = data.ticals / 100;
+                        const itemPrice = parseFloat(oil.price_per_unit) * vissAmount;
                         return (
-                          <div key={oilId} className="flex justify-between items-center group">
-                            <div className="flex flex-col">
-                              <span className="text-2xl font-black text-gray-800">{name}</span>
-                              <span className="text-gray-500 font-bold">
-                                {parseFloat(oil.price_per_unit).toLocaleString()} MMK / {getUnitLabel(oil.unit || 'viss', language)}
-                              </span>
+                          <div key={oilId} className="border-b border-gray-200 pb-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex flex-col">
+                                <span className="text-2xl font-black text-gray-800">{name}</span>
+                                <span className="text-gray-500 font-semibold text-sm">
+                                  {parseFloat(oil.price_per_unit).toLocaleString()} MMK / {getUnitLabel(oil.unit || 'viss', language)}
+                                </span>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-3xl font-black text-primary-600 bg-primary-50 px-4 py-2 rounded-2xl">
+                                  {data.ticals} <span className="text-lg">{language === 'en' ? 'Ticals' : 'ကျပ်သား'}</span>
+                                </div>
+                                <div className="text-sm text-gray-600 mt-1">
+                                  = {vissAmount.toFixed(2)} {language === 'en' ? 'Viss' : 'ပိဿာ'}
+                                </div>
+                              </div>
                             </div>
-                            <div className="text-3xl font-black text-primary-600 bg-primary-50 px-4 py-2 rounded-2xl">
-                              {data.percentage}%
+                            <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+                              <span className="text-sm font-semibold text-gray-600">
+                                {language === 'en' ? 'Subtotal:' : 'စုစုပေါင်း:'}
+                              </span>
+                              <span className="text-xl font-bold text-gray-800">
+                                {itemPrice.toLocaleString(undefined, {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                })} MMK
+                              </span>
                             </div>
                           </div>
                         );
