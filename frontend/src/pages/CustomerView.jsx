@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getOils } from '../api/api';
 import { OilCard } from '../components/OilCard';
+import { OilDetailModal } from '../components/OilDetailModal';
 import { LanguageToggle } from '../components/LanguageToggle';
 import enTranslations from '../i18n/en.json';
 import myTranslations from '../i18n/my.json';
@@ -15,6 +16,8 @@ export const CustomerView = () => {
   const [oils, setOils] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedOil, setSelectedOil] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const t = language === 'en' ? enTranslations : myTranslations;
 
@@ -36,6 +39,18 @@ export const CustomerView = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Handle oil card click - open modal with full details
+  const handleOilClick = (oil) => {
+    setSelectedOil(oil);
+    setIsModalOpen(true);
+  };
+
+  // Close modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedOil(null);
   };
 
   return (
@@ -151,11 +166,20 @@ export const CustomerView = () => {
                 key={oil.id}
                 oil={oil}
                 language={language}
+                onClick={() => handleOilClick(oil)}
               />
             ))}
           </div>
         )}
       </main>
+
+      {/* Oil Detail Modal */}
+      <OilDetailModal
+        oil={selectedOil}
+        language={language}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
 
       {/* Admin login link (subtle) */}
       <div className="fixed bottom-4 right-4">

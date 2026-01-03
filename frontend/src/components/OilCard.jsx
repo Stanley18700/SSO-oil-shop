@@ -26,7 +26,7 @@ export const OilCard = ({ oil, language, onClick, showCheckbox, checked, onCheck
         showCheckbox 
           ? 'cursor-pointer select-none' 
           : onClick 
-          ? 'cursor-pointer' 
+          ? 'cursor-pointer hover:shadow-lg hover:scale-[1.02]' 
           : ''
       } ${
         checked && showCheckbox
@@ -36,10 +36,10 @@ export const OilCard = ({ oil, language, onClick, showCheckbox, checked, onCheck
           : ''
       }`}
       onClick={handleCardClick}
-      role={showCheckbox ? 'button' : undefined}
-      tabIndex={showCheckbox ? 0 : undefined}
+      role={(showCheckbox || onClick) ? 'button' : undefined}
+      tabIndex={(showCheckbox || onClick) ? 0 : undefined}
       onKeyDown={(e) => {
-        if (showCheckbox && (e.key === 'Enter' || e.key === ' ')) {
+        if ((showCheckbox || onClick) && (e.key === 'Enter' || e.key === ' ')) {
           e.preventDefault();
           handleCardClick();
         }
