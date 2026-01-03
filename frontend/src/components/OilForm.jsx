@@ -83,7 +83,7 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* English Name */}
       <div>
-        <label className="block text-tablet font-semibold text-gray-700 mb-2">
+        <label className="block text-base sm:text-tablet font-semibold text-gray-700 mb-2">
           Name (English) *
         </label>
         <input
@@ -91,8 +91,9 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
           name="name_en"
           value={formData.name_en}
           onChange={handleChange}
-          className={`input-field ${errors.name_en ? 'border-red-500' : ''}`}
+          className={`input-field text-base sm:text-tablet py-3 ${errors.name_en ? 'border-red-500' : ''}`}
           placeholder="e.g., Palm Oil"
+          style={{ minHeight: '50px' }}
         />
         {errors.name_en && (
           <p className="text-red-500 text-sm mt-1">{errors.name_en}</p>
@@ -101,7 +102,7 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
 
       {/* Myanmar Name */}
       <div>
-        <label className="block text-tablet font-semibold text-gray-700 mb-2">
+        <label className="block text-base sm:text-tablet font-semibold text-gray-700 mb-2">
           Name (Myanmar) *
         </label>
         <input
@@ -109,8 +110,9 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
           name="name_my"
           value={formData.name_my}
           onChange={handleChange}
-          className={`input-field ${errors.name_my ? 'border-red-500' : ''}`}
+          className={`input-field text-base sm:text-tablet py-3 ${errors.name_my ? 'border-red-500' : ''}`}
           placeholder="e.g., ထန်းဆီ"
+          style={{ minHeight: '50px' }}
         />
         {errors.name_my && (
           <p className="text-red-500 text-sm mt-1">{errors.name_my}</p>
@@ -119,7 +121,7 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
 
       {/* English Description */}
       <div>
-        <label className="block text-tablet font-semibold text-gray-700 mb-2">
+        <label className="block text-base sm:text-tablet font-semibold text-gray-700 mb-2">
           Description (English) *
         </label>
         <textarea
@@ -127,7 +129,7 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
           value={formData.description_en}
           onChange={handleChange}
           rows="3"
-          className={`input-field ${errors.description_en ? 'border-red-500' : ''}`}
+          className={`input-field text-base py-3 ${errors.description_en ? 'border-red-500' : ''}`}
           placeholder="Describe the oil in English"
         />
         {errors.description_en && (
@@ -137,7 +139,7 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
 
       {/* Myanmar Description */}
       <div>
-        <label className="block text-tablet font-semibold text-gray-700 mb-2">
+        <label className="block text-base sm:text-tablet font-semibold text-gray-700 mb-2">
           Description (Myanmar) *
         </label>
         <textarea
@@ -145,7 +147,7 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
           value={formData.description_my}
           onChange={handleChange}
           rows="3"
-          className={`input-field ${errors.description_my ? 'border-red-500' : ''}`}
+          className={`input-field text-base py-3 ${errors.description_my ? 'border-red-500' : ''}`}
           placeholder="ဆီအကြောင်း မြန်မာဘာသာဖြင့် ဖော်ပြပါ"
         />
         {errors.description_my && (
@@ -155,7 +157,7 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
 
       {/* Price */}
       <div>
-        <label className="block text-tablet font-semibold text-gray-700 mb-2">
+        <label className="block text-base sm:text-tablet font-semibold text-gray-700 mb-2">
           Price per Unit (MMK) *
         </label>
         <input
@@ -165,8 +167,9 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
           onChange={handleChange}
           step="0.01"
           min="0"
-          className={`input-field ${errors.price_per_unit ? 'border-red-500' : ''}`}
+          className={`input-field text-lg sm:text-xl py-3 font-bold ${errors.price_per_unit ? 'border-red-500' : ''}`}
           placeholder="e.g., 3500"
+          style={{ minHeight: '50px' }}
         />
         {errors.price_per_unit && (
           <p className="text-red-500 text-sm mt-1">{errors.price_per_unit}</p>
@@ -175,7 +178,7 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
 
       {/* Image URL */}
       <div>
-        <label className="block text-tablet font-semibold text-gray-700 mb-2">
+        <label className="block text-base sm:text-tablet font-semibold text-gray-700 mb-2">
           Image URL (optional)
         </label>
         <input
@@ -183,40 +186,63 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
           name="image_url"
           value={formData.image_url}
           onChange={handleChange}
-          className="input-field"
+          className="input-field text-base py-3"
           placeholder="https://example.com/image.jpg"
+          style={{ minHeight: '50px' }}
         />
+        {/* Image Preview */}
+        {formData.image_url && (
+          <div className="mt-3 rounded-lg overflow-hidden bg-gray-100 h-40 flex items-center justify-center border-2 border-gray-300">
+            <img
+              src={formData.image_url}
+              alt="Preview"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.parentElement.innerHTML = '<p class="text-red-500 text-sm">❌ Invalid image URL</p>';
+              }}
+            />
+          </div>
+        )}
       </div>
 
-      {/* Active Status */}
-      <div className="flex items-center gap-3">
-        <input
-          type="checkbox"
-          name="is_active"
-          id="is_active"
-          checked={formData.is_active}
-          onChange={handleChange}
-          className="w-5 h-5 cursor-pointer"
-        />
-        <label htmlFor="is_active" className="text-tablet font-semibold text-gray-700 cursor-pointer">
-          Active (visible to customers)
-        </label>
+      {/* Active Status - Better mobile toggle */}
+      <div className="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
+        <div className="flex items-center justify-between">
+          <label htmlFor="is_active" className="text-base sm:text-tablet font-semibold text-gray-700 cursor-pointer">
+            Active Status
+          </label>
+          <div className="flex items-center gap-3">
+            <span className={`text-sm font-medium ${formData.is_active ? 'text-green-600' : 'text-gray-400'}`}>
+              {formData.is_active ? 'Visible to customers' : 'Hidden'}
+            </span>
+            <input
+              type="checkbox"
+              name="is_active"
+              id="is_active"
+              checked={formData.is_active}
+              onChange={handleChange}
+              className="w-6 h-6 cursor-pointer"
+            />
+          </div>
+        </div>
       </div>
 
-      {/* Action buttons */}
-      <div className="flex gap-4 pt-4">
+      {/* Action buttons - LARGER for mobile */}
+      <div className="flex gap-3 pt-4">
         <button
           type="submit"
           disabled={isLoading}
-          className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn-primary flex-1 text-base sm:text-lg py-4 disabled:opacity-50 disabled:cursor-not-allowed font-bold"
+          style={{ minHeight: '56px' }}
         >
-          {isLoading ? 'Saving...' : oil ? 'Update Oil' : 'Create Oil'}
+          {isLoading ? '💾 Saving...' : oil ? '✓ Update Oil' : '+ Create Oil'}
         </button>
         <button
           type="button"
           onClick={onCancel}
           disabled={isLoading}
-          className="btn-secondary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn-secondary flex-1 text-base sm:text-lg py-4 disabled:opacity-50 disabled:cursor-not-allowed font-bold"
+          style={{ minHeight: '56px' }}
         >
           Cancel
         </button>

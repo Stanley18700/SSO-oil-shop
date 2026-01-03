@@ -109,22 +109,25 @@ export const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-md">
+      <header className="bg-white shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
               {t.admin.dashboard}
             </h1>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <button
                 onClick={() => navigate('/')}
-                className="btn-secondary text-sm md:text-tablet"
+                className="btn-secondary text-sm sm:text-base py-2 sm:py-3 px-3 sm:px-4"
+                style={{ minHeight: '44px' }}
               >
-                {t.admin.customerView}
+                <span className="hidden sm:inline">{t.admin.customerView}</span>
+                <span className="sm:hidden">👥 View</span>
               </button>
               <button
                 onClick={handleLogout}
-                className="btn-primary text-sm md:text-tablet"
+                className="btn-primary text-sm sm:text-base py-2 sm:py-3 px-3 sm:px-4"
+                style={{ minHeight: '44px' }}
               >
                 {t.common.logout}
               </button>
@@ -149,10 +152,17 @@ export const AdminDashboard = () => {
           </div>
         )}
 
-        {/* Add oil button */}
+        {/* Add oil button - LARGER for mobile */}
         <div className="mb-6">
-          <button onClick={handleCreate} className="btn-primary">
-            + {t.admin.addOil}
+          <button
+            onClick={handleCreate}
+            className="btn-primary w-full sm:w-auto text-xl py-4 px-8 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-shadow"
+            style={{ minHeight: '60px' }}
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            {t.admin.addOil}
           </button>
         </div>
 
@@ -182,74 +192,94 @@ export const AdminDashboard = () => {
             </h3>
           </div>
         ) : (
-          /* Oils table */
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Oil
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Price (MMK)
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {oils.map((oil) => (
-                    <tr key={oil.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div>
-                          <div className="text-sm font-semibold text-gray-900">
-                            {oil.name_en}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {oil.name_my}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-semibold text-gray-900">
-                          {parseFloat(oil.price_per_unit).toLocaleString()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            oil.is_active
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {oil.is_active ? 'Active' : 'Inactive'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          onClick={() => handleEdit(oil)}
-                          className="text-primary-600 hover:text-primary-900 mr-4"
-                        >
-                          {t.common.edit}
-                        </button>
-                        <button
-                          onClick={() => handleDelete(oil)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          {t.common.delete}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          /* Mobile-friendly card layout */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {oils.map((oil) => (
+              <div
+                key={oil.id}
+                className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-5 border border-gray-200"
+              >
+                {/* Oil Image */}
+                {oil.image_url && (
+                  <div className="mb-4 rounded-lg overflow-hidden bg-gray-100 h-40 flex items-center justify-center">
+                    <img
+                      src={oil.image_url}
+                      alt={oil.name_en}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* Oil Names */}
+                <div className="mb-3">
+                  <h3 className="text-lg font-bold text-gray-900 mb-1">
+                    {oil.name_en}
+                  </h3>
+                  <p className="text-base text-gray-600">
+                    {oil.name_my}
+                  </p>
+                </div>
+
+                {/* Price */}
+                <div className="mb-4 bg-primary-50 rounded-lg p-3">
+                  <p className="text-sm text-gray-600 mb-1">Price per unit</p>
+                  <p className="text-2xl font-bold text-primary-700">
+                    {parseFloat(oil.price_per_unit).toLocaleString()} <span className="text-base">MMK</span>
+                  </p>
+                </div>
+
+                {/* Status Toggle - Quick switch */}
+                <div className="mb-4 flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                  <span className="text-sm font-medium text-gray-700">Status:</span>
+                  <button
+                    onClick={async () => {
+                      try {
+                        await updateOil(oil.id, { ...oil, is_active: !oil.is_active });
+                        showSuccess('Status updated!');
+                        fetchOils();
+                      } catch (err) {
+                        setError('Failed to update status: ' + err.message);
+                      }
+                    }}
+                    className={`px-4 py-2 rounded-full font-semibold text-sm transition-all ${
+                      oil.is_active
+                        ? 'bg-green-500 text-white hover:bg-green-600'
+                        : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+                    }`}
+                    style={{ minWidth: '80px', minHeight: '40px' }}
+                  >
+                    {oil.is_active ? '✓ Active' : '✗ Inactive'}
+                  </button>
+                </div>
+
+                {/* Action Buttons - LARGER for mobile */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEdit(oil)}
+                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+                    style={{ minHeight: '50px' }}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    {t.common.edit}
+                  </button>
+                  <button
+                    onClick={() => handleDelete(oil)}
+                    className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+                    style={{ minHeight: '50px' }}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    {t.common.delete}
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </main>
