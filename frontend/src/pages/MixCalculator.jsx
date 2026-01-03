@@ -258,8 +258,11 @@ export const MixCalculator = () => {
                   <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
                     {language === 'en' ? 'Choose Your Oils' : 'ဆီများ ရွေးချယ်ပါ'}
                   </h2>
-                  <p className="text-base sm:text-lg text-gray-600">
+                  <p className="text-base sm:text-lg text-gray-600 mb-1">
                     {language === 'en' ? 'Select at least 2 oils to mix' : 'အနည်းဆုံး ဆီ ၂ မျိုး ရွေးချယ်ပါ'}
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-500">
+                    {language === 'en' ? '💡 Tap anywhere on the card to select' : '💡 ကတ်ပေါ်တွင် နေရာမရွေးထိပါ'}
                   </p>
                 </div>
 
