@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getOils } from '../api/api';
+import { confirmSale, getOils } from '../api/api';
 import { OilCard } from '../components/OilCard';
 import { LanguageToggle } from '../components/LanguageToggle';
 import { getUnitLabel } from '../utils/units';
@@ -9,9 +8,9 @@ import myTranslations from '../i18n/my.json';
 
 /**
  * Mix Calculator - Calculate mixed oil prices by percentage
+ * Used as a full-screen overlay from the owner display.
  */
-export const MixCalculator = () => {
-  const navigate = useNavigate();
+export const MixCalculator = ({ onClose }) => {
   const [language, setLanguage] = useState('en');
   const [oils, setOils] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -21,6 +20,9 @@ export const MixCalculator = () => {
   const [selectedOils, setSelectedOils] = useState({});
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSavingSale, setIsSavingSale] = useState(false);
+  const [saleSaved, setSaleSaved] = useState(false);
+  const [saleSaveError, setSaleSaveError] = useState('');
 
   const t = language === 'en' ? enTranslations : myTranslations;
 
@@ -87,7 +89,9 @@ export const MixCalculator = () => {
   // Handle close modal and return
   const handleCloseAndReturn = () => {
     setShowSuccessModal(false);
-    navigate('/');
+    if (onClose) {
+      onClose();
+    }
   };
 
   // Reset calculator
@@ -95,6 +99,9 @@ export const MixCalculator = () => {
     setSelectedOils({});
     setCurrentStep(1);
     setShowSuccessModal(false);
+    setIsSavingSale(false);
+    setSaleSaved(false);
+    setSaleSaveError('');
   };
 
   // Quick weight buttons (common Tical amounts)
@@ -159,6 +166,47 @@ export const MixCalculator = () => {
     ? oils.find(o => o.id === parseInt(Object.keys(selectedOils)[0]))?.unit || 'viss'
     : 'viss';
 
+  const buildSalePayload = () => {
+    const items = Object.entries(selectedOils)
+      .filter(([, data]) => (data?.ticals || 0) > 0)
+      .map(([oilId, data]) => {
+        const oil = oils.find((o) => o.id === parseInt(oilId));
+        const quantityViss = (data.ticals || 0) / 100;
+        const lineAmount = oil ? parseFloat(oil.price_per_unit) * quantityViss : 0;
+        return {
+          oilId: parseInt(oilId),
+          quantity: quantityViss,
+          lineAmount,
+        };
+      });
+
+    const saleType = items.length <= 1 ? 'SINGLE_OIL' : 'MIX';
+
+    return {
+      totalAmount: totalPrice || 0,
+      totalQuantity: totalViss,
+      saleType,
+      note: null,
+      items,
+    };
+  };
+
+  const handleConfirmSale = async () => {
+    if (!isValidMix || !totalPrice || isSavingSale || saleSaved) return;
+
+    setIsSavingSale(true);
+    setSaleSaveError('');
+    try {
+      const payload = buildSalePayload();
+      await confirmSale(payload);
+      setSaleSaved(true);
+    } catch (err) {
+      setSaleSaveError(err?.message || 'Failed to confirm sale');
+    } finally {
+      setIsSavingSale(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header - Mobile optimized */}
@@ -167,7 +215,7 @@ export const MixCalculator = () => {
           <div className="flex items-center justify-between gap-1 sm:gap-2">
             <div className="flex items-center gap-1 sm:gap-2 flex-1 min-w-0">
               <button
-                onClick={() => navigate('/')}
+                  onClick={onClose}
                 className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
               >
                 <svg
@@ -256,10 +304,12 @@ export const MixCalculator = () => {
               <div className="animate-fadeIn pb-24">
                 <div className="text-center mb-6">
                   <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
-                    {language === 'en' ? 'Choose Your Oils' : 'ဆီများ ရွေးချယ်ပါ'}
+                    {language === 'en' ? 'Choose Your Oils' : 'ဆီ(များ) ရွေးချယ်ပါ'}
                   </h2>
                   <p className="text-base sm:text-lg text-gray-600 mb-1">
-                    {language === 'en' ? 'Select at least 2 oils to mix' : 'အနည်းဆုံး ဆီ ၂ မျိုး ရွေးချယ်ပါ'}
+                    {language === 'en'
+                      ? 'Select one or more oils (single or mix)'
+                      : 'ဆီ တစ်မျိုး သို့မဟုတ် အများ မည်မျှမဆို ရွေးချယ်ပါ'}
                   </p>
                   <p className="text-xs sm:text-sm text-gray-500">
                     {language === 'en' ? '💡 Tap anywhere on the card to select' : '💡 ကတ်ပေါ်တွင် နေရာမရွေးထိပါ'}
@@ -290,7 +340,7 @@ export const MixCalculator = () => {
                       )}
                     </div>
                     <button
-                      disabled={Object.keys(selectedOils).length < 2}
+                      disabled={Object.keys(selectedOils).length < 1}
                       onClick={nextStep}
                       className="btn-primary flex-1 py-3 sm:py-4 text-base sm:text-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:grayscale font-bold"
                     >
@@ -400,8 +450,24 @@ export const MixCalculator = () => {
                             </button>
                           ))}
                         </div>
+
+                        {/* Quick Viss Buttons - for larger amounts */}
+                        <div className="mt-2 grid grid-cols-4 gap-1 sm:gap-1.5 md:gap-2">
+                          {[1, 2, 3, 5].map((viss) => (
+                            <button
+                              key={viss}
+                              onClick={() => handleQuickWeight(oilId, viss * 100)}
+                              className="bg-primary-50 hover:bg-primary-500 active:bg-primary-600 hover:text-white text-primary-700 font-bold py-1.5 sm:py-2 md:py-3 rounded-md sm:rounded-lg md:rounded-xl transition-all text-xs sm:text-sm md:text-lg shadow-sm"
+                            >
+                              {viss} {language === 'en' ? 'Viss' : 'ပိဿာ'}
+                            </button>
+                          ))}
+                        </div>
+
                         <p className="text-[9px] sm:text-[10px] md:text-xs text-gray-500 mt-1 sm:mt-1.5 md:mt-2 text-center leading-tight">
-                          {language === 'en' ? '💡 Tap buttons or type amount' : '💡 ခလုတ် သို့မဟုတ် ရိုက်ထည့်ပါ'}
+                          {language === 'en'
+                            ? '💡 Tap Ticals or Viss buttons, or type amount'
+                            : '💡 ကျပ်သား / ပိဿာ ခလုတ်များ သို့မဟုတ် ရိုက်ထည့်ပါ'}
                         </p>
                       </div>
                     );
@@ -538,6 +604,43 @@ export const MixCalculator = () => {
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 mb-20">
+                  <button
+                    onClick={handleConfirmSale}
+                    disabled={!isValidMix || !totalPrice || isSavingSale || saleSaved}
+                    className={`w-full py-5 rounded-2xl text-xl flex items-center justify-center gap-3 shadow-lg font-black transition-all disabled:opacity-50 disabled:grayscale ${
+                      saleSaved
+                        ? 'bg-green-600 text-white'
+                        : 'bg-primary-600 text-white hover:bg-primary-700'
+                    }`}
+                  >
+                    {saleSaved ? (
+                      <>
+                        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                        {language === 'en' ? 'Sale Confirmed' : 'ရောင်းအား သိမ်းပြီးပါပြီ'}
+                      </>
+                    ) : isSavingSale ? (
+                      <>
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                        {language === 'en' ? 'Saving...' : 'သိမ်းနေသည်...'}
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m7 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {language === 'en' ? 'Confirm Sale' : 'ရောင်းအား အတည်ပြုမည်'}
+                      </>
+                    )}
+                  </button>
+
+                  {saleSaveError && (
+                    <div className="text-center text-red-600 text-sm font-semibold">
+                      {saleSaveError}
+                    </div>
+                  )}
+
                   <div className="flex gap-4">
                     <button
                       onClick={handlePrint}
@@ -565,7 +668,7 @@ export const MixCalculator = () => {
                     {language === 'en' ? 'Start New Calculation' : 'အသစ်ပြန်တွက်မည်'}
                   </button>
                   <button
-                    onClick={() => navigate('/')}
+                    onClick={onClose}
                     className="w-full text-primary-600 font-bold py-4 text-lg"
                   >
                     {language === 'en' ? 'Back to Home' : 'ပင်မစာမျက်နှာသို့'}

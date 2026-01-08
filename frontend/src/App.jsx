@@ -4,9 +4,7 @@ import { ProtectedRoute } from './auth/ProtectedRoute';
 
 // Pages
 import { Login } from './pages/Login';
-import { AdminDashboard } from './pages/AdminDashboard';
-import { CustomerView } from './pages/CustomerView';
-import { MixCalculator } from './pages/MixCalculator';
+import { OilDisplay } from './pages/CustomerView';
 
 /**
  * Main App component with routing
@@ -16,17 +14,15 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<CustomerView />} />
-          <Route path="/calculator" element={<MixCalculator />} />
+          {/* Public route */}
           <Route path="/login" element={<Login />} />
 
-          {/* Protected admin routes */}
+          {/* Owner-only app */}
           <Route
-            path="/admin"
+            path="/"
             element={
               <ProtectedRoute>
-                <AdminDashboard />
+                <OilDisplay />
               </ProtectedRoute>
             }
           />

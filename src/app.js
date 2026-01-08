@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const oilRoutes = require('./routes/oilRoutes');
 const authRoutes = require('./routes/authRoutes');
+const saleRoutes = require('./routes/saleRoutes');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/oils', oilRoutes);
+app.use('/api/sales', saleRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

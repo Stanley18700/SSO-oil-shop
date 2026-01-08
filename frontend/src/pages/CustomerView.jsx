@@ -1,23 +1,29 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { getOils } from '../api/api';
 import { OilCard } from '../components/OilCard';
 import { OilDetailModal } from '../components/OilDetailModal';
 import { LanguageToggle } from '../components/LanguageToggle';
+import { MixCalculator } from './MixCalculator';
+import { AdminDashboard } from './AdminDashboard';
+import { MonthlySummary } from './MonthlySummary';
 import enTranslations from '../i18n/en.json';
 import myTranslations from '../i18n/my.json';
 
 /**
- * Customer View - Public tablet-friendly oil display
+ * Oil Display - Owner tablet-friendly oil display
+ * Single home screen used both for updating prices
+ * and showing prices/mix calculations to customers.
  */
-export const CustomerView = () => {
-  const navigate = useNavigate();
+export const OilDisplay = () => {
   const [language, setLanguage] = useState('en');
   const [oils, setOils] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedOil, setSelectedOil] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
+  const [isManagementOpen, setIsManagementOpen] = useState(false);
+  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
 
   const t = language === 'en' ? enTranslations : myTranslations;
 
@@ -26,9 +32,12 @@ export const CustomerView = () => {
     fetchOils();
   }, []);
 
-  // Prevent body scroll when modal is open
+  // Prevent body scroll when any overlay is open
   useEffect(() => {
-    if (isModalOpen) {
+    const anyOverlayOpen =
+      isModalOpen || isCalculatorOpen || isManagementOpen || isSummaryOpen;
+    
+    if (anyOverlayOpen) {
       // Save current scroll position
       const scrollY = window.scrollY;
       // Lock body scroll
@@ -55,7 +64,7 @@ export const CustomerView = () => {
       document.body.style.width = '';
       document.body.style.overflow = '';
     };
-  }, [isModalOpen]);
+  }, [isModalOpen, isCalculatorOpen, isManagementOpen, isSummaryOpen]);
 
   const fetchOils = async () => {
     setIsLoading(true);
@@ -111,42 +120,80 @@ export const CustomerView = () => {
                 {t.common.appName}
               </h1>
             </div>
-
-            {/* Language toggle */}
-            <LanguageToggle
-              language={language}
-              onLanguageChange={setLanguage}
-            />
+            <div className="flex items-center gap-3 flex-wrap">
+              <LanguageToggle
+                language={language}
+                onLanguageChange={setLanguage}
+              />
+              <button
+                onClick={() => setIsCalculatorOpen(true)}
+                className="btn-primary flex items-center gap-2 text-sm sm:text-base"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                  />
+                </svg>
+                {t.customer.calculator}
+              </button>
+              <button
+                onClick={() => setIsManagementOpen(true)}
+                className="btn-secondary flex items-center gap-2 text-sm sm:text-base"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                {t.admin?.addOil ?? 'Manage Oils'}
+              </button>
+              <button
+                onClick={() => setIsSummaryOpen(true)}
+                className="btn-secondary flex items-center gap-2 text-sm sm:text-base"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 17v-6a2 2 0 012-2h8m-6-4l4 4-4 4"
+                  />
+                </svg>
+                Monthly Summary
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Main content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Title and Calculator button */}
+        {/* Title */}
         <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
             {t.customer.title}
           </h2>
-          <button
-            onClick={() => navigate('/calculator')}
-            className="btn-primary flex items-center gap-2"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-              />
-            </svg>
-            {t.customer.calculator}
-          </button>
         </div>
 
         {/* Error message */}
@@ -212,15 +259,32 @@ export const CustomerView = () => {
         onClose={handleCloseModal}
       />
 
-      {/* Admin login link (subtle) */}
-      <div className="fixed bottom-4 right-4">
-        <button
-          onClick={() => navigate('/login')}
-          className="bg-white hover:bg-gray-100 text-gray-600 px-4 py-2 rounded-full shadow-lg text-sm transition-all duration-200"
-        >
-          Admin
-        </button>
-      </div>
+      {/* Mix Calculator Overlay */}
+      {isCalculatorOpen && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center p-4">
+          <div className="w-full max-w-5xl max-h-[95vh] bg-white rounded-xl overflow-y-auto shadow-2xl">
+            <MixCalculator onClose={() => setIsCalculatorOpen(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* Oil Management Overlay */}
+      {isManagementOpen && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center p-4">
+          <div className="w-full max-w-6xl max-h-[95vh] bg-white rounded-xl overflow-y-auto shadow-2xl">
+            <AdminDashboard onClose={() => setIsManagementOpen(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* Monthly Summary Overlay */}
+      {isSummaryOpen && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center p-4">
+          <div className="w-full max-w-xl max-h-[95vh] bg-white rounded-xl overflow-y-auto shadow-2xl">
+            <MonthlySummary onClose={() => setIsSummaryOpen(false)} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

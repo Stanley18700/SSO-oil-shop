@@ -9,7 +9,7 @@ import enTranslations from '../i18n/en.json';
 /**
  * Admin Dashboard - Oil CRUD operations
  */
-export const AdminDashboard = () => {
+export const AdminDashboard = ({ onClose }) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const t = enTranslations;
@@ -118,7 +118,13 @@ export const AdminDashboard = () => {
             </h1>
             <div className="flex items-center gap-2 sm:gap-3">
               <button
-                onClick={() => navigate('/')}
+                onClick={() => {
+                  if (onClose) {
+                    onClose();
+                  } else {
+                    navigate('/');
+                  }
+                }}
                 className="btn-secondary text-sm sm:text-base py-2 sm:py-3 px-3 sm:px-4"
                 style={{ minHeight: '44px' }}
               >

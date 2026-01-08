@@ -146,6 +146,33 @@ export const deleteOil = async (id) => {
   return data;
 };
 
+// ============= SALES API =============
+
+/**
+ * Get monthly sales summary (admin only)
+ * @param {number} year
+ * @param {number} month 1-12
+ * @returns {Promise<{year:number, month:number, totalSalesValue:number}>}
+ */
+export const getMonthlySalesSummary = async (year, month) => {
+  const params = new URLSearchParams({ year: String(year), month: String(month) });
+  const data = await fetchAPI(`/sales/summary?${params.toString()}`);
+  return data.data;
+};
+
+/**
+ * Confirm (record) a completed sale (admin only)
+ * @param {object} payload
+ * @returns {Promise<object>} created sale
+ */
+export const confirmSale = async (payload) => {
+  const data = await fetchAPI('/sales/confirm', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  return data.data;
+};
+
 // Export token utilities
 export { getToken, setToken, removeToken };
 

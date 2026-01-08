@@ -43,15 +43,15 @@ export const Login = () => {
     try {
       // Call login API
       const response = await apiLogin(formData.username, formData.password);
-      
+
       if (response.success) {
         // Update auth context
         login();
-        
-        // Show success message briefly
+
+        // Go straight to the main oil display screen
         setTimeout(() => {
-          navigate('/admin');
-        }, 500);
+          navigate('/');
+        }, 300);
       }
     } catch (err) {
       setError(err.message || t.auth.loginError);
@@ -173,15 +173,7 @@ export const Login = () => {
           </div>
         </div>
 
-        {/* Back to customer view link */}
-        <div className="text-center mt-6">
-          <button
-            onClick={() => navigate('/')}
-            className="text-tablet text-primary-600 hover:text-primary-700 font-semibold"
-          >
-            ← Back to Customer View
-          </button>
-        </div>
+        {/* No public customer view in owner-only version */}
       </div>
     </div>
   );
