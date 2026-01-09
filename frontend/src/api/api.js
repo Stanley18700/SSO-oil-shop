@@ -108,6 +108,15 @@ export const getOils = async () => {
 };
 
 /**
+ * Get all oils (admin only) including inactive.
+ * Endpoint: GET /api/oils/admin/all
+ */
+export const getAllOilsAdmin = async () => {
+  const data = await fetchAPI('/oils/admin/all');
+  return data.data || [];
+};
+
+/**
  * Create new oil (admin only)
  * @param {object} oilData 
  * @returns {Promise<object>}
@@ -168,6 +177,19 @@ export const getMonthlySalesSummary = async (year, month) => {
 export const getMonthlyReportDetails = async (year, month) => {
   const params = new URLSearchParams({ year: String(year), month: String(month) });
   const data = await fetchAPI(`/reports/monthly/details?${params.toString()}`);
+  return data.data;
+};
+
+/**
+ * Get daily summary (admin only)
+ * Endpoint: GET /api/reports/daily?date=YYYY-MM-DD
+ * If date is omitted, backend returns "today" in Asia/Yangon.
+ */
+export const getDailySummary = async (date) => {
+  const endpoint = date
+    ? `/reports/daily?${new URLSearchParams({ date: String(date) }).toString()}`
+    : '/reports/daily';
+  const data = await fetchAPI(endpoint);
   return data.data;
 };
 

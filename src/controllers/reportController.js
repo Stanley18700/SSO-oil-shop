@@ -5,6 +5,65 @@ const MYANMAR_UTC_OFFSET_MINUTES = 390; // UTC+06:30
 
 const pad2 = (n) => String(n).padStart(2, '0');
 
+const formatLocalDate = (year, month, day) => `${year}-${pad2(month)}-${pad2(day)}`;
+
+const getMyanmarTodayLocalDateParts = () => {
+  const offsetMs = MYANMAR_UTC_OFFSET_MINUTES * 60 * 1000;
+  const now = new Date();
+  // Shift UTC time by +06:30, then read the shifted time's UTC fields as local date parts.
+  const shifted = new Date(now.getTime() + offsetMs);
+  return {
+    year: shifted.getUTCFullYear(),
+    month: shifted.getUTCMonth() + 1,
+    day: shifted.getUTCDate(),
+  };
+};
+
+const parseLocalDateParam = (dateStr) => {
+  // YYYY-MM-DD
+  if (typeof dateStr !== 'string') return null;
+  const match = dateStr.match(/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/);
+  if (!match) return null;
+
+  const year = parseInt(match[1], 10);
+  const month = parseInt(match[2], 10);
+  const day = parseInt(match[3], 10);
+
+  if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) return null;
+  if (month < 1 || month > 12) return null;
+
+  // Validate day by round-tripping through UTC date arithmetic
+  const utc = new Date(Date.UTC(year, month - 1, day));
+  if (utc.getUTCFullYear() !== year || utc.getUTCMonth() !== month - 1 || utc.getUTCDate() !== day) return null;
+
+  return { year, month, day };
+};
+
+const getMyanmarDayBounds = (year, month, day) => {
+  // Local Myanmar time (UTC+06:30) boundaries:
+  // startLocal = YYYY-MM-DD 00:00:00 +06:30
+  // endLocalExclusive = next day 00:00:00 +06:30
+  const offsetMs = MYANMAR_UTC_OFFSET_MINUTES * 60 * 1000;
+  const startUtc = new Date(Date.UTC(year, month - 1, day, 0, 0, 0) - offsetMs);
+  const endUtcExclusive = new Date(Date.UTC(year, month - 1, day + 1, 0, 0, 0) - offsetMs);
+
+  const startLocal = `${formatLocalDate(year, month, day)}T00:00:00+06:30`;
+  const endLocalDate = new Date(Date.UTC(year, month - 1, day + 1));
+  const endLocalExclusiveStr = `${formatLocalDate(
+    endLocalDate.getUTCFullYear(),
+    endLocalDate.getUTCMonth() + 1,
+    endLocalDate.getUTCDate(),
+  )}T00:00:00+06:30`;
+
+  return {
+    startUtc,
+    endUtcExclusive,
+    startLocal,
+    endLocalExclusive: endLocalExclusiveStr,
+    dateLocal: formatLocalDate(year, month, day),
+  };
+};
+
 const getMyanmarMonthBounds = (year, month) => {
   // Local Myanmar time (UTC+06:30) boundaries:
   // startLocal = YYYY-MM-01 00:00:00 +06:30
@@ -159,6 +218,110 @@ const getMonthlyDetails = async (req, res) => {
   }
 };
 
+/**
+ * GET /api/reports/daily?date=YYYY-MM-DD
+ * Returns aggregate sales analytics for the requested calendar day in Asia/Yangon.
+ * Contract: approved Daily Summary fields (read-only).
+ */
+const getDailySummary = async (req, res) => {
+  try {
+    const dateParam = req.query.date;
+    const parsed = dateParam ? parseLocalDateParam(dateParam) : getMyanmarTodayLocalDateParts();
+
+    if (!parsed) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid date. Expected YYYY-MM-DD',
+      });
+    }
+
+    const { year, month, day } = parsed;
+    const { startUtc, endUtcExclusive, startLocal, endLocalExclusive, dateLocal } = getMyanmarDayBounds(
+      year,
+      month,
+      day,
+    );
+
+    const [salesAggregate, topOils] = await prisma.$transaction([
+      prisma.sale.aggregate({
+        where: {
+          created_at: {
+            gte: startUtc,
+            lt: endUtcExclusive,
+          },
+        },
+        _sum: {
+          total_amount: true,
+        },
+        _count: {
+          _all: true,
+        },
+      }),
+      prisma.saleItem.groupBy({
+        by: ['oil_id'],
+        where: {
+          sale: {
+            created_at: {
+              gte: startUtc,
+              lt: endUtcExclusive,
+            },
+          },
+        },
+        _sum: {
+          line_amount: true,
+          quantity: true,
+        },
+        _max: {
+          oil_name_snapshot: true,
+        },
+        orderBy: {
+          _sum: {
+            line_amount: 'desc',
+          },
+        },
+        take: 3,
+      }),
+    ]);
+
+    const topOilsByRevenue = (topOils || []).map((row) => ({
+      oilId: row.oil_id,
+      oilNameSnapshot: row?._max?.oil_name_snapshot || null,
+      revenue: Number(row?._sum?.line_amount || 0),
+      quantitySold: Number(row?._sum?.quantity || 0),
+    }));
+
+    return res.json({
+      success: true,
+      data: {
+        period: {
+          type: 'day',
+          timezone: MYANMAR_TZ,
+          dateLocal,
+          startLocal,
+          endLocalExclusive,
+          startUtc: startUtc.toISOString(),
+          endUtcExclusive: endUtcExclusive.toISOString(),
+        },
+        currency: 'MMK',
+        quantityDefinition: 'viss-equivalent',
+        totals: {
+          totalSalesAmount: Number(salesAggregate?._sum?.total_amount || 0),
+          transactionsCount: salesAggregate?._count?._all || 0,
+        },
+        topOilsByRevenue,
+        generatedAt: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    console.error('Error generating daily report summary:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to generate daily report summary',
+    });
+  }
+};
+
 module.exports = {
   getMonthlyDetails,
+  getDailySummary,
 };

@@ -31,6 +31,32 @@ const getAllOils = async (req, res) => {
 };
 
 /**
+ * GET /oils/admin/all - Retrieve all oils (admin only)
+ * Used by the owner dashboard to manage active/inactive oils.
+ */
+const getAllOilsAdmin = async (req, res) => {
+  try {
+    const oils = await prisma.oil.findMany({
+      orderBy: {
+        created_at: 'desc',
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      count: oils.length,
+      data: oils,
+    });
+  } catch (error) {
+    console.error('Error fetching oils (admin):', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch oils',
+    });
+  }
+};
+
+/**
  * POST /oils - Create a new oil (admin only)
  * Adds a new oil product to the database
  */
@@ -194,6 +220,7 @@ const deleteOil = async (req, res) => {
 
 module.exports = {
   getAllOils,
+  getAllOilsAdmin,
   createOil,
   updateOil,
   deleteOil

@@ -7,4 +7,8 @@ const { authenticateToken, requireAdmin } = require('../middleware/auth');
 // Owner-only analytics endpoint
 router.get('/monthly/details', authenticateToken, requireAdmin, reportController.getMonthlyDetails);
 
+// GET /api/reports/daily?date=YYYY-MM-DD
+// Owner-only analytics endpoint
+router.get('/daily', authenticateToken, requireAdmin, reportController.getDailySummary);
+
 module.exports = router;

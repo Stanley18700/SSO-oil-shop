@@ -6,6 +6,7 @@ import { LanguageToggle } from '../components/LanguageToggle';
 import { MixCalculator } from './MixCalculator';
 import { AdminDashboard } from './AdminDashboard';
 import { MonthlySummary } from './MonthlySummary';
+import { DailySummary } from './DailySummary';
 import enTranslations from '../i18n/en.json';
 import myTranslations from '../i18n/my.json';
 
@@ -24,6 +25,7 @@ export const OilDisplay = () => {
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
   const [isManagementOpen, setIsManagementOpen] = useState(false);
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
+  const [isDailyOpen, setIsDailyOpen] = useState(false);
 
   const t = language === 'en' ? enTranslations : myTranslations;
 
@@ -35,7 +37,7 @@ export const OilDisplay = () => {
   // Prevent body scroll when any overlay is open
   useEffect(() => {
     const anyOverlayOpen =
-      isModalOpen || isCalculatorOpen || isManagementOpen || isSummaryOpen;
+      isModalOpen || isCalculatorOpen || isManagementOpen || isSummaryOpen || isDailyOpen;
     
     if (anyOverlayOpen) {
       // Save current scroll position
@@ -64,7 +66,7 @@ export const OilDisplay = () => {
       document.body.style.width = '';
       document.body.style.overflow = '';
     };
-  }, [isModalOpen, isCalculatorOpen, isManagementOpen, isSummaryOpen]);
+  }, [isModalOpen, isCalculatorOpen, isManagementOpen, isSummaryOpen, isDailyOpen]);
 
   const fetchOils = async () => {
     setIsLoading(true);
@@ -182,6 +184,25 @@ export const OilDisplay = () => {
                 </svg>
                 Monthly Summary
               </button>
+              <button
+                onClick={() => setIsDailyOpen(true)}
+                className="btn-secondary flex items-center gap-2 text-sm sm:text-base"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                Daily Summary
+              </button>
             </div>
           </div>
         </div>
@@ -282,6 +303,15 @@ export const OilDisplay = () => {
         <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center p-4">
           <div className="w-full max-w-5xl max-h-[95vh] bg-white rounded-xl overflow-y-auto shadow-2xl">
             <MonthlySummary onClose={() => setIsSummaryOpen(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* Daily Summary Overlay */}
+      {isDailyOpen && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center p-4">
+          <div className="w-full max-w-5xl max-h-[95vh] bg-white rounded-xl overflow-y-auto shadow-2xl">
+            <DailySummary onClose={() => setIsDailyOpen(false)} />
           </div>
         </div>
       )}

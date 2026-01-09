@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getOils, createOil, updateOil, deleteOil } from '../api/api';
+import { getAllOilsAdmin, createOil, updateOil, deleteOil } from '../api/api';
 import { useAuth } from '../auth/useAuth';
 import { OilForm } from '../components/OilForm';
 import { getUnitLabel } from '../utils/units';
@@ -34,7 +34,7 @@ export const AdminDashboard = ({ onClose }) => {
     setIsLoading(true);
     setError('');
     try {
-      const data = await getOils();
+      const data = await getAllOilsAdmin();
       setOils(data);
     } catch (err) {
       setError('Failed to fetch oils: ' + err.message);
