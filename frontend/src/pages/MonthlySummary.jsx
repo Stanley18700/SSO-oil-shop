@@ -1,5 +1,14 @@
-import { useEffect, useState } from 'react';
-import { getMonthlySalesSummary } from '../api/api';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import { getMonthlyReportDetails } from '../api/api';
 
 // Simple, read-only monthly summary overlay content
 export const MonthlySummary = ({ onClose }) => {
@@ -8,7 +17,7 @@ export const MonthlySummary = ({ onClose }) => {
   const [month, setMonth] = useState(now.getMonth() + 1); // 1-12
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [totalSalesValue, setTotalSalesValue] = useState(0);
+  const [report, setReport] = useState(null);
 
   const monthNames = [
     'January',
@@ -29,12 +38,12 @@ export const MonthlySummary = ({ onClose }) => {
     setIsLoading(true);
     setError('');
     try {
-      const data = await getMonthlySalesSummary(targetYear, targetMonth);
-      setTotalSalesValue(data?.totalSalesValue ?? 0);
+      const data = await getMonthlyReportDetails(targetYear, targetMonth);
+      setReport(data);
     } catch (err) {
       console.error('Failed to load monthly summary:', err);
       setError('Unable to load summary. Please try again later.');
-      setTotalSalesValue(0);
+      setReport(null);
     } finally {
       setIsLoading(false);
     }
@@ -67,6 +76,43 @@ export const MonthlySummary = ({ onClose }) => {
   };
 
   const formattedMonthYear = `${monthNames[month - 1]} ${year}`;
+
+  const totalSalesAmount = Number(report?.totals?.totalSalesAmount || 0);
+  const byOil = Array.isArray(report?.byOil) ? report.byOil : [];
+
+  const revenueChartData = useMemo(() => {
+    return [...byOil]
+      .sort((a, b) => Number(b.revenue || 0) - Number(a.revenue || 0))
+      .slice(0, 8)
+      .map((row) => ({
+        name: row.oilNameSnapshot || `Oil ${row.oilId}`,
+        revenue: Number(row.revenue || 0),
+      }));
+  }, [byOil]);
+
+  const quantityChartData = useMemo(() => {
+    return [...byOil]
+      .sort((a, b) => Number(b.quantitySold || 0) - Number(a.quantitySold || 0))
+      .slice(0, 8)
+      .map((row) => ({
+        name: row.oilNameSnapshot || `Oil ${row.oilId}`,
+        quantity: Number(row.quantitySold || 0),
+      }));
+  }, [byOil]);
+
+  const hasAnySales = totalSalesAmount > 0;
+
+  const formatCompactLabel = (value) => {
+    const text = String(value ?? '');
+    return text.length > 18 ? `${text.slice(0, 18)}…` : text;
+  };
+
+  const formatMMK = (value) => {
+    return Number(value || 0).toLocaleString('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -168,29 +214,115 @@ export const MonthlySummary = ({ onClose }) => {
 
         {/* Stats */}
         {!isLoading && !error && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="bg-primary-500 text-white px-5 sm:px-6 py-5 sm:py-6">
-              <div className="text-xs sm:text-sm font-bold opacity-90 uppercase tracking-widest">
-                Total Sales
-              </div>
-              <div className="mt-2 flex items-end gap-2 justify-center sm:justify-start">
-                <div className="text-3xl sm:text-4xl md:text-5xl font-black leading-none">
-                  {Number(totalSalesValue).toLocaleString('en-US', {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
-                  })}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
+            {/* Total sales (primary KPI) */}
+            <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="bg-primary-500 text-white px-5 sm:px-6 py-5 sm:py-6">
+                <div className="text-xs sm:text-sm font-bold opacity-90 uppercase tracking-widest">
+                  Total Sales
                 </div>
-                <div className="text-base sm:text-lg font-bold pb-0.5">MMK</div>
+                <div className="mt-2 flex items-end gap-2 justify-center sm:justify-start">
+                  <div className="text-3xl sm:text-4xl md:text-5xl font-black leading-none">
+                    {formatMMK(totalSalesAmount)}
+                  </div>
+                  <div className="text-base sm:text-lg font-bold pb-0.5">MMK</div>
+                </div>
+              </div>
+              <div className="px-5 sm:px-6 py-4 sm:py-5 text-center sm:text-left">
+                {!hasAnySales ? (
+                  <div className="text-gray-600 font-semibold">
+                    No sales recorded for this month yet.
+                  </div>
+                ) : (
+                  <div className="text-gray-600">
+                    Figures update only when a sale is confirmed.
+                  </div>
+                )}
               </div>
             </div>
-            <div className="px-5 sm:px-6 py-4 sm:py-5 text-center sm:text-left">
-              {Number(totalSalesValue) === 0 ? (
-                <div className="text-gray-600 font-semibold">
-                  No sales recorded for this month yet.
+
+            {/* Revenue per oil chart */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 lg:col-span-2">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <div>
+                  <div className="text-sm font-bold text-gray-800">Revenue per Oil</div>
+                  <div className="text-xs text-gray-500">Top oils by revenue</div>
                 </div>
+              </div>
+
+              {!hasAnySales || revenueChartData.length === 0 ? (
+                <div className="text-gray-500 text-sm py-10 text-center">No data to chart.</div>
               ) : (
-                <div className="text-gray-600">
-                  Figures update only when a sale is confirmed.
+                <div className="w-full overflow-x-hidden">
+                  <div className="text-primary-600" style={{ height: Math.max(260, revenueChartData.length * 48) }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={revenueChartData}
+                        layout="vertical"
+                        margin={{ top: 8, right: 16, bottom: 8, left: 8 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                        <XAxis
+                          type="number"
+                          tick={{ fontSize: 12 }}
+                          tickFormatter={(v) => formatMMK(v)}
+                        />
+                        <YAxis
+                          type="category"
+                          dataKey="name"
+                          width={140}
+                          tick={{ fontSize: 12 }}
+                          tickFormatter={formatCompactLabel}
+                        />
+                        <Tooltip
+                          formatter={(value) => [`${formatMMK(value)} MMK`, 'Revenue']}
+                          labelFormatter={(label) => String(label)}
+                        />
+                        <Bar dataKey="revenue" fill="currentColor" isAnimationActive={false} radius={[8, 8, 8, 8]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Quantity per oil chart */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5">
+              <div className="mb-3">
+                <div className="text-sm font-bold text-gray-800">Quantity Sold per Oil</div>
+                <div className="text-xs text-gray-500">Top oils by quantity</div>
+              </div>
+
+              {!hasAnySales || quantityChartData.length === 0 ? (
+                <div className="text-gray-500 text-sm py-10 text-center">No data to chart.</div>
+              ) : (
+                <div className="text-blue-600" style={{ height: Math.max(260, quantityChartData.length * 48) }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={quantityChartData}
+                      layout="vertical"
+                      margin={{ top: 8, right: 16, bottom: 8, left: 8 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis
+                        type="number"
+                        tick={{ fontSize: 12 }}
+                        tickFormatter={(v) => Number(v || 0).toFixed(2)}
+                      />
+                      <YAxis
+                        type="category"
+                        dataKey="name"
+                        width={120}
+                        tick={{ fontSize: 12 }}
+                        tickFormatter={formatCompactLabel}
+                      />
+                      <Tooltip
+                        formatter={(value) => [`${Number(value || 0).toFixed(3)} viss`, 'Quantity']}
+                        labelFormatter={(label) => String(label)}
+                      />
+                      <Bar dataKey="quantity" fill="currentColor" isAnimationActive={false} radius={[8, 8, 8, 8]} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               )}
             </div>

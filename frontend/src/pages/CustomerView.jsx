@@ -280,7 +280,7 @@ export const OilDisplay = () => {
       {/* Monthly Summary Overlay */}
       {isSummaryOpen && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center p-4">
-          <div className="w-full max-w-xl max-h-[95vh] bg-white rounded-xl overflow-y-auto shadow-2xl">
+          <div className="w-full max-w-5xl max-h-[95vh] bg-white rounded-xl overflow-y-auto shadow-2xl">
             <MonthlySummary onClose={() => setIsSummaryOpen(false)} />
           </div>
         </div>

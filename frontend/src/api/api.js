@@ -161,6 +161,17 @@ export const getMonthlySalesSummary = async (year, month) => {
 };
 
 /**
+ * Get monthly report details (admin only)
+ * Endpoint: GET /api/reports/monthly/details?year=YYYY&month=M
+ * Returns totals + per-oil quantity/revenue aggregates.
+ */
+export const getMonthlyReportDetails = async (year, month) => {
+  const params = new URLSearchParams({ year: String(year), month: String(month) });
+  const data = await fetchAPI(`/reports/monthly/details?${params.toString()}`);
+  return data.data;
+};
+
+/**
  * Confirm (record) a completed sale (admin only)
  * @param {object} payload
  * @returns {Promise<object>} created sale
