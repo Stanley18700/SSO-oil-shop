@@ -102,33 +102,12 @@ export const MixCalculator = ({ onClose }) => {
     setIsSavingSale(false);
     setSaleSaved(false);
     setSaleSaveError('');
+    window.scrollTo(0, 0);
   };
 
   // Quick weight buttons (common Tical amounts)
   const handleQuickWeight = (oilId, ticals) => {
     handleWeightChange(oilId, ticals);
-  };
-
-  // Print calculation
-  const handlePrint = () => {
-    window.print();
-  };
-
-  // Share calculation (copy to clipboard)
-  const handleShare = () => {
-    const mixDetails = Object.entries(selectedOils)
-      .map(([oilId, data]) => {
-        const oil = oils.find((o) => o.id === parseInt(oilId));
-        const name = language === 'en' ? oil.name_en : oil.name_my;
-        return `${name}: ${data.ticals} ${language === 'en' ? 'Ticals' : 'ကျပ်သား'}`;
-      })
-      .join('\n');
-    
-    const shareText = `${t.common.appName}\n\n${mixDetails}\n\n${language === 'en' ? 'Total Weight' : 'စုစုပေါင်း အလေးချိန်'}: ${totalViss.toFixed(2)} ${language === 'en' ? 'Viss' : 'ပိဿာ'} (${totalTicals} ${language === 'en' ? 'Ticals' : 'ကျပ်သား'})\n${language === 'en' ? 'Total Price' : 'စုစုပေါင်း ဈေးနှုန်း'}: ${totalPrice?.toLocaleString()} MMK`;
-    
-    navigator.clipboard.writeText(shareText).then(() => {
-      alert(language === 'en' ? 'Calculation copied to clipboard!' : 'တွက်ချက်မှုကို ကူးယူပြီးပါပြီ!');
-    });
   };
 
   // Calculate total weight in Ticals
@@ -200,6 +179,10 @@ export const MixCalculator = ({ onClose }) => {
       const payload = buildSalePayload();
       await confirmSale(payload);
       setSaleSaved(true);
+      // After a successful save, reset to start for next customer
+      setTimeout(() => {
+        handleReset();
+      }, 500);
     } catch (err) {
       setSaleSaveError(err?.message || 'Failed to confirm sale');
     } finally {
@@ -453,11 +436,24 @@ export const MixCalculator = ({ onClose }) => {
 
                         {/* Quick Viss Buttons - for larger amounts */}
                         <div className="mt-2 grid grid-cols-4 gap-1 sm:gap-1.5 md:gap-2">
-                          {[1, 2, 3, 5].map((viss) => (
+                          {[1, 1.5, 2, 2.5].map((viss) => (
                             <button
                               key={viss}
                               onClick={() => handleQuickWeight(oilId, viss * 100)}
                               className="bg-primary-50 hover:bg-primary-500 active:bg-primary-600 hover:text-white text-primary-700 font-bold py-1.5 sm:py-2 md:py-3 rounded-md sm:rounded-lg md:rounded-xl transition-all text-xs sm:text-sm md:text-lg shadow-sm"
+                            >
+                              {viss} {language === 'en' ? 'Viss' : 'ပိဿာ'}
+                            </button>
+                          ))}
+                        </div>
+                        
+                        {/* Additional Viss Buttons - second row for more options */}
+                        <div className="mt-1 sm:mt-1.5 md:mt-2 grid grid-cols-4 gap-1 sm:gap-1.5 md:gap-2">
+                          {[3, 3.5, 4, 5].map((viss) => (
+                            <button
+                              key={viss}
+                              onClick={() => handleQuickWeight(oilId, viss * 100)}
+                              className="bg-amber-50 hover:bg-amber-500 active:bg-amber-600 hover:text-white text-amber-700 font-bold py-1.5 sm:py-2 md:py-3 rounded-md sm:rounded-lg md:rounded-xl transition-all text-xs sm:text-sm md:text-lg shadow-sm"
                             >
                               {viss} {language === 'en' ? 'Viss' : 'ပိဿာ'}
                             </button>
@@ -610,7 +606,7 @@ export const MixCalculator = ({ onClose }) => {
                     className={`w-full py-5 rounded-2xl text-xl flex items-center justify-center gap-3 shadow-lg font-black transition-all disabled:opacity-50 disabled:grayscale ${
                       saleSaved
                         ? 'bg-green-600 text-white'
-                        : 'bg-primary-600 text-white hover:bg-primary-700'
+                        : 'bg-green-600 text-white hover:bg-green-700'
                     }`}
                   >
                     {saleSaved ? (
@@ -641,29 +637,9 @@ export const MixCalculator = ({ onClose }) => {
                     </div>
                   )}
 
-                  <div className="flex gap-4">
-                    <button
-                      onClick={handlePrint}
-                      className="flex-1 bg-blue-600 text-white font-black py-5 rounded-2xl text-xl flex items-center justify-center gap-3 shadow-lg"
-                    >
-                      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                      </svg>
-                      {language === 'en' ? 'Print' : 'ပရင့်'}
-                    </button>
-                    <button
-                      onClick={handleShare}
-                      className="flex-1 bg-green-600 text-white font-black py-5 rounded-2xl text-xl flex items-center justify-center gap-3 shadow-lg"
-                    >
-                      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                      </svg>
-                      {language === 'en' ? 'Share' : 'မျှဝေမည်'}
-                    </button>
-                  </div>
                   <button
                     onClick={handleReset}
-                    className="w-full bg-white text-gray-700 border-4 border-gray-100 font-black py-5 rounded-2xl text-xl shadow-md"
+                    className="w-full bg-blue-600 text-white font-black py-5 rounded-2xl text-xl shadow-lg transition-colors hover:bg-blue-700"
                   >
                     {language === 'en' ? 'Start New Calculation' : 'အသစ်ပြန်တွက်မည်'}
                   </button>
