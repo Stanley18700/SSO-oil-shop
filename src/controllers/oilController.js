@@ -179,16 +179,25 @@ const updateOil = async (req, res) => {
 };
 
 /**
- * DELETE /oils/:id - Soft delete an oil (admin only)
- * Sets is_active to false instead of actually deleting the record
+ * DELETE /oils/:id - Delete an oil (admin only)
+ * Physically removes the oil record.
+ * If the oil is referenced by sales records, deletion is blocked; use is_active=false instead.
  */
 const deleteOil = async (req, res) => {
   try {
     const { id } = req.params;
+    const oilId = parseInt(id);
+
+    if (Number.isNaN(oilId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid oil id'
+      });
+    }
 
     // Check if oil exists
     const existingOil = await prisma.oil.findUnique({
-      where: { id: parseInt(id) }
+      where: { id: oilId }
     });
 
     if (!existingOil) {
@@ -198,19 +207,39 @@ const deleteOil = async (req, res) => {
       });
     }
 
-    // Soft delete: set is_active to false
-    const deletedOil = await prisma.oil.update({
-      where: { id: parseInt(id) },
-      data: { is_active: false }
+    // If referenced by sales, block deletion to preserve historical data integrity
+    const hasSaleItems = await prisma.saleItem.findFirst({
+      where: { oil_id: oilId },
+      select: { id: true }
+    });
+
+    if (hasSaleItems) {
+      return res.status(409).json({
+        success: false,
+        error: 'Cannot delete this oil because it is used in sales records. Set it to Inactive instead.'
+      });
+    }
+
+    const deletedOil = await prisma.oil.delete({
+      where: { id: oilId }
     });
 
     res.status(200).json({
       success: true,
-      message: 'Oil deleted successfully (soft delete)',
+      message: 'Oil deleted successfully',
       data: deletedOil
     });
   } catch (error) {
     console.error('Error deleting oil:', error);
+
+    // Prisma foreign key constraint violation (e.g., referenced by sale items)
+    if (error && error.code === 'P2003') {
+      return res.status(409).json({
+        success: false,
+        error: 'Cannot delete this oil because it is used in sales records. Set it to Inactive instead.'
+      });
+    }
+
     res.status(500).json({
       success: false,
       error: 'Failed to delete oil'

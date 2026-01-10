@@ -144,7 +144,7 @@ export const updateOil = async (id, oilData) => {
 };
 
 /**
- * Delete oil - soft delete (admin only)
+ * Delete oil (admin only)
  * @param {number} id 
  * @returns {Promise<object>}
  */

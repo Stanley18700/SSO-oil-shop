@@ -61,7 +61,7 @@ export const AdminDashboard = ({ onClose }) => {
     setShowModal(true);
   };
 
-  // Handle delete oil (soft delete)
+  // Handle delete oil
   const handleDelete = async (oil) => {
     if (!window.confirm(t.messages.deleteConfirm)) {
       return;
@@ -70,7 +70,7 @@ export const AdminDashboard = ({ onClose }) => {
     try {
       await deleteOil(oil.id);
       showSuccess(t.messages.oilDeleted);
-      fetchOils(); // Refresh list
+      setOils((prev) => prev.filter((o) => o.id !== oil.id));
     } catch (err) {
       setError('Failed to delete oil: ' + err.message);
     }

@@ -23,6 +23,7 @@ export const MixCalculator = ({ onClose }) => {
   const [isSavingSale, setIsSavingSale] = useState(false);
   const [saleSaved, setSaleSaved] = useState(false);
   const [saleSaveError, setSaleSaveError] = useState('');
+  const [showConfirmSaleModal, setShowConfirmSaleModal] = useState(false);
 
   const t = language === 'en' ? enTranslations : myTranslations;
 
@@ -172,7 +173,6 @@ export const MixCalculator = ({ onClose }) => {
 
   const handleConfirmSale = async () => {
     if (!isValidMix || !totalPrice || isSavingSale || saleSaved) return;
-
     setIsSavingSale(true);
     setSaleSaveError('');
     try {
@@ -190,8 +190,48 @@ export const MixCalculator = ({ onClose }) => {
     }
   };
 
+  const handleConfirmSaleClick = () => {
+    if (!isValidMix || !totalPrice || isSavingSale || saleSaved) return;
+    setShowConfirmSaleModal(true);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {showConfirmSaleModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+            <div className="p-6">
+              <h3 className="text-xl font-black text-gray-900 mb-2">
+                {t?.messages?.confirmSaleTitle || (language === 'en' ? 'Confirm Sale' : 'ရောင်းအား အတည်ပြုမည်')}
+              </h3>
+              <p className="text-gray-700 font-semibold">
+                {t?.messages?.confirmSaleConfirm ||
+                  (language === 'en'
+                    ? 'Are you sure you want to confirm this sale?'
+                    : 'ဤရောင်းအားကို အတည်ပြု၍ သိမ်းမည်မှာ သေချာပါသလား?')}
+              </p>
+
+              <div className="mt-6 flex gap-3">
+                <button
+                  onClick={() => setShowConfirmSaleModal(false)}
+                  className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-900 font-black py-3 rounded-xl transition-colors"
+                >
+                  {t?.common?.no || t?.common?.cancel || (language === 'en' ? 'No' : 'မဟုတ်ပါ')}
+                </button>
+                <button
+                  onClick={async () => {
+                    setShowConfirmSaleModal(false);
+                    await handleConfirmSale();
+                  }}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-black py-3 rounded-xl transition-colors"
+                >
+                  {t?.common?.yes || (language === 'en' ? 'Yes' : 'ဟုတ်ကဲ့')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Header - Mobile optimized */}
       <header className="bg-white shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-3">
@@ -601,7 +641,7 @@ export const MixCalculator = ({ onClose }) => {
 
                 <div className="grid grid-cols-1 gap-4 mb-20">
                   <button
-                    onClick={handleConfirmSale}
+                    onClick={handleConfirmSaleClick}
                     disabled={!isValidMix || !totalPrice || isSavingSale || saleSaved}
                     className={`w-full py-5 rounded-2xl text-xl flex items-center justify-center gap-3 shadow-lg font-black transition-all disabled:opacity-50 disabled:grayscale ${
                       saleSaved
