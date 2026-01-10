@@ -3,7 +3,7 @@ import { getUnitLabel } from '../utils/units';
 /**
  * OilCard component
  * Displays oil information in a card format
- * Used in customer view (tablet-friendly design)
+ * Used in the Sell screen (tablet-friendly design)
  */
 export const OilCard = ({ oil, language, onClick, showCheckbox, checked, onCheckChange }) => {
   const name = language === 'en' ? oil.name_en : oil.name_my;

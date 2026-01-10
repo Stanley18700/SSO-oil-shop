@@ -83,6 +83,30 @@ export const login = async (username, password) => {
 };
 
 /**
+ * Change password (admin only)
+ * Endpoint: POST /api/auth/change-password
+ */
+export const changePassword = async ({ currentPassword, newPassword, confirmPassword }) => {
+  const data = await fetchAPI('/auth/change-password', {
+    method: 'POST',
+    body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
+  });
+  return data;
+};
+
+/**
+ * Logout request (admin only)
+ * Endpoint: POST /api/auth/logout
+ * Note: JWT is stateless; client must clear token.
+ */
+export const logoutRequest = async () => {
+  const data = await fetchAPI('/auth/logout', {
+    method: 'POST',
+  });
+  return data;
+};
+
+/**
  * Logout - clears token from localStorage
  */
 export const logout = () => {

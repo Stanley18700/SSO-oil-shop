@@ -5,14 +5,20 @@ import { useAuth } from '../auth/useAuth';
 import { OilForm } from '../components/OilForm';
 import { getUnitLabel } from '../utils/units';
 import enTranslations from '../i18n/en.json';
+import myTranslations from '../i18n/my.json';
 
 /**
  * Admin Dashboard - Oil CRUD operations
  */
-export const AdminDashboard = ({ onClose }) => {
+export const AdminDashboard = ({ onClose, language = 'en' }) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const t = enTranslations;
+  const t = language === 'en' ? enTranslations : myTranslations;
+
+  const [isHeaderMenuOpen, setIsHeaderMenuOpen] = useState(false);
+
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [pendingDeleteOil, setPendingDeleteOil] = useState(null);
 
   const [oils, setOils] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,7 +43,7 @@ export const AdminDashboard = ({ onClose }) => {
       const data = await getAllOilsAdmin();
       setOils(data);
     } catch (err) {
-      setError('Failed to fetch oils: ' + err.message);
+      setError((t?.messages?.fetchOilsFailed || 'Failed to fetch oils') + ': ' + err.message);
     } finally {
       setIsLoading(false);
     }
@@ -62,18 +68,19 @@ export const AdminDashboard = ({ onClose }) => {
   };
 
   // Handle delete oil
-  const handleDelete = async (oil) => {
-    if (!window.confirm(t.messages.deleteConfirm)) {
-      return;
-    }
-
+  const performDelete = async (oil) => {
     try {
       await deleteOil(oil.id);
       showSuccess(t.messages.oilDeleted);
       setOils((prev) => prev.filter((o) => o.id !== oil.id));
     } catch (err) {
-      setError('Failed to delete oil: ' + err.message);
+      setError((t?.messages?.deleteOilFailed || 'Failed to delete oil') + ': ' + err.message);
     }
+  };
+
+  const handleDelete = (oil) => {
+    setPendingDeleteOil(oil);
+    setShowDeleteConfirmModal(true);
   };
 
   // Handle form submission
@@ -95,7 +102,7 @@ export const AdminDashboard = ({ onClose }) => {
       setShowModal(false);
       fetchOils(); // Refresh list
     } catch (err) {
-      setError('Failed to save oil: ' + err.message);
+      setError((t?.messages?.saveOilFailed || 'Failed to save oil') + ': ' + err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -109,14 +116,51 @@ export const AdminDashboard = ({ onClose }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {showDeleteConfirmModal ? (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60]">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+            <div className="p-6">
+              <h3 className="text-xl font-black text-gray-900 mb-2">{t?.common?.delete || 'Delete'}</h3>
+              <p className="text-gray-700 font-semibold">{t?.messages?.deleteConfirm || 'Are you sure?'}</p>
+
+              <div className="mt-6 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowDeleteConfirmModal(false);
+                    setPendingDeleteOil(null);
+                  }}
+                  className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-900 font-black py-3 rounded-xl transition-colors"
+                >
+                  {t?.common?.no || t?.common?.cancel || 'No'}
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const oilToDelete = pendingDeleteOil;
+                    setShowDeleteConfirmModal(false);
+                    setPendingDeleteOil(null);
+                    if (!oilToDelete) return;
+                    await performDelete(oilToDelete);
+                  }}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white font-black py-3 rounded-xl transition-colors"
+                >
+                  {t?.common?.yes || 'Yes'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {/* Header */}
       <header className="bg-white shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center justify-between gap-3">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
               {t.admin.dashboard}
             </h1>
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <button
                 onClick={() => {
                   if (onClose) {
@@ -125,19 +169,53 @@ export const AdminDashboard = ({ onClose }) => {
                     navigate('/');
                   }
                 }}
-                className="btn-secondary text-sm sm:text-base py-2 sm:py-3 px-3 sm:px-4"
+                className="btn-secondary text-sm sm:text-base py-2 sm:py-3 px-3 sm:px-4 whitespace-nowrap"
                 style={{ minHeight: '44px' }}
               >
-                <span className="hidden sm:inline">{t.admin.customerView}</span>
-                <span className="sm:hidden">👥 View</span>
+                <span className="hidden sm:inline">{t.admin.sell}</span>
+                <span className="sm:hidden">{t.customer.title}</span>
               </button>
-              <button
-                onClick={handleLogout}
-                className="btn-primary text-sm sm:text-base py-2 sm:py-3 px-3 sm:px-4"
-                style={{ minHeight: '44px' }}
-              >
-                {t.common.logout}
-              </button>
+
+              {/* Desktop: show logout button. Mobile: move into menu to avoid stacked buttons */}
+              <div className="hidden sm:block">
+                <button
+                  onClick={handleLogout}
+                  className="btn-primary text-sm sm:text-base py-2 sm:py-3 px-3 sm:px-4 whitespace-nowrap"
+                  style={{ minHeight: '44px' }}
+                >
+                  {t.common.logout}
+                </button>
+              </div>
+
+              <div className="sm:hidden relative">
+                <button
+                  type="button"
+                  onClick={() => setIsHeaderMenuOpen((v) => !v)}
+                  className="btn-secondary py-2 px-3"
+                  style={{ minHeight: '44px' }}
+                  aria-haspopup="menu"
+                  aria-expanded={isHeaderMenuOpen}
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+                {isHeaderMenuOpen ? (
+                  <div role="menu" className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden">
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setIsHeaderMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full px-4 py-3 text-left font-semibold hover:bg-gray-50"
+                    >
+                      {t.common.logout}
+                    </button>
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
         </div>

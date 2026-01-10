@@ -7,11 +7,13 @@ import enTranslations from '../i18n/en.json';
 import myTranslations from '../i18n/my.json';
 
 /**
- * Mix Calculator - Calculate mixed oil prices by percentage
- * Used as a full-screen overlay from the owner display.
+ * New Sale (Mix Calculator) - Calculate mixed oil prices by percentage
+ * Used as a full-screen overlay from the Sell screen.
  */
-export const MixCalculator = ({ onClose }) => {
-  const [language, setLanguage] = useState('en');
+export const MixCalculator = ({ onClose, language: controlledLanguage, onLanguageChange }) => {
+  const [internalLanguage, setInternalLanguage] = useState(controlledLanguage || 'en');
+  const language = controlledLanguage || internalLanguage;
+  const setLanguage = onLanguageChange || setInternalLanguage;
   const [oils, setOils] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -264,6 +266,7 @@ export const MixCalculator = ({ onClose }) => {
               <LanguageToggle
                 language={language}
                 onLanguageChange={setLanguage}
+                variant="compact"
               />
             </div>
           </div>

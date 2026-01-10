@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getDailySummary } from '../api/api';
+import enTranslations from '../i18n/en.json';
+import myTranslations from '../i18n/my.json';
 
 const formatMMK = (value) => {
   return Number(value || 0).toLocaleString('en-US', {
@@ -38,7 +40,8 @@ const formatTimeHHMM = (iso, timeZone) => {
 };
 
 // Simple, read-only daily summary overlay content
-export const DailySummary = ({ onClose }) => {
+export const DailySummary = ({ onClose, language = 'en' }) => {
+  const t = language === 'en' ? enTranslations : myTranslations;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [report, setReport] = useState(null);
@@ -52,7 +55,7 @@ export const DailySummary = ({ onClose }) => {
       setReport(data);
     } catch (err) {
       console.error('Failed to load daily summary:', err);
-      setError('Unable to load daily summary. Please try again.');
+      setError(t?.reports?.unableLoadDaily || 'Unable to load daily summary. Please try again.');
       setReport(null);
     } finally {
       setIsLoading(false);
@@ -79,11 +82,15 @@ export const DailySummary = ({ onClose }) => {
       {/* Header */}
       <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-gray-200 bg-white">
         <div className="flex flex-col">
-          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">Daily Summary</h2>
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">{t?.reports?.today || 'Today'}</h2>
           <div className="mt-0.5 flex items-center gap-2 text-xs sm:text-sm text-gray-500">
-            <span className="font-semibold text-gray-700">Today (Asia/Yangon)</span>
-            {asOf ? <span>• As of {asOf}</span> : null}
-            <span>• Read-only</span>
+            <span className="font-semibold text-gray-700">{t?.reports?.todayTz || 'Today (Asia/Yangon)'}</span>
+            {asOf ? (
+              <span>
+                • {t?.reports?.asOf || 'As of'} {asOf}
+              </span>
+            ) : null}
+            <span>• {t?.reports?.readOnly || 'Read-only'}</span>
           </div>
         </div>
         <button
@@ -91,7 +98,7 @@ export const DailySummary = ({ onClose }) => {
           onClick={onClose}
           className="text-gray-500 hover:text-gray-700 focus:outline-none"
         >
-          <span className="sr-only">Close</span>
+          <span className="sr-only">{t?.common?.close || 'Close'}</span>
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -103,7 +110,7 @@ export const DailySummary = ({ onClose }) => {
         {isLoading ? (
           <div className="bg-white rounded-2xl border border-gray-100 p-6 sm:p-8 text-center">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-500 mx-auto"></div>
-            <div className="mt-3 text-gray-500 text-sm">Loading daily summary...</div>
+            <div className="mt-3 text-gray-500 text-sm">{t?.reports?.loadingDaily || 'Loading daily summary...'}</div>
           </div>
         ) : error ? (
           <div className="bg-white rounded-2xl border border-red-100 p-5 sm:p-6 text-center">
@@ -114,7 +121,9 @@ export const DailySummary = ({ onClose }) => {
             {/* Primary KPI */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="bg-primary-500 text-white px-5 sm:px-6 py-6 sm:py-7">
-                <div className="text-xs sm:text-sm font-bold opacity-90 uppercase tracking-widest">Total Sales Today</div>
+                <div className="text-xs sm:text-sm font-bold opacity-90 uppercase tracking-widest">
+                  {t?.reports?.totalSalesToday || 'Total Sales Today'}
+                </div>
                 <div className="mt-2 flex items-end gap-2 justify-center sm:justify-start">
                   <div className="text-4xl sm:text-5xl md:text-6xl font-black leading-none">{formatMMK(totalSalesAmount)}</div>
                   <div className="text-base sm:text-lg font-bold pb-0.5">MMK</div>
@@ -123,11 +132,13 @@ export const DailySummary = ({ onClose }) => {
               <div className="px-5 sm:px-6 py-4 sm:py-5">
                 <div className="flex items-center justify-between gap-4 flex-wrap">
                   <div>
-                    <div className="text-xs text-gray-500 uppercase tracking-widest">Transactions</div>
+                    <div className="text-xs text-gray-500 uppercase tracking-widest">
+                      {t?.reports?.transactions || 'Transactions'}
+                    </div>
                     <div className="mt-1 text-2xl sm:text-3xl font-extrabold text-gray-800">{transactionsCount}</div>
                   </div>
                   <div className="text-sm text-gray-600">
-                    Updates when a sale is confirmed
+                    {t?.reports?.updatesWhenConfirmed || 'Updates when a sale is confirmed'}
                   </div>
                 </div>
               </div>
@@ -137,12 +148,16 @@ export const DailySummary = ({ onClose }) => {
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <div className="text-sm font-bold text-gray-800">Top oils by revenue (today so far)</div>
+                  <div className="text-sm font-bold text-gray-800">
+                    {t?.reports?.topOilsByRevenueToday || 'Top oils by revenue (today so far)'}
+                  </div>
                 </div>
               </div>
 
               {topOils.length === 0 ? (
-                <div className="text-gray-500 text-sm py-6 text-center">No sales yet today.</div>
+                <div className="text-gray-500 text-sm py-6 text-center">
+                  {t?.reports?.noSalesYetToday || 'No sales yet today.'}
+                </div>
               ) : (
                 <div className="mt-4 divide-y divide-gray-100">
                   {topOils.map((row, idx) => {
@@ -157,7 +172,9 @@ export const DailySummary = ({ onClose }) => {
                           </div>
                           <div className="min-w-0">
                             <div className="font-semibold text-gray-800 truncate">{name}</div>
-                            <div className="mt-0.5 text-xs text-gray-500">Qty: {formatViss(quantitySold)} viss</div>
+                            <div className="mt-0.5 text-xs text-gray-500">
+                              {t?.reports?.qtyShort || 'Qty'}: {formatViss(quantitySold)} viss
+                            </div>
                           </div>
                         </div>
                         <div className="text-right">

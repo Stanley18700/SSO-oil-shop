@@ -4,7 +4,7 @@ import { ProtectedRoute } from './auth/ProtectedRoute';
 
 // Pages
 import { Login } from './pages/Login';
-import { OilDisplay } from './pages/CustomerView';
+import { Sell } from './pages/Sell';
 
 /**
  * Main App component with routing
@@ -22,7 +22,7 @@ function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <OilDisplay />
+                <Sell />
               </ProtectedRoute>
             }
           />

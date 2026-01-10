@@ -3,6 +3,7 @@
     "appName": "SSO Oil Shop",
     "login": "Login",
     "logout": "Logout",
+    "changePassword": "Change Password",
     "cancel": "Cancel",
     "save": "Save",
     "edit": "Edit",
@@ -14,6 +15,8 @@
     "success": "Success"
     ,"yes": "Yes"
     ,"no": "No"
+    ,"menu": "Menu"
+    ,"close": "Close"
   },
   "auth": {
     "username": "Username",
@@ -21,14 +24,25 @@
     "loginTitle": "Admin Login",
     "loginButton": "Sign In",
     "loginError": "Invalid username or password",
-    "loginSuccess": "Login successful!"
+    "loginSuccess": "Login successful!",
+    "changePasswordTitle": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "changePasswordButton": "Update Password",
+    "passwordChangedSuccess": "Password updated successfully.",
+    "passwordChangedError": "Failed to change password",
+    "requiredFields": "Please fill in all fields",
+    "passwordMismatch": "New passwords do not match",
+    "passwordTooShort": "New password must be at least 8 characters",
+    "newPasswordDifferent": "New password must be different from current password"
   },
   "admin": {
-    "dashboard": "Admin Dashboard",
-    "addOil": "Add New Oil",
+    "dashboard": "Products",
+    "addOil": "Add Product",
     "editOil": "Edit Oil",
     "oilList": "Oil Products",
-    "customerView": "Customer View",
+    "sell": "Sell",
     "noOils": "No oils found. Add your first oil product!"
   },
   "oil": {
@@ -43,9 +57,9 @@
     "updated": "Updated"
   },
   "customer": {
-    "title": "Available Oils",
+    "title": "Sell",
     "pricePerUnit": "Price per unit",
-    "calculator": "Mix Calculator",
+    "calculator": "New Sale",
     "selectOils": "Select oils and enter percentages",
     "totalPercentage": "Total Percentage",
     "totalPrice": "Total Price",
@@ -53,6 +67,51 @@
     "calculate": "Calculate Price",
     "percentage": "Percentage",
     "mmk": "MMK"
+  },
+  "reports": {
+    "today": "Today",
+    "thisMonth": "This Month",
+    "readOnly": "Read-only",
+    "asOf": "As of",
+    "todayTz": "Today (Asia/Yangon)",
+    "loadingDaily": "Loading daily summary...",
+    "unableLoadDaily": "Unable to load daily summary. Please try again.",
+    "totalSalesToday": "Total Sales Today",
+    "transactions": "Transactions",
+    "updatesWhenConfirmed": "Based on confirmed sales",
+    "topOilsByRevenueToday": "Top oils by revenue (today so far)",
+    "noSalesYetToday": "No sales yet today.",
+    "qtyShort": "Qty",
+    "month": "Month",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "loadingMonthly": "Loading summary...",
+    "unableLoadMonthly": "Unable to load summary. Please try again later.",
+    "totalSales": "Total Sales",
+    "noSalesThisMonth": "No sales recorded for this month yet.",
+    "figuresUpdateWhenConfirmed": "Based on confirmed sales.",
+    "revenuePerOil": "Revenue per Oil",
+    "topOilsByRevenue": "Top oils by revenue",
+    "noDataToChart": "No data to chart.",
+    "quantitySoldPerOil": "Quantity Sold per Oil",
+    "topOilsByQuantity": "Top oils by quantity",
+    "revenueLabel": "Revenue",
+    "quantityLabel": "Quantity",
+    "tipConfirmSaleFromNewSale": "Sales totals reflect confirmed sales.",
+    "monthNames": [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ]
   },
   "messages": {
     "oilCreated": "Oil created successfully!",
@@ -63,6 +122,9 @@
     "confirmSaleConfirm": "Are you sure you want to confirm this sale?",
     "fillAllFields": "Please fill in all required fields",
     "invalidPercentage": "Percentages must add up to 100%"
+    ,"fetchOilsFailed": "Failed to fetch oils"
+    ,"saveOilFailed": "Failed to save oil"
+    ,"deleteOilFailed": "Failed to delete oil"
   }
 }
 

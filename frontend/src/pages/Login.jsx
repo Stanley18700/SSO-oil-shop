@@ -173,7 +173,6 @@ export const Login = () => {
           </div>
         </div>
 
-        {/* No public customer view in owner-only version */}
       </div>
     </div>
   );
