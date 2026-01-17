@@ -316,7 +316,7 @@ export const NewSale = () => {
                   Ticals (Common)
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {[10, 12.5, 20, 30, 37.5, 40, 50, 60, 67.5, 70, 80, 87.5].map(t => (
+                  {[10, 12.5, 20, 30, 37.5, 40, 50, 60, 67.5, 70, 80, 87.5, 90].map(t => (
                     <button
                       key={t}
                       onClick={() => handleTicalButton(t)}
