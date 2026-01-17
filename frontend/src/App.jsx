@@ -5,6 +5,7 @@ import { ProtectedRoute } from './auth/ProtectedRoute';
 // Pages
 import { Login } from './pages/Login';
 import { Sell } from './pages/Sell';
+import { NewSale } from './pages/NewSale';
 
 /**
  * Main App component with routing
@@ -23,6 +24,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <Sell />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/new-sale"
+            element={
+              <ProtectedRoute>
+                <NewSale />
               </ProtectedRoute>
             }
           />

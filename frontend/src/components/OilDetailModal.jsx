@@ -8,7 +8,6 @@ export const OilDetailModal = ({ oil, language, isOpen, onClose }) => {
   if (!isOpen || !oil) return null;
 
   const name = language === 'en' ? oil.name_en : oil.name_my;
-  const description = language === 'en' ? oil.description_en : oil.description_my;
   const priceLabel = language === 'en' ? 'MMK' : 'ကျပ်';
   const unitLabel = getUnitLabel(oil.unit || 'viss', language);
   const perLabel = language === 'en' ? 'per' : 'တစ်';
@@ -58,36 +57,6 @@ export const OilDetailModal = ({ oil, language, isOpen, onClose }) => {
           </svg>
         </button>
 
-        {/* Oil image */}
-        <div className="h-64 bg-gradient-to-br from-primary-100 to-primary-200 overflow-hidden">
-          {oil.image_url ? (
-            <img
-              src={oil.image_url}
-              alt={name}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.target.style.display = 'none';
-              }}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <svg
-                className="w-24 h-24 text-primary-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
-                />
-              </svg>
-            </div>
-          )}
-        </div>
-
         {/* Oil details - scrollable */}
         <div className="flex-1 overflow-y-auto p-6 sm:p-8">
           {/* Title */}
@@ -97,16 +66,6 @@ export const OilDetailModal = ({ oil, language, isOpen, onClose }) => {
           >
             {name}
           </h2>
-
-          {/* Description - full text, readable */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              {language === 'en' ? 'Description' : 'ဖော်ပြချက်'}
-            </h3>
-            <p className="text-base sm:text-lg text-gray-600 leading-relaxed whitespace-pre-wrap">
-              {description || (language === 'en' ? 'No description available.' : 'ဖော်ပြချက် မရှိပါ။')}
-            </p>
-          </div>
 
           {/* Price information */}
           <div className="bg-primary-50 rounded-xl p-6 border border-primary-100">

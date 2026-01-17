@@ -342,16 +342,7 @@ console.log('Oils:', oils);
 - Verify backend auth endpoint
 - Check browser console for errors
 
-### 3. Images Not Showing
-
-**Issue**: Oil images not displaying
-
-**Solution**:
-- Verify `image_url` is a valid URL
-- Check image URL is accessible
-- Images have fallback icon SVG
-
-### 4. Styles Not Applied
+### 3. Styles Not Applied
 
 **Issue**: Tailwind classes not working
 

@@ -68,11 +68,11 @@ const createOil = async (req, res) => {
       description_en,
       description_my,
       price_per_unit,
-      image_url
+      unit
     } = req.body;
 
     // Validate required fields
-    if (!name_en || !name_my || !description_en || !description_my || !price_per_unit) {
+    if (!name_en || !name_my || !price_per_unit) {
       return res.status(400).json({
         success: false,
         error: 'Missing required fields'
@@ -91,10 +91,11 @@ const createOil = async (req, res) => {
       data: {
         name_en,
         name_my,
-        description_en,
-        description_my,
+        // Description feature removed: keep DB NOT NULL fields satisfied
+        description_en: typeof description_en === 'string' ? description_en : '',
+        description_my: typeof description_my === 'string' ? description_my : '',
         price_per_unit: parseFloat(price_per_unit),
-        image_url: image_url || null
+        unit: unit || 'viss'
       }
     });
 
@@ -125,7 +126,7 @@ const updateOil = async (req, res) => {
       description_en,
       description_my,
       price_per_unit,
-      image_url,
+      unit,
       is_active
     } = req.body;
 
@@ -153,10 +154,9 @@ const updateOil = async (req, res) => {
     const updateData = {};
     if (name_en !== undefined) updateData.name_en = name_en;
     if (name_my !== undefined) updateData.name_my = name_my;
-    if (description_en !== undefined) updateData.description_en = description_en;
-    if (description_my !== undefined) updateData.description_my = description_my;
+    // Description feature removed: ignore updates (leave existing values as-is)
     if (price_per_unit !== undefined) updateData.price_per_unit = parseFloat(price_per_unit);
-    if (image_url !== undefined) updateData.image_url = image_url;
+    if (unit !== undefined) updateData.unit = unit;
     if (is_active !== undefined) updateData.is_active = Boolean(is_active);
 
     const updatedOil = await prisma.oil.update({

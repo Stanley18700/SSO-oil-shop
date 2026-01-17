@@ -1,0 +1,28 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Start backend dev",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"dev"
+			],
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Start frontend dev (from root)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"cd \"C:\\Users\\Asus\\Desktop\\SSOapp\\frontend\"; npm run dev"
+			],
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}

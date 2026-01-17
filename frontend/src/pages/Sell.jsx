@@ -6,7 +6,6 @@ import { OilDetailModal } from '../components/OilDetailModal';
 import { LanguageToggle } from '../components/LanguageToggle';
 import { OwnerHeader } from '../components/OwnerHeader';
 import { ChangePasswordModal } from '../components/ChangePasswordModal';
-import { MixCalculator } from './MixCalculator';
 import { AdminDashboard } from './AdminDashboard';
 import { MonthlySummary } from './MonthlySummary';
 import { DailySummary } from './DailySummary';
@@ -23,13 +22,15 @@ export const Sell = () => {
   const navigate = useNavigate();
   const { logout: authLogout } = useAuth();
 
-  const [language, setLanguage] = useState('en');
+    const [language, setLanguage] = useState(() => {
+      const saved = localStorage.getItem('sso_language');
+      return saved === 'my' || saved === 'en' ? saved : 'en';
+    });
   const [oils, setOils] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedOil, setSelectedOil] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
   const [isManagementOpen, setIsManagementOpen] = useState(false);
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
   const [isDailyOpen, setIsDailyOpen] = useState(false);
@@ -42,11 +43,15 @@ export const Sell = () => {
     fetchOils();
   }, []);
 
+  // Persist language across screens
+  useEffect(() => {
+    localStorage.setItem('sso_language', language);
+  }, [language]);
+
   // Prevent body scroll when any overlay is open
   useEffect(() => {
     const anyOverlayOpen =
       isModalOpen ||
-      isCalculatorOpen ||
       isManagementOpen ||
       isSummaryOpen ||
       isDailyOpen ||
@@ -75,7 +80,7 @@ export const Sell = () => {
       document.body.style.width = '';
       document.body.style.overflow = '';
     };
-  }, [isModalOpen, isCalculatorOpen, isManagementOpen, isSummaryOpen, isDailyOpen, isChangePasswordOpen]);
+  }, [isModalOpen, isManagementOpen, isSummaryOpen, isDailyOpen, isChangePasswordOpen]);
 
   const handleLogout = async () => {
     // Best-effort server call (JWT is stateless, but keeps things symmetric)
@@ -143,7 +148,7 @@ export const Sell = () => {
         primaryAction={{
           label: t.customer.calculator,
           shortLabel: t.customer.calculator,
-          onClick: () => setIsCalculatorOpen(true),
+          onClick: () => navigate('/new-sale'),
           icon: (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -255,19 +260,6 @@ export const Sell = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
       />
-
-      {/* New Sale Overlay */}
-      {isCalculatorOpen && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center p-4">
-          <div className="w-full max-w-5xl max-h-[95vh] bg-white rounded-xl overflow-y-auto shadow-2xl">
-            <MixCalculator
-              onClose={() => setIsCalculatorOpen(false)}
-              language={language}
-              onLanguageChange={setLanguage}
-            />
-          </div>
-        </div>
-      )}
 
       {/* Products Overlay */}
       {isManagementOpen && (

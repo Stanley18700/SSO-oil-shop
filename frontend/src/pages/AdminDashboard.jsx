@@ -284,20 +284,6 @@ export const AdminDashboard = ({ onClose, language = 'en' }) => {
                 key={oil.id}
                 className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-5 border border-gray-200"
               >
-                {/* Oil Image */}
-                {oil.image_url && (
-                  <div className="mb-4 rounded-lg overflow-hidden bg-gray-100 h-40 flex items-center justify-center">
-                    <img
-                      src={oil.image_url}
-                      alt={oil.name_en}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                      }}
-                    />
-                  </div>
-                )}
-
                 {/* Oil Names */}
                 <div className="mb-3">
                   <h3 className="text-lg font-bold text-gray-900 mb-1">

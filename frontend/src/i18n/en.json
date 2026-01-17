@@ -48,10 +48,7 @@
   "oil": {
     "nameEn": "Name (English)",
     "nameMy": "Name (Myanmar)",
-    "descriptionEn": "Description (English)",
-    "descriptionMy": "Description (Myanmar)",
     "price": "Price per Unit (MMK)",
-    "imageUrl": "Image URL",
     "isActive": "Active",
     "created": "Created",
     "updated": "Updated"
@@ -67,6 +64,24 @@
     "calculate": "Calculate Price",
     "percentage": "Percentage",
     "mmk": "MMK"
+  },
+  "sell": {
+    "newSale": "New Sale",
+    "selectOils": "Select Oils to Mix",
+    "enterWeights": "Enter Weights",
+    "reviewResults": "Review & Confirm",
+    "selectQuantity": "Select Quantity",
+    "addAmount": "Add Amount",
+    "addToCart": "Add to Cart",
+    "currentSelection": "Current Selection",
+    "quantity": "Quantity",
+    "price": "Price",
+    "selectOilFirst": "Select an oil to begin",
+    "cart": "Cart",
+    "cartEmpty": "Cart is empty",
+    "clearCart": "Clear Cart",
+    "confirmSale": "Confirm Sale",
+    "totalAmount": "TOTAL"
   },
   "reports": {
     "today": "Today",

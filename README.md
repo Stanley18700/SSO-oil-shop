@@ -179,7 +179,6 @@ Response:
       "description_en": "Pure refined palm oil...",
       "description_my": "သန့်စင်ထားသော ထန်းဆီ...",
       "price_per_unit": "3500.00",
-      "image_url": "https://example.com/images/palm-oil.jpg",
       "is_active": true,
       "created_at": "2026-01-02T10:00:00.000Z",
       "updated_at": "2026-01-02T10:00:00.000Z"
@@ -199,8 +198,7 @@ Content-Type: application/json
   "name_my": "သံလွင်ဆီ",
   "description_en": "Premium quality olive oil",
   "description_my": "အရည်အသွေးမြင့် သံလွင်ဆီ",
-  "price_per_unit": 8500.00,
-  "image_url": "https://example.com/images/olive-oil.jpg"
+  "price_per_unit": 8500.00
 }
 
 Response:

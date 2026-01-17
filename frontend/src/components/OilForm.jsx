@@ -9,11 +9,8 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
   const [formData, setFormData] = useState({
     name_en: '',
     name_my: '',
-    description_en: '',
-    description_my: '',
     price_per_unit: '',
     unit: 'viss',
-    image_url: '',
     is_active: true,
   });
 
@@ -25,11 +22,8 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
       setFormData({
         name_en: oil.name_en || '',
         name_my: oil.name_my || '',
-        description_en: oil.description_en || '',
-        description_my: oil.description_my || '',
         price_per_unit: oil.price_per_unit || '',
         unit: oil.unit || 'viss',
-        image_url: oil.image_url || '',
         is_active: oil.is_active !== undefined ? oil.is_active : true,
       });
     }
@@ -55,8 +49,6 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
 
     if (!formData.name_en.trim()) newErrors.name_en = 'English name is required';
     if (!formData.name_my.trim()) newErrors.name_my = 'Myanmar name is required';
-    if (!formData.description_en.trim()) newErrors.description_en = 'English description is required';
-    if (!formData.description_my.trim()) newErrors.description_my = 'Myanmar description is required';
     if (!formData.price_per_unit || parseFloat(formData.price_per_unit) <= 0) {
       newErrors.price_per_unit = 'Valid price is required';
     }
@@ -122,42 +114,6 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
         )}
       </div>
 
-      {/* English Description */}
-      <div>
-        <label className="block text-base sm:text-tablet font-semibold text-gray-700 mb-2">
-          Description (English) *
-        </label>
-        <textarea
-          name="description_en"
-          value={formData.description_en}
-          onChange={handleChange}
-          rows="3"
-          className={`input-field text-base py-3 ${errors.description_en ? 'border-red-500' : ''}`}
-          placeholder="Describe the oil in English"
-        />
-        {errors.description_en && (
-          <p className="text-red-500 text-sm mt-1">{errors.description_en}</p>
-        )}
-      </div>
-
-      {/* Myanmar Description */}
-      <div>
-        <label className="block text-base sm:text-tablet font-semibold text-gray-700 mb-2">
-          Description (Myanmar) *
-        </label>
-        <textarea
-          name="description_my"
-          value={formData.description_my}
-          onChange={handleChange}
-          rows="3"
-          className={`input-field text-base py-3 ${errors.description_my ? 'border-red-500' : ''}`}
-          placeholder="ဆီအကြောင်း မြန်မာဘာသာဖြင့် ဖော်ပြပါ"
-        />
-        {errors.description_my && (
-          <p className="text-red-500 text-sm mt-1">{errors.description_my}</p>
-        )}
-      </div>
-
       {/* Price */}
       <div>
         <label className="block text-base sm:text-tablet font-semibold text-gray-700 mb-2">
@@ -200,35 +156,6 @@ export const OilForm = ({ oil, onSubmit, onCancel, isLoading }) => {
         <p className="text-sm text-gray-500 mt-2">
           💡 <strong>Viss (ပိဿာ)</strong> is the traditional Myanmar weight unit (~1.6 kg). Most oil shops use Viss.
         </p>
-      </div>
-
-      {/* Image URL */}
-      <div>
-        <label className="block text-base sm:text-tablet font-semibold text-gray-700 mb-2">
-          Image URL (optional)
-        </label>
-        <input
-          type="url"
-          name="image_url"
-          value={formData.image_url}
-          onChange={handleChange}
-          className="input-field text-base py-3"
-          placeholder="https://example.com/image.jpg"
-          style={{ minHeight: '50px' }}
-        />
-        {/* Image Preview */}
-        {formData.image_url && (
-          <div className="mt-3 rounded-lg overflow-hidden bg-gray-100 h-40 flex items-center justify-center border-2 border-gray-300">
-            <img
-              src={formData.image_url}
-              alt="Preview"
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.target.parentElement.innerHTML = '<p class="text-red-500 text-sm">❌ Invalid image URL</p>';
-              }}
-            />
-          </div>
-        )}
       </div>
 
       {/* Active Status - Better mobile toggle */}

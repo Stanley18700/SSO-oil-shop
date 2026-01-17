@@ -48,10 +48,7 @@
   "oil": {
     "nameEn": "အမည် (အင်္ဂလိပ်)",
     "nameMy": "အမည် (မြန်မာ)",
-    "descriptionEn": "ဖော်ပြချက် (အင်္ဂလိပ်)",
-    "descriptionMy": "ဖော်ပြချက် (မြန်မာ)",
     "price": "တစ်ယူနစ် ဈေးနှုန်း (ကျပ်)",
-    "imageUrl": "ပုံ လင့်ခ်",
     "isActive": "အသုံးပြုနိုင်သော",
     "created": "ဖန်တီးခဲ့သည်",
     "updated": "ပြင်ဆင်ခဲ့သည်"
@@ -67,6 +64,24 @@
     "calculate": "ဈေးနှုန်း တွက်ချက်မည်",
     "percentage": "ရာခိုင်နှုန်း",
     "mmk": "ကျပ်"
+  },
+  "sell": {
+    "newSale": "အရောင်းအသစ်",
+    "selectOils": "ရောစပ်မည့် ဆီများရွေးချယ်ပါ",
+    "enterWeights": "အလေးချိန် ထည့်ပါ",
+    "reviewResults": "သုံးသပ်၍ အတည်ပြုပါ",
+    "selectQuantity": "ပမာဏရွေးချယ်ပါ",
+    "addAmount": "ပမာဏထည့်ပါ",
+    "addToCart": "ခြင်းထဲထည့်ပါ",
+    "currentSelection": "ရွေးချယ်ထားသောအရာ",
+    "quantity": "ပမာဏ",
+    "price": "ဈေး",
+    "selectOilFirst": "ဆီရွေးချယ်ပါ",
+    "cart": "ခြင်း",
+    "cartEmpty": "ခြင်းထဲမှာ ဘာမှမရှိပါ",
+    "clearCart": "ခြင်းရှင်းပါ",
+    "confirmSale": "ရောင်းအား အတည်ပြုမည်",
+    "totalAmount": "စုစုပေါင်း"
   },
   "reports": {
     "today": "ယနေ့",
