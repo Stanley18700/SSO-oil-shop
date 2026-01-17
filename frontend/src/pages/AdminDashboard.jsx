@@ -176,18 +176,7 @@ export const AdminDashboard = ({ onClose, language = 'en' }) => {
                 <span className="sm:hidden">{t.customer.title}</span>
               </button>
 
-              {/* Desktop: show logout button. Mobile: move into menu to avoid stacked buttons */}
-              <div className="hidden sm:block">
-                <button
-                  onClick={handleLogout}
-                  className="btn-primary text-sm sm:text-base py-2 sm:py-3 px-3 sm:px-4 whitespace-nowrap"
-                  style={{ minHeight: '44px' }}
-                >
-                  {t.common.logout}
-                </button>
-              </div>
-
-              <div className="sm:hidden relative">
+              <div className="relative">
                 <button
                   type="button"
                   onClick={() => setIsHeaderMenuOpen((v) => !v)}
