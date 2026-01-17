@@ -160,52 +160,21 @@ export const AdminDashboard = ({ onClose, language = 'en' }) => {
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
               {t.admin.dashboard}
             </h1>
-            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-              <button
-                onClick={() => {
-                  if (onClose) {
-                    onClose();
-                  } else {
-                    navigate('/');
-                  }
-                }}
-                className="btn-secondary text-sm sm:text-base py-2 sm:py-3 px-3 sm:px-4 whitespace-nowrap"
-                style={{ minHeight: '44px' }}
-              >
-                <span className="hidden sm:inline">{t.admin.sell}</span>
-                <span className="sm:hidden">{t.customer.title}</span>
-              </button>
-
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setIsHeaderMenuOpen((v) => !v)}
-                  className="btn-secondary py-2 px-3"
-                  style={{ minHeight: '44px' }}
-                  aria-haspopup="menu"
-                  aria-expanded={isHeaderMenuOpen}
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </button>
-                {isHeaderMenuOpen ? (
-                  <div role="menu" className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden">
-                    <button
-                      type="button"
-                      role="menuitem"
-                      onClick={() => {
-                        setIsHeaderMenuOpen(false);
-                        handleLogout();
-                      }}
-                      className="w-full px-4 py-3 text-left font-semibold hover:bg-gray-50"
-                    >
-                      {t.common.logout}
-                    </button>
-                  </div>
-                ) : null}
-              </div>
-            </div>
+            <button
+              onClick={() => {
+                if (onClose) {
+                  onClose();
+                } else {
+                  navigate('/');
+                }
+              }}
+              className="text-gray-500 hover:text-gray-700 transition-colors p-2"
+              aria-label="Close"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
         </div>
       </header>
