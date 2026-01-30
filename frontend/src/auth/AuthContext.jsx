@@ -19,6 +19,26 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(false);
   }, []);
 
+  // Keep auth state in sync if token becomes invalid/removed.
+  useEffect(() => {
+    const handleLogoutEvent = () => {
+      setIsAuthenticated(false);
+    };
+
+    const handleStorage = (e) => {
+      if (e.key === 'token') {
+        setIsAuthenticated(checkAuth());
+      }
+    };
+
+    window.addEventListener('auth:logout', handleLogoutEvent);
+    window.addEventListener('storage', handleStorage);
+    return () => {
+      window.removeEventListener('auth:logout', handleLogoutEvent);
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, []);
+
   /**
    * Login function - sets authenticated state to true
    */

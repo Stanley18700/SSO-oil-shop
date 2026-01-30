@@ -23,6 +23,24 @@ const removeToken = () => {
   localStorage.removeItem('token');
 };
 
+class ApiError extends Error {
+  /** @param {{message:string,status:number,data?:any}} params */
+  constructor({ message, status, data }) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.data = data;
+  }
+}
+
+const notifyAuthInvalid = (reason = 'invalid_token') => {
+  try {
+    window.dispatchEvent(new CustomEvent('auth:logout', { detail: { reason } }));
+  } catch {
+    // ignore
+  }
+};
+
 /**
  * Generic fetch wrapper with error handling
  */
@@ -46,13 +64,26 @@ const fetchAPI = async (endpoint, options = {}) => {
       ...options,
       headers,
     });
-    
-    const data = await response.json();
-    
+
+    const contentType = response.headers.get('content-type') || '';
+    const isJson = contentType.includes('application/json');
+    const data = isJson ? await response.json() : await response.text();
+
     if (!response.ok) {
-      throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      const message =
+        (isJson && data && typeof data === 'object' && (data.error || data.message))
+          ? (data.error || data.message)
+          : `HTTP error! status: ${response.status}`;
+
+      // If token is missing/expired/invalid, force logout so UI doesn't get stuck.
+      if (response.status === 401 || response.status === 403) {
+        removeToken();
+        notifyAuthInvalid('token_expired_or_invalid');
+      }
+
+      throw new ApiError({ message, status: response.status, data });
     }
-    
+
     return data;
   } catch (error) {
     console.error('API Error:', error);

@@ -220,7 +220,7 @@ export const NewSale = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen landscape:h-screen landscape:overflow-hidden bg-gray-50 flex flex-col">
       {/* Header */}
       <div className="bg-gradient-to-r from-amber-600 to-amber-500 text-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -241,22 +241,22 @@ export const NewSale = () => {
       </div>
 
       {/* Main Content - 2 column on tablet+, stacked on mobile */}
-      <div className="max-w-7xl mx-auto p-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="flex-1 min-h-0 w-full max-w-7xl mx-auto p-4 landscape:p-2 landscape:overflow-hidden">
+        <div className="h-full min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-6 landscape:gap-4">
           
           {/* LEFT SIDE - INPUT / SELECTION */}
-          <div className="space-y-6">
+          <div className="h-full min-h-0 flex flex-col gap-4 landscape:gap-3">
             
             {/* 1. Available Oils */}
-            <div className="bg-white rounded-lg shadow-md p-4">
-              <h2 className="text-lg font-semibold mb-3 text-gray-800">
+            <div className="bg-white rounded-lg shadow-md p-2 sm:p-3 landscape:p-2 !overflow-visible !max-h-none">
+              <h2 className="text-base font-semibold mb-2 landscape:mb-1 landscape:text-sm text-gray-800">
                 {t.admin?.oilList || 'Available Oils'}
               </h2>
               {oils.length === 0 ? (
                 <p className="text-gray-500">{t.admin?.noOils || 'No oils available'}</p>
               ) : (
-                <div className="max-h-96 overflow-y-auto pr-2">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3">
+                <div className="!overflow-visible !max-h-none">
+                  <div className="grid gap-2 landscape:gap-1 [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))] landscape:[grid-template-columns:repeat(auto-fit,minmax(120px,1fr))]">
                     {oils.map((oil) => {
                       const isSelected = selectedOilId === oil.id;
                       const oilName = language === 'en' ? oil.name_en : oil.name_my;
@@ -264,14 +264,16 @@ export const NewSale = () => {
                         <button
                           key={oil.id}
                           onClick={() => handleOilSelect(oil.id)}
-                          className={`p-4 rounded-lg border-2 transition-all text-left ${
+                          className={`p-2 landscape:p-1.5 rounded-md border-2 transition-all text-left ${
                             isSelected
                               ? 'border-amber-500 bg-amber-50 shadow-md'
                               : 'border-gray-200 bg-white hover:border-amber-300 hover:bg-amber-25'
                           }`}
                         >
-                          <div className="font-semibold text-gray-900">{oilName}</div>
-                          <div className="text-sm text-gray-600 mt-1">
+                          <div className="font-semibold text-gray-900 text-xs leading-tight truncate">
+                            {oilName}
+                          </div>
+                          <div className="text-[11px] text-gray-600 mt-1 landscape:mt-0.5 truncate">
                             {parseFloat(oil.price_per_unit).toLocaleString()} MMK / {getUnitLabel(oil.unit, language)}
                           </div>
                         </button>
@@ -283,13 +285,13 @@ export const NewSale = () => {
             </div>
 
             {/* 2. Quantity Selection Buttons */}
-            <div className="bg-white rounded-lg shadow-md p-4">
-              <h2 className="text-lg font-semibold mb-3 text-gray-800">
+            <div className="bg-white rounded-lg shadow-md p-3 landscape:p-2">
+              <h2 className="text-lg font-semibold mb-3 landscape:mb-2 landscape:text-base text-gray-800">
                 {t.sell?.selectQuantity || 'Select Quantity'}
               </h2>
               
               {/* Row 1 - Viss (whole) */}
-              <div className="mb-4">
+              <div className="mb-4 landscape:mb-2">
                 <div className="text-sm font-medium text-gray-700 mb-2">
                   {getUnitLabel('viss', language)} (Whole)
                 </div>
@@ -298,7 +300,7 @@ export const NewSale = () => {
                     <button
                       key={v}
                       onClick={() => handleVissButton(v)}
-                      className={`px-4 py-2 rounded-md border-2 font-medium transition-all ${
+                      className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
                         selectedViss === v
                           ? 'border-amber-500 bg-amber-500 text-white'
                           : 'border-gray-300 bg-white text-gray-700 hover:border-amber-400 hover:bg-amber-50'
@@ -311,7 +313,7 @@ export const NewSale = () => {
               </div>
 
               {/* Row 2 - Ticals (common) */}
-              <div className="mb-4">
+              <div className="mb-4 landscape:mb-2">
                 <div className="text-sm font-medium text-gray-700 mb-2">
                   Ticals (Common)
                 </div>
@@ -320,7 +322,7 @@ export const NewSale = () => {
                     <button
                       key={t}
                       onClick={() => handleTicalButton(t)}
-                      className={`px-4 py-2 rounded-md border-2 font-medium transition-all ${
+                      className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
                         selectedTicals === t
                           ? 'border-blue-500 bg-blue-500 text-white'
                           : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
@@ -342,7 +344,7 @@ export const NewSale = () => {
                     <button
                       key={t}
                       onClick={() => handleTicalButton(t)}
-                      className={`px-4 py-2 rounded-md border-2 font-medium transition-all ${
+                      className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
                         selectedTicals === t
                           ? 'border-blue-500 bg-blue-500 text-white'
                           : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
@@ -356,11 +358,11 @@ export const NewSale = () => {
             </div>
 
             {/* 3. Action Button */}
-            <div className="bg-white rounded-lg shadow-md p-4">
+            <div className="bg-white rounded-lg shadow-md p-3 landscape:p-2">
               <button
                 onClick={handleAddToCart}
                 disabled={!selectedOil || totalSelectedQuantityViss === 0}
-                className="w-full py-4 px-6 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-xl rounded-lg shadow-lg transition-all"
+                className="w-full py-4 landscape:py-3 px-6 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-xl landscape:text-lg rounded-lg shadow-lg transition-all"
               >
                 {t.sell?.addToCart || 'Add to Cart'}
               </button>
@@ -368,11 +370,11 @@ export const NewSale = () => {
           </div>
 
           {/* RIGHT SIDE - LIVE CALCULATION / CART */}
-          <div className="space-y-6">
+          <div className="h-full min-h-0 flex flex-col gap-6 landscape:gap-4">
             
             {/* 4. Live Price Breakdown */}
-            <div className="bg-white rounded-lg shadow-md p-4">
-              <h2 className="text-lg font-semibold mb-3 text-gray-800">
+            <div className="bg-white rounded-lg shadow-md p-4 landscape:p-3">
+              <h2 className="text-lg font-semibold mb-3 landscape:mb-2 landscape:text-base text-gray-800">
                 {t.sell?.currentSelection || 'Current Selection'}
               </h2>
               {selectedOil ? (
@@ -407,8 +409,8 @@ export const NewSale = () => {
             </div>
 
             {/* 5. Cart Items */}
-            <div className="bg-white rounded-lg shadow-md p-4">
-              <h2 className="text-lg font-semibold mb-3 text-gray-800">
+            <div className="bg-white rounded-lg shadow-md p-4 landscape:p-3">
+              <h2 className="text-lg font-semibold mb-3 landscape:mb-2 landscape:text-base text-gray-800">
                 {t.sell?.cart || 'Cart'}
               </h2>
               {cart.length === 0 ? (
@@ -448,12 +450,12 @@ export const NewSale = () => {
             </div>
 
             {/* 6. Cart Total & Final Actions */}
-            <div className="bg-white rounded-lg shadow-md p-4">
+            <div className="bg-white rounded-lg shadow-md p-4 landscape:p-3">
               <div className="mb-4 pb-4 border-b">
                 <div className="text-sm text-gray-600 mb-1">
                   {t.sell?.totalAmount || 'TOTAL'}
                 </div>
-                <div className="text-4xl font-bold text-amber-600">
+                <div className="text-4xl landscape:text-3xl font-bold text-amber-600">
                   {cartTotal > 0 ? `${cartTotal.toLocaleString()} MMK` : '0 MMK'}
                 </div>
                 {cart.length > 0 && (
