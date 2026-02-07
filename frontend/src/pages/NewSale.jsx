@@ -340,34 +340,50 @@ export const NewSale = () => {
                 <div className="text-sm font-medium text-gray-700 mb-2">
                   Ticals (0.1 - 90)
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-3 items-center">
-                  <input
-                    type="number"
-                    min="0.1"
-                    max="90"
-                    step="0.1"
-                    value={entryTicals === 0 ? '' : entryTicals}
-                    onChange={(e) => {
-                      const value = parseFloat(e.target.value);
-                      if (!Number.isFinite(value)) {
-                        setEntryTicals(0);
-                        return;
-                      }
-                      const clamped = Math.min(Math.max(value, 0), 90);
-                      setEntryTicals(clamped);
-                    }}
-                    placeholder="0.1"
-                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-                  />
-                  <input
-                    type="range"
-                    min="0"
-                    max="90"
-                    step="0.1"
-                    value={entryTicals}
-                    onChange={(e) => setEntryTicals(parseFloat(e.target.value))}
-                    className="w-full"
-                  />
+                <div className="flex flex-wrap gap-2">
+                  {[10, 20, 30, 40, 50, 60, 70, 80, 90].map(t => (
+                    <button
+                      key={t}
+                      onClick={() => setEntryTicals(t)}
+                      className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
+                        entryTicals === t
+                          ? 'border-blue-500 bg-blue-500 text-white'
+                          : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(t => (
+                    <button
+                      key={t}
+                      onClick={() => setEntryTicals(t)}
+                      className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
+                        entryTicals === t
+                          ? 'border-blue-500 bg-blue-500 text-white'
+                          : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9].map(t => (
+                    <button
+                      key={t}
+                      onClick={() => setEntryTicals(t)}
+                      className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
+                        entryTicals === t
+                          ? 'border-blue-500 bg-blue-500 text-white'
+                          : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
                 </div>
               </div>
 
