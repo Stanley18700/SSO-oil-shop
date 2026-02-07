@@ -274,20 +274,20 @@ export const NewSale = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col text-[17px] leading-relaxed">
       {/* Header */}
       <div className="bg-gradient-to-r from-amber-600 to-amber-500 text-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-3 py-1.5 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="max-w-7xl mx-auto px-3 py-0 flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={() => navigate('/')}
               className="text-white hover:text-amber-100 transition-colors"
               aria-label="Back"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
             </button>
-            <h1 className="text-base font-semibold">{t.sell?.newSale || 'New Sale'}</h1>
+            <h1 className="text-xs font-semibold leading-none">{t.sell?.newSale || 'New Sale'}</h1>
           </div>
-          <LanguageToggle language={language} onLanguageChange={setLanguage} />
+          <LanguageToggle language={language} onLanguageChange={setLanguage} variant="compact" />
         </div>
       </div>
 
