@@ -271,21 +271,21 @@ export const NewSale = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col text-[17px] leading-relaxed">
       {/* Header */}
-      <div className="bg-gradient-to-r from-amber-600 to-amber-500 text-white shadow-md">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <div className="bg-gradient-to-r from-amber-600 to-amber-500 text-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-3 py-1.5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => navigate('/')}
               className="text-white hover:text-amber-100 transition-colors"
               aria-label="Back"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
             </button>
-            <h1 className="text-2xl font-bold">{t.sell?.newSale || 'New Sale'}</h1>
+            <h1 className="text-base font-semibold">{t.sell?.newSale || 'New Sale'}</h1>
           </div>
           <LanguageToggle language={language} onLanguageChange={setLanguage} />
         </div>
@@ -300,7 +300,7 @@ export const NewSale = () => {
             
             {/* 1. Available Oils */}
             <div className="bg-white rounded-lg shadow-md p-2 sm:p-3 landscape:p-2 !overflow-visible !max-h-none">
-              <h2 className="text-base font-semibold mb-2 landscape:mb-1 landscape:text-sm text-gray-800">
+              <h2 className="text-lg font-semibold mb-2 landscape:mb-1 landscape:text-base text-gray-800">
                 {t.admin?.oilList || 'Available Oils'}
               </h2>
               {oils.length === 0 ? (
@@ -321,10 +321,10 @@ export const NewSale = () => {
                               : 'border-gray-200 bg-white hover:border-amber-300 hover:bg-amber-25'
                           }`}
                         >
-                          <div className="font-semibold text-gray-900 text-xs leading-tight truncate">
+                          <div className="font-semibold text-gray-900 text-sm leading-snug truncate">
                             {oilName}
                           </div>
-                          <div className="text-[11px] text-gray-600 mt-1 landscape:mt-0.5 truncate">
+                          <div className="text-xs font-semibold text-gray-800 mt-1 truncate">
                             {parseFloat(oil.price_per_unit).toLocaleString()} MMK / {getUnitLabel(oil.unit, language)}
                           </div>
                         </button>
@@ -337,13 +337,13 @@ export const NewSale = () => {
 
             {/* 2. Quantity Selection Buttons */}
             <div className="bg-white rounded-lg shadow-md p-3 landscape:p-2">
-              <h2 className="text-lg font-semibold mb-3 landscape:mb-2 landscape:text-base text-gray-800">
+              <h2 className="text-xl font-semibold mb-3 landscape:mb-2 landscape:text-lg text-gray-800">
                 {t.sell?.selectQuantity || 'Select Quantity'}
               </h2>
               
               {/* Row 1 - Viss (whole) */}
               <div className="mb-4 landscape:mb-2">
-                <div className="text-sm font-medium text-gray-700 mb-2">
+                <div className="text-base font-medium text-gray-700 mb-2">
                   {getUnitLabel('viss', language)} (Whole)
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -351,7 +351,7 @@ export const NewSale = () => {
                     <button
                       key={v}
                       onClick={() => handleVissButton(v)}
-                      className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
+                      className={`px-4 py-2.5 landscape:px-3 landscape:py-2 text-base rounded-md border-2 font-medium transition-all ${
                         entryViss === v
                           ? 'border-amber-500 bg-amber-500 text-white'
                           : 'border-gray-300 bg-white text-gray-700 hover:border-amber-400 hover:bg-amber-50'
@@ -365,7 +365,7 @@ export const NewSale = () => {
 
               {/* Row 2 - Ticals (0.1 to 90) */}
               <div className="mb-4 landscape:mb-2">
-                <div className="text-sm font-medium text-gray-700 mb-2">
+                <div className="text-base font-medium text-gray-700 mb-2">
                   Ticals (0.1 - 90)
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -373,7 +373,7 @@ export const NewSale = () => {
                     <button
                       key={t}
                       onClick={() => handleTicalButtonToggle(t)}
-                      className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
+                      className={`px-4 py-2.5 landscape:px-3 landscape:py-2 text-base rounded-md border-2 font-medium transition-all ${
                         selectedTicalButtons.includes(t.toString())
                           ? 'border-blue-500 bg-blue-500 text-white'
                           : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
@@ -388,7 +388,7 @@ export const NewSale = () => {
                     <button
                       key={t}
                       onClick={() => handleTicalButtonToggle(t)}
-                      className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
+                      className={`px-4 py-2.5 landscape:px-3 landscape:py-2 text-base rounded-md border-2 font-medium transition-all ${
                         selectedTicalButtons.includes(t.toString())
                           ? 'border-blue-500 bg-blue-500 text-white'
                           : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
@@ -403,7 +403,7 @@ export const NewSale = () => {
                     <button
                       key={t}
                       onClick={() => handleTicalButtonToggle(t)}
-                      className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
+                      className={`px-4 py-2.5 landscape:px-3 landscape:py-2 text-base rounded-md border-2 font-medium transition-all ${
                         selectedTicalButtons.includes(t.toString())
                           ? 'border-blue-500 bg-blue-500 text-white'
                           : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
@@ -419,7 +419,7 @@ export const NewSale = () => {
                 <button
                   onClick={handleAddQuantity}
                   disabled={!selectedOil || (entryViss === 0 && entryTicals === 0)}
-                  className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-lg rounded-lg shadow-md transition-all"
+                  className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-xl rounded-lg shadow-md transition-all"
                 >
                   Add Quantity
                 </button>
@@ -431,7 +431,7 @@ export const NewSale = () => {
               <button
                 onClick={handleAddToCart}
                 disabled={pendingSelections.length === 0}
-                className="w-full py-4 landscape:py-3 px-6 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-xl landscape:text-lg rounded-lg shadow-lg transition-all"
+                className="w-full py-4 landscape:py-3 px-6 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-2xl landscape:text-xl rounded-lg shadow-lg transition-all"
               >
                 {t.sell?.addToCart || 'Add to Cart'}
               </button>
@@ -441,17 +441,17 @@ export const NewSale = () => {
           {/* RIGHT SIDE - LIVE CALCULATION / CART */}
           <div className="flex flex-col gap-6 landscape:gap-4">
             {/* Sticky Actions & Total */}
-            <div className="sticky top-2 z-30 bg-white rounded-lg shadow-md border border-amber-200 p-3">
+            <div className="sticky top-2 z-30 bg-white rounded-lg shadow-md border border-amber-200 p-4">
               <div className="flex items-center justify-between gap-3 flex-wrap">
                 <div>
                   <div className="text-xs text-gray-500 uppercase">
                     {t.sell?.totalAmount || 'TOTAL'}
                   </div>
-                  <div className="text-2xl font-bold text-amber-600">
+                  <div className="text-3xl font-bold text-amber-600">
                     {cartTotal > 0 ? `${cartTotal.toLocaleString()} MMK` : '0 MMK'}
                   </div>
                   {cart.length > 0 && (
-                    <div className="text-xs text-gray-600 mt-1">
+                    <div className="text-sm text-gray-700 mt-1">
                       {cart.length} {cart.length === 1 ? 'item' : 'items'} • {cartTotalQuantity.toFixed(2)} {getUnitLabel('viss', language)}
                     </div>
                   )}
@@ -460,14 +460,14 @@ export const NewSale = () => {
                   <button
                     onClick={handleClearCart}
                     disabled={cart.length === 0}
-                    className="flex-1 sm:flex-none py-2 px-4 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-sm rounded-lg shadow-md transition-all"
+                    className="flex-1 sm:flex-none py-2.5 px-5 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-base rounded-lg shadow-md transition-all"
                   >
                     {t.sell?.clearCart || 'Clear Cart'}
                   </button>
                   <button
                     onClick={handleConfirmSaleClick}
                     disabled={cart.length === 0}
-                    className="flex-1 sm:flex-none py-2 px-4 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-sm rounded-lg shadow-md transition-all"
+                    className="flex-1 sm:flex-none py-2.5 px-5 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-base rounded-lg shadow-md transition-all"
                   >
                     {t.sell?.confirmSale || 'Confirm Sale'}
                   </button>
@@ -476,7 +476,7 @@ export const NewSale = () => {
             </div>
             {/* 4. Live Price Breakdown */}
             <div className="bg-white rounded-lg shadow-md p-4 landscape:p-3">
-              <h2 className="text-lg font-semibold mb-3 landscape:mb-2 landscape:text-base text-gray-800">
+              <h2 className="text-xl font-semibold mb-3 landscape:mb-2 landscape:text-lg text-gray-800">
                 {t.sell?.currentSelection || 'Current Selection'}
               </h2>
               {pendingSelections.length > 0 ? (
@@ -485,15 +485,15 @@ export const NewSale = () => {
                     {pendingSelections.map((item) => (
                       <div key={item.oilId} className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
                         <div>
-                          <div className="font-semibold text-gray-900">{item.oilName}</div>
-                          <div className="text-sm text-gray-600">
+                          <div className="font-semibold text-gray-900 text-base">{item.oilName}</div>
+                          <div className="text-base text-gray-700">
                             {item.viss > 0 && `${item.viss} ${getUnitLabel('viss', language)}`}
                             {item.viss > 0 && item.ticals > 0 && ' + '}
                             {item.ticals > 0 && `${formatTicals(item.ticals)} Ticals`}
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <div className="font-bold text-amber-600">
+                          <div className="font-bold text-amber-600 text-lg">
                             {item.price.toLocaleString()} MMK
                           </div>
                           <button
@@ -509,9 +509,9 @@ export const NewSale = () => {
                       </div>
                     ))}
                   </div>
-                  <div className="flex justify-between pt-2 border-t">
-                    <span className="text-gray-700">{t.sell?.price || 'Price'}:</span>
-                    <span className="text-xl font-bold text-amber-600">
+                  <div className="flex items-center justify-between pt-2 border-t">
+                    <span className="text-gray-800 font-semibold">{t.sell?.price || 'Price'}:</span>
+                    <span className="text-2xl font-bold text-white bg-amber-600 px-3 py-1 rounded-full shadow">
                       {pendingTotal > 0 ? `${pendingTotal.toLocaleString()} MMK` : '—'}
                     </span>
                   </div>
@@ -525,7 +525,7 @@ export const NewSale = () => {
 
             {/* 5. Cart Items */}
             <div className="bg-white rounded-lg shadow-md p-4 landscape:p-3">
-              <h2 className="text-lg font-semibold mb-3 landscape:mb-2 landscape:text-base text-gray-800">
+              <h2 className="text-xl font-semibold mb-3 landscape:mb-2 landscape:text-lg text-gray-800">
                 {t.sell?.cart || 'Cart'}
               </h2>
               {cart.length === 0 ? (
@@ -537,15 +537,15 @@ export const NewSale = () => {
                   {cart.map((item, index) => (
                     <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                       <div className="flex-1">
-                        <div className="font-semibold text-gray-900">{item.oilName}</div>
-                        <div className="text-sm text-gray-600">
+                        <div className="font-semibold text-gray-900 text-base">{item.oilName}</div>
+                        <div className="text-base text-gray-700">
                           {item.viss > 0 && `${item.viss} ${getUnitLabel('viss', language)}`}
                           {item.viss > 0 && item.ticals > 0 && ' + '}
                           {item.ticals > 0 && `${formatTicals(item.ticals)} Ticals`}
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <div className="font-bold text-gray-900">
+                        <div className="font-bold text-gray-900 text-lg">
                           {item.price.toLocaleString()} MMK
                         </div>
                         <button
