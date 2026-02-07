@@ -92,12 +92,14 @@ export const NewSale = () => {
     const key = ticals.toString();
     setSelectedTicalButtons(prev => {
       const exists = prev.includes(key);
-      const next = exists ? prev.filter(value => value !== key) : [...prev, key];
-      const total = next.reduce((sum, value) => sum + parseFloat(value), 0);
-      setEntryTicals(total);
-      return next;
+      return exists ? prev.filter(value => value !== key) : [...prev, key];
     });
   };
+
+  useEffect(() => {
+    const total = selectedTicalButtons.reduce((sum, value) => sum + parseFloat(value), 0);
+    setEntryTicals(total);
+  }, [selectedTicalButtons]);
 
   const normalizeQuantity = (viss, ticals) => {
     const roundedTicals = Math.round(ticals * 10) / 10;
