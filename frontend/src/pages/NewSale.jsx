@@ -32,6 +32,7 @@ export const NewSale = () => {
   const [selectedOilId, setSelectedOilId] = useState(null);
   const [entryViss, setEntryViss] = useState(0);
   const [entryTicals, setEntryTicals] = useState(0);
+  const [selectedTicalButtons, setSelectedTicalButtons] = useState([]);
   const [pendingSelections, setPendingSelections] = useState([]);
 
   // Cart: array of { oilId, oilName, viss, ticals, totalQuantityViss, price }
@@ -87,6 +88,16 @@ export const NewSale = () => {
     setEntryViss(entryViss === viss ? 0 : viss);
   };
 
+  const handleTicalButtonToggle = (ticals) => {
+    setSelectedTicalButtons(prev => {
+      const exists = prev.includes(ticals);
+      const next = exists ? prev.filter(value => value !== ticals) : [...prev, ticals];
+      const total = next.reduce((sum, value) => sum + value, 0);
+      setEntryTicals(total);
+      return next;
+    });
+  };
+
   const normalizeQuantity = (viss, ticals) => {
     const roundedTicals = Math.round(ticals * 10) / 10;
     const extraViss = Math.floor(roundedTicals / 100);
@@ -135,6 +146,7 @@ export const NewSale = () => {
 
     setEntryViss(0);
     setEntryTicals(0);
+    setSelectedTicalButtons([]);
   };
 
   const handleAddToCart = () => {
@@ -172,6 +184,7 @@ export const NewSale = () => {
     setPendingSelections([]);
     setEntryViss(0);
     setEntryTicals(0);
+    setSelectedTicalButtons([]);
   };
 
   const handleClearCart = () => {
@@ -179,6 +192,7 @@ export const NewSale = () => {
     setPendingSelections([]);
     setEntryViss(0);
     setEntryTicals(0);
+    setSelectedTicalButtons([]);
     setSelectedOilId(null);
   };
 
@@ -214,6 +228,7 @@ export const NewSale = () => {
       setPendingSelections([]);
       setEntryViss(0);
       setEntryTicals(0);
+      setSelectedTicalButtons([]);
       setSelectedOilId(null);
       setShowConfirmModal(false);
       
@@ -354,9 +369,9 @@ export const NewSale = () => {
                   {[10, 20, 30, 40, 50, 60, 70, 80, 90].map(t => (
                     <button
                       key={t}
-                      onClick={() => setEntryTicals(t)}
+                      onClick={() => handleTicalButtonToggle(t)}
                       className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
-                        entryTicals === t
+                        selectedTicalButtons.includes(t)
                           ? 'border-blue-500 bg-blue-500 text-white'
                           : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
                       }`}
@@ -369,9 +384,9 @@ export const NewSale = () => {
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(t => (
                     <button
                       key={t}
-                      onClick={() => setEntryTicals(t)}
+                      onClick={() => handleTicalButtonToggle(t)}
                       className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
-                        entryTicals === t
+                        selectedTicalButtons.includes(t)
                           ? 'border-blue-500 bg-blue-500 text-white'
                           : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
                       }`}
@@ -384,9 +399,9 @@ export const NewSale = () => {
                   {[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9].map(t => (
                     <button
                       key={t}
-                      onClick={() => setEntryTicals(t)}
+                      onClick={() => handleTicalButtonToggle(t)}
                       className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
-                        entryTicals === t
+                        selectedTicalButtons.includes(t)
                           ? 'border-blue-500 bg-blue-500 text-white'
                           : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
                       }`}
