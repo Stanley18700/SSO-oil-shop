@@ -292,7 +292,7 @@ export const NewSale = () => {
       </div>
 
       {/* Main Content - 2 column on tablet+, stacked on mobile */}
-      <div className="flex-1 min-h-0 w-full max-w-7xl mx-auto p-4 landscape:p-2 pb-36 landscape:pb-28">
+      <div className="flex-1 min-h-0 w-full max-w-7xl mx-auto p-4 landscape:p-2 pb-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 landscape:gap-4">
           
           {/* LEFT SIDE - INPUT / SELECTION */}
@@ -440,6 +440,40 @@ export const NewSale = () => {
 
           {/* RIGHT SIDE - LIVE CALCULATION / CART */}
           <div className="flex flex-col gap-6 landscape:gap-4">
+            {/* Sticky Actions & Total */}
+            <div className="sticky top-2 z-30 bg-white rounded-lg shadow-md border border-amber-200 p-3">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div>
+                  <div className="text-xs text-gray-500 uppercase">
+                    {t.sell?.totalAmount || 'TOTAL'}
+                  </div>
+                  <div className="text-2xl font-bold text-amber-600">
+                    {cartTotal > 0 ? `${cartTotal.toLocaleString()} MMK` : '0 MMK'}
+                  </div>
+                  {cart.length > 0 && (
+                    <div className="text-xs text-gray-600 mt-1">
+                      {cart.length} {cart.length === 1 ? 'item' : 'items'} • {cartTotalQuantity.toFixed(2)} {getUnitLabel('viss', language)}
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <button
+                    onClick={handleClearCart}
+                    disabled={cart.length === 0}
+                    className="flex-1 sm:flex-none py-2 px-4 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-sm rounded-lg shadow-md transition-all"
+                  >
+                    {t.sell?.clearCart || 'Clear Cart'}
+                  </button>
+                  <button
+                    onClick={handleConfirmSaleClick}
+                    disabled={cart.length === 0}
+                    className="flex-1 sm:flex-none py-2 px-4 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-sm rounded-lg shadow-md transition-all"
+                  >
+                    {t.sell?.confirmSale || 'Confirm Sale'}
+                  </button>
+                </div>
+              </div>
+            </div>
             {/* 4. Live Price Breakdown */}
             <div className="bg-white rounded-lg shadow-md p-4 landscape:p-3">
               <h2 className="text-lg font-semibold mb-3 landscape:mb-2 landscape:text-base text-gray-800">
@@ -530,44 +564,6 @@ export const NewSale = () => {
               )}
             </div>
 
-            {/* 6. Cart Summary (inline) */}
-            {cart.length > 0 && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
-                <span className="text-sm text-gray-600">{cart.length} {cart.length === 1 ? 'item' : 'items'} • {cartTotalQuantity.toFixed(2)} {getUnitLabel('viss', language)}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* FIXED BOTTOM ACTION BAR - Always visible */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-amber-400 shadow-[0_-4px_12px_rgba(0,0,0,0.1)] z-40">
-        <div className="max-w-7xl mx-auto px-4 py-3 landscape:py-2">
-          <div className="flex items-center justify-between gap-4">
-            {/* Total */}
-            <div className="flex-shrink-0">
-              <div className="text-xs text-gray-500 uppercase">{t.sell?.totalAmount || 'TOTAL'}</div>
-              <div className="text-2xl landscape:text-xl font-bold text-amber-600">
-                {cartTotal > 0 ? `${cartTotal.toLocaleString()} MMK` : '0 MMK'}
-              </div>
-            </div>
-            {/* Action Buttons */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleClearCart}
-                disabled={cart.length === 0}
-                className="py-2.5 px-5 landscape:py-2 landscape:px-4 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-base landscape:text-sm rounded-lg shadow-md transition-all"
-              >
-                {t.sell?.clearCart || 'Clear Cart'}
-              </button>
-              <button
-                onClick={handleConfirmSaleClick}
-                disabled={cart.length === 0}
-                className="py-2.5 px-6 landscape:py-2 landscape:px-5 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-lg landscape:text-base rounded-lg shadow-lg transition-all"
-              >
-                {t.sell?.confirmSale || 'Confirm Sale'}
-              </button>
-            </div>
           </div>
         </div>
       </div>
