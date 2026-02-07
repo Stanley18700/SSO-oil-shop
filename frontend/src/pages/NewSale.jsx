@@ -440,97 +440,98 @@ export const NewSale = () => {
 
           {/* RIGHT SIDE - LIVE CALCULATION / CART */}
           <div className="h-full min-h-0 flex flex-col gap-6 landscape:gap-4">
-            
-            {/* 4. Live Price Breakdown */}
-            <div className="bg-white rounded-lg shadow-md p-4 landscape:p-3">
-              <h2 className="text-lg font-semibold mb-3 landscape:mb-2 landscape:text-base text-gray-800">
-                {t.sell?.currentSelection || 'Current Selection'}
-              </h2>
-              {pendingSelections.length > 0 ? (
-                <div className="space-y-2">
-                  {pendingSelections.map((item) => (
-                    <div key={item.oilId} className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
-                      <div>
-                        <div className="font-semibold text-gray-900">{item.oilName}</div>
-                        <div className="text-sm text-gray-600">
-                          {item.viss > 0 && `${item.viss} ${getUnitLabel('viss', language)}`}
-                          {item.viss > 0 && item.ticals > 0 && ' + '}
-                          {item.ticals > 0 && `${formatTicals(item.ticals)} Ticals`}
+            <div className="min-h-0 flex flex-col gap-6 landscape:gap-4 overflow-y-auto pr-1">
+              {/* 4. Live Price Breakdown */}
+              <div className="bg-white rounded-lg shadow-md p-4 landscape:p-3">
+                <h2 className="text-lg font-semibold mb-3 landscape:mb-2 landscape:text-base text-gray-800">
+                  {t.sell?.currentSelection || 'Current Selection'}
+                </h2>
+                {pendingSelections.length > 0 ? (
+                  <div className="space-y-2">
+                    {pendingSelections.map((item) => (
+                      <div key={item.oilId} className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
+                        <div>
+                          <div className="font-semibold text-gray-900">{item.oilName}</div>
+                          <div className="text-sm text-gray-600">
+                            {item.viss > 0 && `${item.viss} ${getUnitLabel('viss', language)}`}
+                            {item.viss > 0 && item.ticals > 0 && ' + '}
+                            {item.ticals > 0 && `${formatTicals(item.ticals)} Ticals`}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="font-bold text-amber-600">
+                            {item.price.toLocaleString()} MMK
+                          </div>
+                          <button
+                            onClick={() => handleRemovePendingItem(item.oilId)}
+                            className="text-red-600 hover:text-red-800 transition-colors"
+                            aria-label="Remove"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <div className="font-bold text-amber-600">
-                          {item.price.toLocaleString()} MMK
-                        </div>
-                        <button
-                          onClick={() => handleRemovePendingItem(item.oilId)}
-                          className="text-red-600 hover:text-red-800 transition-colors"
-                          aria-label="Remove"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
+                    ))}
+                    <div className="flex justify-between pt-2 border-t">
+                      <span className="text-gray-700">{t.sell?.price || 'Price'}:</span>
+                      <span className="text-xl font-bold text-amber-600">
+                        {pendingTotal > 0 ? `${pendingTotal.toLocaleString()} MMK` : '—'}
+                      </span>
                     </div>
-                  ))}
-                  <div className="flex justify-between pt-2 border-t">
-                    <span className="text-gray-700">{t.sell?.price || 'Price'}:</span>
-                    <span className="text-xl font-bold text-amber-600">
-                      {pendingTotal > 0 ? `${pendingTotal.toLocaleString()} MMK` : '—'}
-                    </span>
                   </div>
-                </div>
-              ) : (
-                <p className="text-gray-500 text-center py-4">
-                  {t.sell?.selectOilFirst || 'Select an oil to begin'}
-                </p>
-              )}
-            </div>
+                ) : (
+                  <p className="text-gray-500 text-center py-4">
+                    {t.sell?.selectOilFirst || 'Select an oil to begin'}
+                  </p>
+                )}
+              </div>
 
-            {/* 5. Cart Items */}
-            <div className="bg-white rounded-lg shadow-md p-4 landscape:p-3">
-              <h2 className="text-lg font-semibold mb-3 landscape:mb-2 landscape:text-base text-gray-800">
-                {t.sell?.cart || 'Cart'}
-              </h2>
-              {cart.length === 0 ? (
-                <p className="text-gray-500 text-center py-4">
-                  {t.sell?.cartEmpty || 'Cart is empty'}
-                </p>
-              ) : (
-                <div className="space-y-2">
-                  {cart.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                      <div className="flex-1">
-                        <div className="font-semibold text-gray-900">{item.oilName}</div>
-                        <div className="text-sm text-gray-600">
-                          {item.viss > 0 && `${item.viss} ${getUnitLabel('viss', language)}`}
-                          {item.viss > 0 && item.ticals > 0 && ' + '}
-                          {item.ticals > 0 && `${formatTicals(item.ticals)} Ticals`}
+              {/* 5. Cart Items */}
+              <div className="bg-white rounded-lg shadow-md p-4 landscape:p-3">
+                <h2 className="text-lg font-semibold mb-3 landscape:mb-2 landscape:text-base text-gray-800">
+                  {t.sell?.cart || 'Cart'}
+                </h2>
+                {cart.length === 0 ? (
+                  <p className="text-gray-500 text-center py-4">
+                    {t.sell?.cartEmpty || 'Cart is empty'}
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {cart.map((item, index) => (
+                      <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <div className="flex-1">
+                          <div className="font-semibold text-gray-900">{item.oilName}</div>
+                          <div className="text-sm text-gray-600">
+                            {item.viss > 0 && `${item.viss} ${getUnitLabel('viss', language)}`}
+                            {item.viss > 0 && item.ticals > 0 && ' + '}
+                            {item.ticals > 0 && `${formatTicals(item.ticals)} Ticals`}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="font-bold text-gray-900">
+                            {item.price.toLocaleString()} MMK
+                          </div>
+                          <button
+                            onClick={() => handleRemoveCartItem(index)}
+                            className="text-red-600 hover:text-red-800 transition-colors"
+                            aria-label="Remove"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <div className="font-bold text-gray-900">
-                          {item.price.toLocaleString()} MMK
-                        </div>
-                        <button
-                          onClick={() => handleRemoveCartItem(index)}
-                          className="text-red-600 hover:text-red-800 transition-colors"
-                          aria-label="Remove"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* 6. Cart Total & Final Actions */}
-            <div className="bg-white rounded-lg shadow-md p-4 landscape:p-3">
+            <div className="bg-white rounded-lg shadow-md p-4 landscape:p-3 mt-auto">
               <div className="mb-4 pb-4 border-b">
                 <div className="text-sm text-gray-600 mb-1">
                   {t.sell?.totalAmount || 'TOTAL'}
