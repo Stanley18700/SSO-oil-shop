@@ -32,8 +32,7 @@ export const NewSale = () => {
   const [selectedOilId, setSelectedOilId] = useState(null);
   const [entryViss, setEntryViss] = useState(0);
   const [entryTicals, setEntryTicals] = useState(0);
-  const [pendingViss, setPendingViss] = useState(0);
-  const [pendingTicals, setPendingTicals] = useState(0);
+  const [pendingSelections, setPendingSelections] = useState([]);
 
   // Cart: array of { oilId, oilName, viss, ticals, totalQuantityViss, price }
   const [cart, setCart] = useState([]);
@@ -73,10 +72,7 @@ export const NewSale = () => {
 
   // Helpers
   const selectedOil = oils.find(o => o.id === selectedOilId);
-  const totalPendingQuantityViss = pendingViss + (pendingTicals / 100);
-  const currentPrice = selectedOil && totalPendingQuantityViss > 0
-    ? parseFloat(selectedOil.price_per_unit) * totalPendingQuantityViss
-    : 0;
+  const pendingTotal = pendingSelections.reduce((sum, item) => sum + item.price, 0);
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price, 0);
   const cartTotalQuantity = cart.reduce((sum, item) => sum + item.totalQuantityViss, 0);
@@ -104,72 +100,83 @@ export const NewSale = () => {
     if (!selectedOil) return;
     if (entryViss === 0 && entryTicals === 0) return;
 
-    const combinedViss = pendingViss + entryViss;
-    const combinedTicals = pendingTicals + entryTicals;
-    const normalized = normalizeQuantity(combinedViss, combinedTicals);
+    setPendingSelections(prev => {
+      const existingIndex = prev.findIndex(item => item.oilId === selectedOilId);
+      if (existingIndex >= 0) {
+        const updated = [...prev];
+        const existing = updated[existingIndex];
+        const combinedViss = existing.viss + entryViss;
+        const combinedTicals = existing.ticals + entryTicals;
+        const normalized = normalizeQuantity(combinedViss, combinedTicals);
+        const newPrice = parseFloat(selectedOil.price_per_unit) * normalized.totalQuantityViss;
+        updated[existingIndex] = {
+          ...existing,
+          viss: normalized.viss,
+          ticals: normalized.ticals,
+          totalQuantityViss: normalized.totalQuantityViss,
+          price: newPrice,
+        };
+        return updated;
+      }
 
-    setPendingViss(normalized.viss);
-    setPendingTicals(normalized.ticals);
-    setEntryViss(0);
-    setEntryTicals(0);
-  };
+      const normalized = normalizeQuantity(entryViss, entryTicals);
+      return [
+        ...prev,
+        {
+          oilId: selectedOilId,
+          oilName: language === 'en' ? selectedOil.name_en : selectedOil.name_my,
+          viss: normalized.viss,
+          ticals: normalized.ticals,
+          totalQuantityViss: normalized.totalQuantityViss,
+          price: parseFloat(selectedOil.price_per_unit) * normalized.totalQuantityViss,
+        },
+      ];
+    });
 
-  const handleAddAmount = () => {
-    // Accumulate quantity to the selected oil in the cart
-    if (!selectedOil || totalPendingQuantityViss === 0) return;
-
-    const existingIndex = cart.findIndex(item => item.oilId === selectedOilId);
-    if (existingIndex >= 0) {
-      const updated = [...cart];
-      const existing = updated[existingIndex];
-      
-      // Combine total ticals and normalize (100 ticals = 1 viss)
-      const totalTicals = existing.ticals + pendingTicals;
-      const totalViss = existing.viss + pendingViss;
-
-      const normalized = normalizeQuantity(totalViss, totalTicals);
-      const newTotalViss = normalized.totalQuantityViss;
-      const newPrice = parseFloat(selectedOil.price_per_unit) * newTotalViss;
-      
-      updated[existingIndex] = {
-        ...existing,
-        viss: normalized.viss,
-        ticals: normalized.ticals,
-        totalQuantityViss: newTotalViss,
-        price: newPrice,
-      };
-      setCart(updated);
-    } else {
-      // Not in cart yet - add as new item
-      const normalized = normalizeQuantity(pendingViss, pendingTicals);
-      const normalizedTotalViss = normalized.totalQuantityViss;
-      
-      const newItem = {
-        oilId: selectedOilId,
-        oilName: language === 'en' ? selectedOil.name_en : selectedOil.name_my,
-        viss: normalized.viss,
-        ticals: normalized.ticals,
-        totalQuantityViss: normalizedTotalViss,
-        price: parseFloat(selectedOil.price_per_unit) * normalizedTotalViss,
-      };
-      setCart([...cart, newItem]);
-    }
-    // Reset quantity selection
-    setPendingViss(0);
-    setPendingTicals(0);
     setEntryViss(0);
     setEntryTicals(0);
   };
 
   const handleAddToCart = () => {
-    // Same as Add Amount for this simplified flow
-    handleAddAmount();
+    if (pendingSelections.length === 0) return;
+
+    setCart(prevCart => {
+      const updated = [...prevCart];
+      pendingSelections.forEach(pendingItem => {
+        const existingIndex = updated.findIndex(item => item.oilId === pendingItem.oilId);
+        if (existingIndex >= 0) {
+          const existing = updated[existingIndex];
+          const totalViss = existing.viss + pendingItem.viss;
+          const totalTicals = existing.ticals + pendingItem.ticals;
+          const normalized = normalizeQuantity(totalViss, totalTicals);
+          const oilForItem = oils.find(oil => oil.id === pendingItem.oilId);
+          const pricePerUnit = parseFloat(oilForItem?.price_per_unit || 0);
+          const newPrice = pricePerUnit > 0
+            ? pricePerUnit * normalized.totalQuantityViss
+            : existing.price + pendingItem.price;
+
+          updated[existingIndex] = {
+            ...existing,
+            viss: normalized.viss,
+            ticals: normalized.ticals,
+            totalQuantityViss: normalized.totalQuantityViss,
+            price: newPrice,
+          };
+        } else {
+          updated.push(pendingItem);
+        }
+      });
+      return updated;
+    });
+
+    setPendingSelections([]);
+    setEntryViss(0);
+    setEntryTicals(0);
   };
 
   const handleClearCart = () => {
     setCart([]);
-    setPendingViss(0);
-    setPendingTicals(0);
+    setPendingSelections([]);
     setEntryViss(0);
     setEntryTicals(0);
     setSelectedOilId(null);
@@ -204,8 +211,7 @@ export const NewSale = () => {
 
       // Success - reset and close
       setCart([]);
-      setPendingViss(0);
-      setPendingTicals(0);
+      setPendingSelections([]);
       setEntryViss(0);
       setEntryTicals(0);
       setSelectedOilId(null);
@@ -402,7 +408,7 @@ export const NewSale = () => {
             <div className="bg-white rounded-lg shadow-md p-3 landscape:p-2">
               <button
                 onClick={handleAddToCart}
-                disabled={!selectedOil || totalPendingQuantityViss === 0}
+                disabled={pendingSelections.length === 0}
                 className="w-full py-4 landscape:py-3 px-6 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-xl landscape:text-lg rounded-lg shadow-lg transition-all"
               >
                 {t.sell?.addToCart || 'Add to Cart'}
@@ -418,27 +424,27 @@ export const NewSale = () => {
               <h2 className="text-lg font-semibold mb-3 landscape:mb-2 landscape:text-base text-gray-800">
                 {t.sell?.currentSelection || 'Current Selection'}
               </h2>
-              {selectedOil ? (
+              {pendingSelections.length > 0 ? (
                 <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-700">{t.oil?.name || 'Oil'}:</span>
-                    <span className="font-semibold">
-                      {language === 'en' ? selectedOil.name_en : selectedOil.name_my}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-700">{t.sell?.quantity || 'Quantity'}:</span>
-                    <span className="font-semibold">
-                      {pendingViss > 0 && `${pendingViss} ${getUnitLabel('viss', language)}`}
-                      {pendingViss > 0 && pendingTicals > 0 && ' + '}
-                      {pendingTicals > 0 && `${formatTicals(pendingTicals)} Ticals`}
-                      {totalPendingQuantityViss === 0 && '—'}
-                    </span>
-                  </div>
+                  {pendingSelections.map((item) => (
+                    <div key={item.oilId} className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
+                      <div>
+                        <div className="font-semibold text-gray-900">{item.oilName}</div>
+                        <div className="text-sm text-gray-600">
+                          {item.viss > 0 && `${item.viss} ${getUnitLabel('viss', language)}`}
+                          {item.viss > 0 && item.ticals > 0 && ' + '}
+                          {item.ticals > 0 && `${formatTicals(item.ticals)} Ticals`}
+                        </div>
+                      </div>
+                      <div className="font-bold text-amber-600">
+                        {item.price.toLocaleString()} MMK
+                      </div>
+                    </div>
+                  ))}
                   <div className="flex justify-between pt-2 border-t">
                     <span className="text-gray-700">{t.sell?.price || 'Price'}:</span>
                     <span className="text-xl font-bold text-amber-600">
-                      {currentPrice > 0 ? `${currentPrice.toLocaleString()} MMK` : '—'}
+                      {pendingTotal > 0 ? `${pendingTotal.toLocaleString()} MMK` : '—'}
                     </span>
                   </div>
                 </div>
