@@ -271,7 +271,7 @@ export const NewSale = () => {
   }
 
   return (
-    <div className="min-h-screen landscape:h-screen landscape:overflow-hidden bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <div className="bg-gradient-to-r from-amber-600 to-amber-500 text-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -292,11 +292,11 @@ export const NewSale = () => {
       </div>
 
       {/* Main Content - 2 column on tablet+, stacked on mobile */}
-      <div className="flex-1 min-h-0 w-full max-w-7xl mx-auto p-4 landscape:p-2 landscape:overflow-hidden">
-        <div className="h-full min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-6 landscape:gap-4">
+      <div className="flex-1 min-h-0 w-full max-w-7xl mx-auto p-4 landscape:p-2 pb-36 landscape:pb-28">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 landscape:gap-4">
           
           {/* LEFT SIDE - INPUT / SELECTION */}
-          <div className="h-full min-h-0 flex flex-col gap-4 landscape:gap-3">
+          <div className="flex flex-col gap-4 landscape:gap-3">
             
             {/* 1. Available Oils */}
             <div className="bg-white rounded-lg shadow-md p-2 sm:p-3 landscape:p-2 !overflow-visible !max-h-none">
@@ -439,7 +439,7 @@ export const NewSale = () => {
           </div>
 
           {/* RIGHT SIDE - LIVE CALCULATION / CART */}
-          <div className="h-full min-h-0 flex flex-col gap-6 landscape:gap-4">
+          <div className="flex flex-col gap-6 landscape:gap-4">
             {/* 4. Live Price Breakdown */}
             <div className="bg-white rounded-lg shadow-md p-4 landscape:p-3">
               <h2 className="text-lg font-semibold mb-3 landscape:mb-2 landscape:text-base text-gray-800">
@@ -530,37 +530,43 @@ export const NewSale = () => {
               )}
             </div>
 
-            {/* 6. Cart Total & Final Actions */}
-            <div className="bg-white rounded-lg shadow-md p-4 landscape:p-3 mt-auto">
-              <div className="mb-4 pb-4 border-b">
-                <div className="text-sm text-gray-600 mb-1">
-                  {t.sell?.totalAmount || 'TOTAL'}
-                </div>
-                <div className="text-4xl landscape:text-3xl font-bold text-amber-600">
-                  {cartTotal > 0 ? `${cartTotal.toLocaleString()} MMK` : '0 MMK'}
-                </div>
-                {cart.length > 0 && (
-                  <div className="text-sm text-gray-600 mt-2">
-                    {cartTotalQuantity.toFixed(2)} {getUnitLabel('viss', language)} total
-                  </div>
-                )}
+            {/* 6. Cart Summary (inline) */}
+            {cart.length > 0 && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
+                <span className="text-sm text-gray-600">{cart.length} {cart.length === 1 ? 'item' : 'items'} • {cartTotalQuantity.toFixed(2)} {getUnitLabel('viss', language)}</span>
               </div>
-              <div className="space-y-3">
-                <button
-                  onClick={handleClearCart}
-                  disabled={cart.length === 0}
-                  className="w-full py-3 px-6 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-lg rounded-lg shadow-md transition-all"
-                >
-                  {t.sell?.clearCart || 'Clear Cart'}
-                </button>
-                <button
-                  onClick={handleConfirmSaleClick}
-                  disabled={cart.length === 0}
-                  className="w-full py-4 px-6 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-xl rounded-lg shadow-lg transition-all"
-                >
-                  {t.sell?.confirmSale || 'Confirm Sale'}
-                </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* FIXED BOTTOM ACTION BAR - Always visible */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-amber-400 shadow-[0_-4px_12px_rgba(0,0,0,0.1)] z-40">
+        <div className="max-w-7xl mx-auto px-4 py-3 landscape:py-2">
+          <div className="flex items-center justify-between gap-4">
+            {/* Total */}
+            <div className="flex-shrink-0">
+              <div className="text-xs text-gray-500 uppercase">{t.sell?.totalAmount || 'TOTAL'}</div>
+              <div className="text-2xl landscape:text-xl font-bold text-amber-600">
+                {cartTotal > 0 ? `${cartTotal.toLocaleString()} MMK` : '0 MMK'}
               </div>
+            </div>
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleClearCart}
+                disabled={cart.length === 0}
+                className="py-2.5 px-5 landscape:py-2 landscape:px-4 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-base landscape:text-sm rounded-lg shadow-md transition-all"
+              >
+                {t.sell?.clearCart || 'Clear Cart'}
+              </button>
+              <button
+                onClick={handleConfirmSaleClick}
+                disabled={cart.length === 0}
+                className="py-2.5 px-6 landscape:py-2 landscape:px-5 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-lg landscape:text-base rounded-lg shadow-lg transition-all"
+              >
+                {t.sell?.confirmSale || 'Confirm Sale'}
+              </button>
             </div>
           </div>
         </div>
