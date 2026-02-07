@@ -89,10 +89,11 @@ export const NewSale = () => {
   };
 
   const handleTicalButtonToggle = (ticals) => {
+    const key = ticals.toString();
     setSelectedTicalButtons(prev => {
-      const exists = prev.includes(ticals);
-      const next = exists ? prev.filter(value => value !== ticals) : [...prev, ticals];
-      const total = next.reduce((sum, value) => sum + value, 0);
+      const exists = prev.includes(key);
+      const next = exists ? prev.filter(value => value !== key) : [...prev, key];
+      const total = next.reduce((sum, value) => sum + parseFloat(value), 0);
       setEntryTicals(total);
       return next;
     });
@@ -371,7 +372,7 @@ export const NewSale = () => {
                       key={t}
                       onClick={() => handleTicalButtonToggle(t)}
                       className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
-                        selectedTicalButtons.includes(t)
+                        selectedTicalButtons.includes(t.toString())
                           ? 'border-blue-500 bg-blue-500 text-white'
                           : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
                       }`}
@@ -386,7 +387,7 @@ export const NewSale = () => {
                       key={t}
                       onClick={() => handleTicalButtonToggle(t)}
                       className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
-                        selectedTicalButtons.includes(t)
+                        selectedTicalButtons.includes(t.toString())
                           ? 'border-blue-500 bg-blue-500 text-white'
                           : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
                       }`}
@@ -401,7 +402,7 @@ export const NewSale = () => {
                       key={t}
                       onClick={() => handleTicalButtonToggle(t)}
                       className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
-                        selectedTicalButtons.includes(t)
+                        selectedTicalButtons.includes(t.toString())
                           ? 'border-blue-500 bg-blue-500 text-white'
                           : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
                       }`}
