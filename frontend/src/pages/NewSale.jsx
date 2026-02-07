@@ -315,16 +315,18 @@ export const NewSale = () => {
                         <button
                           key={oil.id}
                           onClick={() => handleOilSelect(oil.id)}
-                          className={`p-2 landscape:p-1.5 rounded-md border-2 transition-all text-left ${
+                          className={`p-3 landscape:p-2 rounded-lg border-2 transition-all text-left ${
                             isSelected
-                              ? 'border-amber-500 bg-amber-50 shadow-md'
-                              : 'border-gray-200 bg-white hover:border-amber-300 hover:bg-amber-25'
+                              ? 'border-amber-500 bg-amber-50 shadow-md ring-2 ring-amber-200 ring-opacity-50'
+                              : 'border-gray-200 bg-white hover:border-amber-300 hover:bg-amber-25 shadow-sm'
                           }`}
                         >
-                          <div className="font-semibold text-gray-900 text-sm leading-snug truncate">
+                          <div className={`font-bold text-gray-900 leading-snug truncate ${language === 'my' ? 'text-lg' : 'text-base'}`}>
                             {oilName}
                           </div>
-                          <div className="text-xs font-semibold text-gray-800 mt-1 truncate">
+                          <div className={`mt-1 truncate font-bold ${
+                            isSelected ? 'text-amber-800' : 'text-gray-700'
+                          } ${language === 'my' ? 'text-base' : 'text-sm'}`}>
                             {parseFloat(oil.price_per_unit).toLocaleString()} MMK / {getUnitLabel(oil.unit, language)}
                           </div>
                         </button>
@@ -342,19 +344,20 @@ export const NewSale = () => {
               </h2>
               
               {/* Row 1 - Viss (whole) */}
-              <div className="mb-4 landscape:mb-2">
-                <div className="text-base font-medium text-gray-700 mb-2">
-                  {getUnitLabel('viss', language)} (Whole)
+              <div className="mb-6 landscape:mb-3">
+                <div className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-sm">1</span>
+                  {getUnitLabel('viss', language)} Only
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-5 sm:grid-cols-10 gap-2 sm:gap-3">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(v => (
                     <button
                       key={v}
                       onClick={() => handleVissButton(v)}
-                      className={`px-4 py-2.5 landscape:px-3 landscape:py-2 text-base rounded-md border-2 font-medium transition-all ${
+                      className={`h-12 sm:h-auto py-2 flex items-center justify-center text-lg lg:text-xl rounded-lg border-2 font-bold transition-all shadow-sm ${
                         entryViss === v
-                          ? 'border-amber-500 bg-amber-500 text-white'
-                          : 'border-gray-300 bg-white text-gray-700 hover:border-amber-400 hover:bg-amber-50'
+                          ? 'border-amber-600 bg-amber-600 text-white shadow-md transform scale-105'
+                          : 'border-gray-300 bg-white text-gray-800 hover:border-amber-400 hover:bg-amber-50'
                       }`}
                     >
                       {v}
@@ -364,49 +367,50 @@ export const NewSale = () => {
               </div>
 
               {/* Row 2 - Ticals (0.1 to 90) */}
-              <div className="mb-4 landscape:mb-2">
-                <div className="text-base font-medium text-gray-700 mb-2">
-                  Ticals (0.1 - 90)
+              <div className="mb-6 landscape:mb-3">
+                <div className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-sm">2</span>
+                  Ticals (Fractions)
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-5 sm:grid-cols-9 gap-2 sm:gap-3 mb-3">
                   {[10, 20, 30, 40, 50, 60, 70, 80, 90].map(t => (
                     <button
                       key={t}
                       onClick={() => handleTicalButtonToggle(t)}
-                      className={`px-4 py-2.5 landscape:px-3 landscape:py-2 text-base rounded-md border-2 font-medium transition-all ${
+                      className={`h-12 sm:h-14 flex items-center justify-center text-lg lg:text-xl rounded-lg border-2 font-bold transition-all shadow-sm ${
                         selectedTicalButtons.includes(t.toString())
-                          ? 'border-blue-500 bg-blue-500 text-white'
-                          : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
+                          ? 'border-blue-600 bg-blue-600 text-white shadow-md transform scale-105'
+                          : 'border-gray-300 bg-white text-gray-800 hover:border-blue-400 hover:bg-blue-50'
                       }`}
                     >
                       {t}
                     </button>
                   ))}
                 </div>
-                <div className="flex flex-wrap gap-2 mt-2">
+                <div className="grid grid-cols-5 sm:grid-cols-9 gap-2 sm:gap-3 mb-3">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(t => (
                     <button
                       key={t}
                       onClick={() => handleTicalButtonToggle(t)}
-                      className={`px-4 py-2.5 landscape:px-3 landscape:py-2 text-base rounded-md border-2 font-medium transition-all ${
+                      className={`h-12 sm:h-14 flex items-center justify-center text-lg lg:text-xl rounded-lg border-2 font-bold transition-all shadow-sm ${
                         selectedTicalButtons.includes(t.toString())
-                          ? 'border-blue-500 bg-blue-500 text-white'
-                          : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
+                          ? 'border-blue-600 bg-blue-600 text-white shadow-md transform scale-105'
+                          : 'border-gray-300 bg-white text-gray-800 hover:border-blue-400 hover:bg-blue-50'
                       }`}
                     >
                       {t}
                     </button>
                   ))}
                 </div>
-                <div className="flex flex-wrap gap-2 mt-2">
+                <div className="grid grid-cols-5 sm:grid-cols-9 gap-2 sm:gap-3">
                   {[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9].map(t => (
                     <button
                       key={t}
                       onClick={() => handleTicalButtonToggle(t)}
-                      className={`px-4 py-2.5 landscape:px-3 landscape:py-2 text-base rounded-md border-2 font-medium transition-all ${
+                      className={`h-12 sm:h-14 flex items-center justify-center text-lg lg:text-xl rounded-lg border-2 font-bold transition-all shadow-sm ${
                         selectedTicalButtons.includes(t.toString())
-                          ? 'border-blue-500 bg-blue-500 text-white'
-                          : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
+                          ? 'border-blue-600 bg-blue-600 text-white shadow-md transform scale-105'
+                          : 'border-gray-300 bg-white text-gray-800 hover:border-blue-400 hover:bg-blue-50'
                       }`}
                     >
                       {t}
@@ -419,8 +423,15 @@ export const NewSale = () => {
                 <button
                   onClick={handleAddQuantity}
                   disabled={!selectedOil || (entryViss === 0 && entryTicals === 0)}
-                  className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-xl rounded-lg shadow-md transition-all"
+                  className={`w-full py-4 px-6 font-bold text-2xl rounded-xl shadow-lg transition-all transform active:scale-95 flex items-center justify-center gap-3 ${
+                    !selectedOil || (entryViss === 0 && entryTicals === 0)
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : 'bg-green-600 hover:bg-green-700 text-white'
+                  }`}
                 >
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
                   Add Quantity
                 </button>
               </div>
@@ -431,8 +442,15 @@ export const NewSale = () => {
               <button
                 onClick={handleAddToCart}
                 disabled={pendingSelections.length === 0}
-                className="w-full py-4 landscape:py-3 px-6 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-2xl landscape:text-xl rounded-lg shadow-lg transition-all"
+                className={`w-full py-5 landscape:py-4 px-6 font-bold text-3xl landscape:text-2xl rounded-xl shadow-lg transition-all transform active:scale-95 flex items-center justify-center gap-3 ${
+                  pendingSelections.length === 0
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : 'bg-amber-600 hover:bg-amber-700 text-white'
+                }`}
               >
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
                 {t.sell?.addToCart || 'Add to Cart'}
               </button>
             </div>
@@ -475,9 +493,12 @@ export const NewSale = () => {
               </div>
             </div>
             {/* 4. Live Price Breakdown */}
-            <div className="bg-white rounded-lg shadow-md p-4 landscape:p-3">
-              <h2 className="text-xl font-semibold mb-3 landscape:mb-2 landscape:text-lg text-gray-800">
-                {t.sell?.currentSelection || 'Current Selection'}
+            <div className="bg-white rounded-lg shadow-md p-4 landscape:p-3 border-2 border-amber-100">
+              <h2 className="text-xl font-bold mb-3 landscape:mb-2 landscape:text-lg text-amber-800 flex items-center gap-2">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                {t.sell?.currentSelection || 'Currently Measuring'}
               </h2>
               {pendingSelections.length > 0 ? (
                 <div className="space-y-2">
