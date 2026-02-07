@@ -30,8 +30,10 @@ export const NewSale = () => {
 
   // Selection state
   const [selectedOilId, setSelectedOilId] = useState(null);
-  const [selectedViss, setSelectedViss] = useState(0);
-  const [selectedTicals, setSelectedTicals] = useState(0);
+  const [entryViss, setEntryViss] = useState(0);
+  const [entryTicals, setEntryTicals] = useState(0);
+  const [pendingViss, setPendingViss] = useState(0);
+  const [pendingTicals, setPendingTicals] = useState(0);
 
   // Cart: array of { oilId, oilName, viss, ticals, totalQuantityViss, price }
   const [cart, setCart] = useState([]);
@@ -42,6 +44,10 @@ export const NewSale = () => {
   const [saveError, setSaveError] = useState('');
 
   const t = language === 'en' ? enTranslations : myTranslations;
+  const formatTicals = (value) => {
+    if (value === 0) return '0';
+    return Number.isInteger(value) ? value.toString() : value.toFixed(1);
+  };
 
   useEffect(() => {
     localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
@@ -67,9 +73,9 @@ export const NewSale = () => {
 
   // Helpers
   const selectedOil = oils.find(o => o.id === selectedOilId);
-  const totalSelectedQuantityViss = selectedViss + (selectedTicals / 100);
-  const currentPrice = selectedOil && totalSelectedQuantityViss > 0
-    ? parseFloat(selectedOil.price_per_unit) * totalSelectedQuantityViss
+  const totalPendingQuantityViss = pendingViss + (pendingTicals / 100);
+  const currentPrice = selectedOil && totalPendingQuantityViss > 0
+    ? parseFloat(selectedOil.price_per_unit) * totalPendingQuantityViss
     : 0;
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price, 0);
@@ -82,17 +88,35 @@ export const NewSale = () => {
 
   const handleVissButton = (viss) => {
     // Toggle: if same button clicked, deselect (set to 0)
-    setSelectedViss(selectedViss === viss ? 0 : viss);
+    setEntryViss(entryViss === viss ? 0 : viss);
   };
 
-  const handleTicalButton = (ticals) => {
-    // Toggle: if same button clicked, deselect (set to 0)
-    setSelectedTicals(selectedTicals === ticals ? 0 : ticals);
+  const normalizeQuantity = (viss, ticals) => {
+    const roundedTicals = Math.round(ticals * 10) / 10;
+    const extraViss = Math.floor(roundedTicals / 100);
+    const remainingTicals = parseFloat((roundedTicals % 100).toFixed(1));
+    const finalViss = viss + extraViss;
+    const totalQuantityViss = finalViss + (remainingTicals / 100);
+    return { viss: finalViss, ticals: remainingTicals, totalQuantityViss };
+  };
+
+  const handleAddQuantity = () => {
+    if (!selectedOil) return;
+    if (entryViss === 0 && entryTicals === 0) return;
+
+    const combinedViss = pendingViss + entryViss;
+    const combinedTicals = pendingTicals + entryTicals;
+    const normalized = normalizeQuantity(combinedViss, combinedTicals);
+
+    setPendingViss(normalized.viss);
+    setPendingTicals(normalized.ticals);
+    setEntryViss(0);
+    setEntryTicals(0);
   };
 
   const handleAddAmount = () => {
     // Accumulate quantity to the selected oil in the cart
-    if (!selectedOil || totalSelectedQuantityViss === 0) return;
+    if (!selectedOil || totalPendingQuantityViss === 0) return;
 
     const existingIndex = cart.findIndex(item => item.oilId === selectedOilId);
     if (existingIndex >= 0) {
@@ -100,46 +124,41 @@ export const NewSale = () => {
       const existing = updated[existingIndex];
       
       // Combine total ticals and normalize (100 ticals = 1 viss)
-      const totalTicals = existing.ticals + selectedTicals;
-      const totalViss = existing.viss + selectedViss;
-      
-      // Normalize: convert excess ticals (>= 100) to viss
-      const finalViss = totalViss + Math.floor(totalTicals / 100);
-      const finalTicals = totalTicals % 100;
-      
-      const newTotalViss = finalViss + (finalTicals / 100);
+      const totalTicals = existing.ticals + pendingTicals;
+      const totalViss = existing.viss + pendingViss;
+
+      const normalized = normalizeQuantity(totalViss, totalTicals);
+      const newTotalViss = normalized.totalQuantityViss;
       const newPrice = parseFloat(selectedOil.price_per_unit) * newTotalViss;
       
       updated[existingIndex] = {
         ...existing,
-        viss: finalViss,
-        ticals: finalTicals,
+        viss: normalized.viss,
+        ticals: normalized.ticals,
         totalQuantityViss: newTotalViss,
         price: newPrice,
       };
       setCart(updated);
     } else {
       // Not in cart yet - add as new item
-      // Normalize initial values too
-      const totalTicals = selectedTicals;
-      const totalViss = selectedViss;
-      const finalViss = totalViss + Math.floor(totalTicals / 100);
-      const finalTicals = totalTicals % 100;
-      const normalizedTotalViss = finalViss + (finalTicals / 100);
+      const normalized = normalizeQuantity(pendingViss, pendingTicals);
+      const normalizedTotalViss = normalized.totalQuantityViss;
       
       const newItem = {
         oilId: selectedOilId,
         oilName: language === 'en' ? selectedOil.name_en : selectedOil.name_my,
-        viss: finalViss,
-        ticals: finalTicals,
+        viss: normalized.viss,
+        ticals: normalized.ticals,
         totalQuantityViss: normalizedTotalViss,
         price: parseFloat(selectedOil.price_per_unit) * normalizedTotalViss,
       };
       setCart([...cart, newItem]);
     }
     // Reset quantity selection
-    setSelectedViss(0);
-    setSelectedTicals(0);
+    setPendingViss(0);
+    setPendingTicals(0);
+    setEntryViss(0);
+    setEntryTicals(0);
   };
 
   const handleAddToCart = () => {
@@ -149,8 +168,10 @@ export const NewSale = () => {
 
   const handleClearCart = () => {
     setCart([]);
-    setSelectedViss(0);
-    setSelectedTicals(0);
+    setPendingViss(0);
+    setPendingTicals(0);
+    setEntryViss(0);
+    setEntryTicals(0);
     setSelectedOilId(null);
   };
 
@@ -183,8 +204,10 @@ export const NewSale = () => {
 
       // Success - reset and close
       setCart([]);
-      setSelectedViss(0);
-      setSelectedTicals(0);
+      setPendingViss(0);
+      setPendingTicals(0);
+      setEntryViss(0);
+      setEntryTicals(0);
       setSelectedOilId(null);
       setShowConfirmModal(false);
       
@@ -301,7 +324,7 @@ export const NewSale = () => {
                       key={v}
                       onClick={() => handleVissButton(v)}
                       className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
-                        selectedViss === v
+                        entryViss === v
                           ? 'border-amber-500 bg-amber-500 text-white'
                           : 'border-gray-300 bg-white text-gray-700 hover:border-amber-400 hover:bg-amber-50'
                       }`}
@@ -312,48 +335,50 @@ export const NewSale = () => {
                 </div>
               </div>
 
-              {/* Row 2 - Ticals (common) */}
+              {/* Row 2 - Ticals (0.1 to 90) */}
               <div className="mb-4 landscape:mb-2">
                 <div className="text-sm font-medium text-gray-700 mb-2">
-                  Ticals (Common)
+                  Ticals (0.1 - 90)
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {[10, 12.5, 20, 30, 37.5, 40, 50, 60, 67.5, 70, 80, 87.5, 90].map(t => (
-                    <button
-                      key={t}
-                      onClick={() => handleTicalButton(t)}
-                      className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
-                        selectedTicals === t
-                          ? 'border-blue-500 bg-blue-500 text-white'
-                          : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
-                      }`}
-                    >
-                      {t}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-3 items-center">
+                  <input
+                    type="number"
+                    min="0.1"
+                    max="90"
+                    step="0.1"
+                    value={entryTicals === 0 ? '' : entryTicals}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!Number.isFinite(value)) {
+                        setEntryTicals(0);
+                        return;
+                      }
+                      const clamped = Math.min(Math.max(value, 0), 90);
+                      setEntryTicals(clamped);
+                    }}
+                    placeholder="0.1"
+                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+                  />
+                  <input
+                    type="range"
+                    min="0"
+                    max="90"
+                    step="0.1"
+                    value={entryTicals}
+                    onChange={(e) => setEntryTicals(parseFloat(e.target.value))}
+                    className="w-full"
+                  />
                 </div>
               </div>
 
-              {/* Row 3 - Ticals (small) */}
               <div>
-                <div className="text-sm font-medium text-gray-700 mb-2">
-                  Ticals
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(t => (
-                    <button
-                      key={t}
-                      onClick={() => handleTicalButton(t)}
-                      className={`px-3 py-2 landscape:px-2 landscape:py-1.5 landscape:text-sm rounded-md border-2 font-medium transition-all ${
-                        selectedTicals === t
-                          ? 'border-blue-500 bg-blue-500 text-white'
-                          : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50'
-                      }`}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </div>
+                <button
+                  onClick={handleAddQuantity}
+                  disabled={!selectedOil || (entryViss === 0 && entryTicals === 0)}
+                  className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-lg rounded-lg shadow-md transition-all"
+                >
+                  Add Quantity
+                </button>
               </div>
             </div>
 
@@ -361,7 +386,7 @@ export const NewSale = () => {
             <div className="bg-white rounded-lg shadow-md p-3 landscape:p-2">
               <button
                 onClick={handleAddToCart}
-                disabled={!selectedOil || totalSelectedQuantityViss === 0}
+                disabled={!selectedOil || totalPendingQuantityViss === 0}
                 className="w-full py-4 landscape:py-3 px-6 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-xl landscape:text-lg rounded-lg shadow-lg transition-all"
               >
                 {t.sell?.addToCart || 'Add to Cart'}
@@ -388,10 +413,10 @@ export const NewSale = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-700">{t.sell?.quantity || 'Quantity'}:</span>
                     <span className="font-semibold">
-                      {selectedViss > 0 && `${selectedViss} ${getUnitLabel('viss', language)}`}
-                      {selectedViss > 0 && selectedTicals > 0 && ' + '}
-                      {selectedTicals > 0 && `${selectedTicals} Ticals`}
-                      {totalSelectedQuantityViss === 0 && '—'}
+                      {pendingViss > 0 && `${pendingViss} ${getUnitLabel('viss', language)}`}
+                      {pendingViss > 0 && pendingTicals > 0 && ' + '}
+                      {pendingTicals > 0 && `${formatTicals(pendingTicals)} Ticals`}
+                      {totalPendingQuantityViss === 0 && '—'}
                     </span>
                   </div>
                   <div className="flex justify-between pt-2 border-t">
@@ -426,7 +451,7 @@ export const NewSale = () => {
                         <div className="text-sm text-gray-600">
                           {item.viss > 0 && `${item.viss} ${getUnitLabel('viss', language)}`}
                           {item.viss > 0 && item.ticals > 0 && ' + '}
-                          {item.ticals > 0 && `${item.ticals} Ticals`}
+                          {item.ticals > 0 && `${formatTicals(item.ticals)} Ticals`}
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
