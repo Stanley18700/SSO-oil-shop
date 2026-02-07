@@ -1,0 +1,9 @@
+frontend/
+node_modules/
+.env
+.git/
+*.md
+scripts/
+setup-database.ps1
+update-env.ps1
+railway.json

@@ -6,11 +6,15 @@
   "scripts": {
     "start": "node src/server.js",
     "build": "prisma generate && prisma migrate deploy",
+    "postinstall": "prisma generate",
     "dev": "nodemon src/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "node prisma/seed.js",
     "test:db": "node scripts/check-database.js"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "keywords": ["oil-shop", "express", "prisma", "postgresql"],
   "author": "",
