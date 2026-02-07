@@ -232,6 +232,10 @@ export const NewSale = () => {
     setCart(cart.filter((_, i) => i !== index));
   };
 
+  const handleRemovePendingItem = (oilId) => {
+    setPendingSelections(prev => prev.filter(item => item.oilId !== oilId));
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -436,8 +440,19 @@ export const NewSale = () => {
                           {item.ticals > 0 && `${formatTicals(item.ticals)} Ticals`}
                         </div>
                       </div>
-                      <div className="font-bold text-amber-600">
-                        {item.price.toLocaleString()} MMK
+                      <div className="flex items-center gap-3">
+                        <div className="font-bold text-amber-600">
+                          {item.price.toLocaleString()} MMK
+                        </div>
+                        <button
+                          onClick={() => handleRemovePendingItem(item.oilId)}
+                          className="text-red-600 hover:text-red-800 transition-colors"
+                          aria-label="Remove"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
                       </div>
                     </div>
                   ))}
