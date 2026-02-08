@@ -335,18 +335,18 @@ export const NewSale = () => {
       >
         <button
           onClick={isReorderMode ? undefined : onSelect}
-          className={`w-full p-3 landscape:p-2 rounded-lg border-2 transition-all text-left ${
+          className={`w-full p-2 landscape:p-1.5 rounded-lg border-2 transition-all text-left ${
             isSelected
               ? 'border-amber-500 bg-amber-50 shadow-md ring-2 ring-amber-200 ring-opacity-50'
               : 'border-gray-200 bg-white hover:border-amber-300 hover:bg-amber-25 shadow-sm'
           } ${isReorderMode ? 'pointer-events-none' : ''}`}
         >
-          <div className={`font-bold text-gray-900 leading-snug truncate ${language === 'my' ? 'text-lg' : 'text-base'}`}>
+          <div className={`font-bold text-gray-900 leading-snug truncate ${language === 'my' ? 'text-base' : 'text-sm'}`}>
             {oilName}
           </div>
           <div className={`mt-1 truncate font-bold ${
             isSelected ? 'text-amber-800' : 'text-blue-700'
-          } ${language === 'my' ? 'text-base' : 'text-sm'}`}>
+          } ${language === 'my' ? 'text-sm' : 'text-xs'}`}>
             {parseFloat(oil.price_per_unit).toLocaleString()} MMK / {getUnitLabel(oil.unit, language)}
           </div>
         </button>
@@ -376,7 +376,7 @@ export const NewSale = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col text-[17px] leading-relaxed">
+    <div className="min-h-screen bg-gray-50 flex flex-col text-[16px] leading-relaxed">
       {/* Header */}
       <div className="bg-gradient-to-r from-amber-600 to-amber-500 text-white shadow-sm">
         <div className="max-w-7xl mx-auto px-3 py-1 flex items-center justify-between">
@@ -404,9 +404,9 @@ export const NewSale = () => {
           <div className="flex flex-col gap-4 landscape:gap-3">
             
             {/* 1. Available Oils */}
-            <div className="bg-white rounded-lg shadow-md p-2 sm:p-3 landscape:p-2 !overflow-visible !max-h-none">
+            <div className="bg-white rounded-lg shadow-md p-2 sm:p-2.5 landscape:p-1.5 !overflow-visible !max-h-none">
               <div className="flex items-center justify-between gap-2 mb-2 landscape:mb-1">
-                <h2 className="text-lg font-semibold landscape:text-base text-gray-800">
+                <h2 className="text-base font-semibold landscape:text-sm text-gray-800">
                   {t.admin?.oilList || 'Available Oils'}
                 </h2>
                 <button
@@ -436,7 +436,7 @@ export const NewSale = () => {
                     onDragEnd={handleOilReorder}
                   >
                     <SortableContext items={oilIds} strategy={rectSortingStrategy}>
-                      <div className="grid gap-2 landscape:gap-1 [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))] landscape:[grid-template-columns:repeat(auto-fit,minmax(120px,1fr))]">
+                      <div className="grid gap-2 landscape:gap-1 [grid-template-columns:repeat(auto-fit,minmax(120px,1fr))] landscape:[grid-template-columns:repeat(auto-fit,minmax(110px,1fr))]">
                         {oils.map((oil) => {
                           const isSelected = selectedOilId === oil.id;
                           const oilName = language === 'en' ? oil.name_en : oil.name_my;
@@ -461,22 +461,22 @@ export const NewSale = () => {
 
             {/* 2. Quantity Selection Buttons */}
             <div className="bg-white rounded-lg shadow-md p-3 landscape:p-2">
-              <h2 className="text-xl font-semibold mb-3 landscape:mb-2 landscape:text-lg text-gray-800">
+              <h2 className="text-lg font-semibold mb-2 landscape:mb-2 landscape:text-base text-gray-800">
                 {t.sell?.selectQuantity || 'Select Quantity'}
               </h2>
               
               {/* Row 1 - Viss (whole) */}
-              <div className="mb-6 landscape:mb-3">
-                <div className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
-                  <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-sm">1</span>
+              <div className="mb-4 landscape:mb-2">
+                <div className="text-base font-bold text-gray-800 mb-2 flex items-center gap-2">
+                  <span className="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-xs">1</span>
                   {getUnitLabel('viss', language)} Only
                 </div>
-                <div className="grid grid-cols-5 sm:grid-cols-10 gap-2 sm:gap-3">
+                <div className="grid grid-cols-5 sm:grid-cols-10 gap-2 sm:gap-2">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(v => (
                     <button
                       key={v}
                       onClick={() => handleVissButton(v)}
-                      className={`h-12 sm:h-auto py-2 flex items-center justify-center text-lg lg:text-xl rounded-lg border-2 font-bold transition-all shadow-sm ${
+                      className={`h-10 sm:h-10 py-1.5 flex items-center justify-center text-base rounded-lg border-2 font-bold transition-all shadow-sm ${
                         entryViss === v
                           ? 'border-amber-600 bg-amber-600 text-white shadow-md transform scale-105'
                           : 'border-gray-300 bg-white text-gray-800 hover:border-amber-400 hover:bg-amber-50'
@@ -489,17 +489,17 @@ export const NewSale = () => {
               </div>
 
               {/* Row 2 - Ticals (0.1 to 90) */}
-              <div className="mb-6 landscape:mb-3">
-                <div className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
-                  <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-sm">2</span>
+              <div className="mb-4 landscape:mb-2">
+                <div className="text-base font-bold text-gray-800 mb-2 flex items-center gap-2">
+                  <span className="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-xs">2</span>
                   Ticals (Fractions)
                 </div>
-                <div className="grid grid-cols-5 sm:grid-cols-9 gap-2 sm:gap-3 mb-3">
+                <div className="grid grid-cols-5 sm:grid-cols-9 gap-2 sm:gap-2 mb-2">
                   {[10, 20, 30, 40, 50, 60, 70, 80, 90].map(t => (
                     <button
                       key={t}
                       onClick={() => handleTicalButtonToggle(t)}
-                      className={`h-12 sm:h-14 flex items-center justify-center text-lg lg:text-xl rounded-lg border-2 font-bold transition-all shadow-sm ${
+                      className={`h-10 sm:h-10 flex items-center justify-center text-base rounded-lg border-2 font-bold transition-all shadow-sm ${
                         selectedTicalButtons.includes(t.toString())
                           ? 'border-blue-600 bg-blue-600 text-white shadow-md transform scale-105'
                           : 'border-gray-300 bg-white text-gray-800 hover:border-blue-400 hover:bg-blue-50'
@@ -509,12 +509,12 @@ export const NewSale = () => {
                     </button>
                   ))}
                 </div>
-                <div className="grid grid-cols-5 sm:grid-cols-9 gap-2 sm:gap-3 mb-3">
+                <div className="grid grid-cols-5 sm:grid-cols-9 gap-2 sm:gap-2 mb-2">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(t => (
                     <button
                       key={t}
                       onClick={() => handleTicalButtonToggle(t)}
-                      className={`h-12 sm:h-14 flex items-center justify-center text-lg lg:text-xl rounded-lg border-2 font-bold transition-all shadow-sm ${
+                      className={`h-10 sm:h-10 flex items-center justify-center text-base rounded-lg border-2 font-bold transition-all shadow-sm ${
                         selectedTicalButtons.includes(t.toString())
                           ? 'border-blue-600 bg-blue-600 text-white shadow-md transform scale-105'
                           : 'border-gray-300 bg-white text-gray-800 hover:border-blue-400 hover:bg-blue-50'
@@ -524,12 +524,12 @@ export const NewSale = () => {
                     </button>
                   ))}
                 </div>
-                <div className="grid grid-cols-5 sm:grid-cols-9 gap-2 sm:gap-3">
+                <div className="grid grid-cols-5 sm:grid-cols-9 gap-2 sm:gap-2">
                   {[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9].map(t => (
                     <button
                       key={t}
                       onClick={() => handleTicalButtonToggle(t)}
-                      className={`h-12 sm:h-14 flex items-center justify-center text-lg lg:text-xl rounded-lg border-2 font-bold transition-all shadow-sm ${
+                      className={`h-10 sm:h-10 flex items-center justify-center text-base rounded-lg border-2 font-bold transition-all shadow-sm ${
                         selectedTicalButtons.includes(t.toString())
                           ? 'border-blue-600 bg-blue-600 text-white shadow-md transform scale-105'
                           : 'border-gray-300 bg-white text-gray-800 hover:border-blue-400 hover:bg-blue-50'
@@ -545,13 +545,13 @@ export const NewSale = () => {
                 <button
                   onClick={handleAddQuantity}
                   disabled={!selectedOil || (entryViss === 0 && entryTicals === 0)}
-                  className={`w-full py-4 px-6 font-bold text-2xl rounded-xl shadow-lg transition-all transform active:scale-95 flex items-center justify-center gap-3 ${
+                  className={`w-full py-3 px-4 font-bold text-lg rounded-xl shadow-md transition-all transform active:scale-95 flex items-center justify-center gap-2 ${
                     !selectedOil || (entryViss === 0 && entryTicals === 0)
                       ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                       : 'bg-green-600 hover:bg-green-700 text-white'
                   }`}
                 >
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
                   Add Quantity
@@ -564,13 +564,13 @@ export const NewSale = () => {
               <button
                 onClick={handleAddToCart}
                 disabled={pendingSelections.length === 0}
-                className={`w-full py-5 landscape:py-4 px-6 font-bold text-3xl landscape:text-2xl rounded-xl shadow-lg transition-all transform active:scale-95 flex items-center justify-center gap-3 ${
+                className={`w-full py-3.5 landscape:py-3 px-5 font-bold text-xl landscape:text-lg rounded-xl shadow-md transition-all transform active:scale-95 flex items-center justify-center gap-2 ${
                   pendingSelections.length === 0
                     ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     : 'bg-amber-600 hover:bg-amber-700 text-white'
                 }`}
               >
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 {t.sell?.addToCart || 'Add to Cart'}
@@ -581,17 +581,17 @@ export const NewSale = () => {
           {/* RIGHT SIDE - LIVE CALCULATION / CART */}
           <div className="flex flex-col gap-6 landscape:gap-4">
             {/* Sticky Actions & Total */}
-            <div className="sticky top-2 z-30 bg-white rounded-lg shadow-md border border-amber-200 p-4">
+            <div className="sticky top-2 z-30 bg-white rounded-lg shadow-md border border-amber-200 p-3">
               <div className="flex items-center justify-between gap-3 flex-wrap">
                 <div>
                   <div className="text-xs text-gray-500 uppercase">
                     {t.sell?.totalAmount || 'TOTAL'}
                   </div>
-                  <div className="text-3xl font-bold text-amber-600">
+                  <div className="text-2xl font-bold text-amber-600">
                     {cartTotal > 0 ? `${cartTotal.toLocaleString()} MMK` : '0 MMK'}
                   </div>
                   {cart.length > 0 && (
-                    <div className="text-sm text-gray-700 mt-1">
+                    <div className="text-xs text-gray-700 mt-1">
                       {cart.length} {cart.length === 1 ? 'item' : 'items'} • {cartTotalQuantity.toFixed(2)} {getUnitLabel('viss', language)}
                     </div>
                   )}
@@ -600,14 +600,14 @@ export const NewSale = () => {
                   <button
                     onClick={handleClearCart}
                     disabled={cart.length === 0}
-                    className="flex-1 sm:flex-none py-2.5 px-5 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-base rounded-lg shadow-md transition-all"
+                    className="flex-1 sm:flex-none py-2 px-4 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-sm rounded-lg shadow-md transition-all"
                   >
                     {t.sell?.clearCart || 'Clear Cart'}
                   </button>
                   <button
                     onClick={handleConfirmSaleClick}
                     disabled={cart.length === 0}
-                    className="flex-1 sm:flex-none py-2.5 px-5 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-base rounded-lg shadow-md transition-all"
+                    className="flex-1 sm:flex-none py-2 px-4 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-sm rounded-lg shadow-md transition-all"
                   >
                     {t.sell?.confirmSale || 'Confirm Sale'}
                   </button>
@@ -615,8 +615,8 @@ export const NewSale = () => {
               </div>
             </div>
             {/* 4. Live Price Breakdown */}
-            <div className="bg-white rounded-lg shadow-md p-4 landscape:p-3 border-2 border-amber-100">
-              <h2 className="text-xl font-bold mb-3 landscape:mb-2 landscape:text-lg text-amber-800 flex items-center gap-2">
+            <div className="bg-white rounded-lg shadow-md p-3 landscape:p-2 border border-amber-100">
+              <h2 className="text-lg font-bold mb-2 landscape:mb-2 landscape:text-base text-amber-800 flex items-center gap-2">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
@@ -627,16 +627,16 @@ export const NewSale = () => {
                   <div className="max-h-48 overflow-y-auto pr-1 space-y-2">
                     {pendingSelections.map((item) => (
                       <div key={item.oilId} className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
-                        <div>
-                          <div className="font-semibold text-gray-900 text-base">{item.oilName}</div>
-                          <div className="text-base text-gray-700">
+                          <div>
+                            <div className="font-semibold text-gray-900 text-sm">{item.oilName}</div>
+                            <div className="text-sm text-gray-700">
                             {item.viss > 0 && `${item.viss} ${getUnitLabel('viss', language)}`}
                             {item.viss > 0 && item.ticals > 0 && ' + '}
                             {item.ticals > 0 && `${formatTicals(item.ticals)} Ticals`}
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <div className="font-bold text-amber-600 text-lg">
+                            <div className="font-bold text-amber-600 text-base">
                             {item.price.toLocaleString()} MMK
                           </div>
                           <button
@@ -654,7 +654,7 @@ export const NewSale = () => {
                   </div>
                   <div className="flex items-center justify-between pt-2 border-t">
                     <span className="text-gray-800 font-semibold">{t.sell?.price || 'Price'}:</span>
-                    <span className="text-2xl font-bold text-white bg-amber-600 px-3 py-1 rounded-full shadow">
+                    <span className="text-lg font-bold text-white bg-amber-600 px-3 py-1 rounded-full shadow">
                       {pendingTotal > 0 ? `${pendingTotal.toLocaleString()} MMK` : '—'}
                     </span>
                   </div>
@@ -667,8 +667,8 @@ export const NewSale = () => {
             </div>
 
             {/* 5. Cart Items */}
-            <div className="bg-white rounded-lg shadow-md p-4 landscape:p-3">
-              <h2 className="text-xl font-semibold mb-3 landscape:mb-2 landscape:text-lg text-gray-800">
+            <div className="bg-white rounded-lg shadow-md p-3 landscape:p-2">
+              <h2 className="text-lg font-semibold mb-2 landscape:mb-2 landscape:text-base text-gray-800">
                 {t.sell?.cart || 'Cart'}
               </h2>
               {cart.length === 0 ? (
@@ -678,17 +678,17 @@ export const NewSale = () => {
               ) : (
                 <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                   {cart.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
                       <div className="flex-1">
-                        <div className="font-semibold text-gray-900 text-base">{item.oilName}</div>
-                        <div className="text-base text-gray-700">
+                        <div className="font-semibold text-gray-900 text-sm">{item.oilName}</div>
+                        <div className="text-sm text-gray-700">
                           {item.viss > 0 && `${item.viss} ${getUnitLabel('viss', language)}`}
                           {item.viss > 0 && item.ticals > 0 && ' + '}
                           {item.ticals > 0 && `${formatTicals(item.ticals)} Ticals`}
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <div className="font-bold text-gray-900 text-lg">
+                        <div className="font-bold text-gray-900 text-base">
                           {item.price.toLocaleString()} MMK
                         </div>
                         <button
