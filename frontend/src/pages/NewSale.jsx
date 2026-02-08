@@ -625,7 +625,7 @@ export const NewSale = () => {
                 </div>
               </div>
 
-              <div>
+              <div className="sticky bottom-2 z-20 bg-white rounded-xl shadow-md p-2">
                 <button
                   onClick={handleAddQuantity}
                   disabled={!selectedOil || (entryViss === 0 && entryTicals === 0)}
@@ -641,24 +641,6 @@ export const NewSale = () => {
                   Add Quantity
                 </button>
               </div>
-            </div>
-
-            {/* 3. Action Button */}
-            <div className="bg-white rounded-lg shadow-md p-3 landscape:p-2">
-              <button
-                onClick={handleAddToCart}
-                disabled={pendingSelections.length === 0}
-                className={`w-full py-3 landscape:py-2.5 px-5 font-bold text-lg landscape:text-base rounded-xl shadow-md transition-all transform active:scale-95 flex items-center justify-center gap-2 ${
-                  pendingSelections.length === 0
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    : 'bg-amber-600 hover:bg-amber-700 text-white'
-                }`}
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                {t.sell?.addToCart || 'Add to Cart'}
-              </button>
             </div>
           </div>
 
@@ -794,6 +776,23 @@ export const NewSale = () => {
           </div>
         </div>
       </div>
+
+      {/* Floating Add to Cart */}
+      <button
+        onClick={handleAddToCart}
+        disabled={pendingSelections.length === 0}
+        className={`fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40 rounded-full px-6 py-4 shadow-xl transition-all transform active:scale-95 flex items-center gap-3 text-lg font-bold ${
+          pendingSelections.length === 0
+            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            : 'bg-amber-600 hover:bg-amber-700 text-white animate-pulse'
+        }`}
+        aria-label={t.sell?.addToCart || 'Add to Cart'}
+      >
+        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        {t.sell?.addToCart || 'Add to Cart'}
+      </button>
 
       {/* Confirm Sale Modal */}
       {showConfirmModal && (
