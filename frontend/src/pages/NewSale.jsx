@@ -325,7 +325,7 @@ export const NewSale = () => {
                             {oilName}
                           </div>
                           <div className={`mt-1 truncate font-bold ${
-                            isSelected ? 'text-amber-800' : 'text-gray-700'
+                            isSelected ? 'text-amber-800' : 'text-blue-700'
                           } ${language === 'my' ? 'text-base' : 'text-sm'}`}>
                             {parseFloat(oil.price_per_unit).toLocaleString()} MMK / {getUnitLabel(oil.unit, language)}
                           </div>
