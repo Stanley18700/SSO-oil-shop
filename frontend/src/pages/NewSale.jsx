@@ -330,15 +330,16 @@ export const NewSale = () => {
       <div
         ref={setNodeRef}
         style={style}
-        className={`relative ${isDragging ? 'opacity-70' : ''}`}
+        className={`relative ${isDragging ? 'opacity-70' : ''} ${isReorderMode ? 'cursor-move' : ''}`}
+        {...(isReorderMode ? { ...attributes, ...listeners } : {})}
       >
         <button
-          onClick={onSelect}
+          onClick={isReorderMode ? undefined : onSelect}
           className={`w-full p-3 landscape:p-2 rounded-lg border-2 transition-all text-left ${
             isSelected
               ? 'border-amber-500 bg-amber-50 shadow-md ring-2 ring-amber-200 ring-opacity-50'
               : 'border-gray-200 bg-white hover:border-amber-300 hover:bg-amber-25 shadow-sm'
-          }`}
+          } ${isReorderMode ? 'pointer-events-none' : ''}`}
         >
           <div className={`font-bold text-gray-900 leading-snug truncate ${language === 'my' ? 'text-lg' : 'text-base'}`}>
             {oilName}
@@ -350,17 +351,9 @@ export const NewSale = () => {
           </div>
         </button>
         {isReorderMode && (
-          <button
-            type="button"
-            aria-label="Drag to reorder"
-            className="absolute top-2 right-2 p-1.5 rounded-md bg-white border border-amber-200 text-amber-700 hover:text-amber-900 shadow"
-            {...attributes}
-            {...listeners}
-          >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M7 4a1 1 0 11-2 0 1 1 0 012 0zm0 6a1 1 0 11-2 0 1 1 0 012 0zm-1 5a1 1 0 100 2 1 1 0 000-2zm8-11a1 1 0 11-2 0 1 1 0 012 0zm-1 5a1 1 0 100 2 1 1 0 000-2zm1 6a1 1 0 11-2 0 1 1 0 012 0z" />
-            </svg>
-          </button>
+          <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold">
+            Drag
+          </div>
         )}
       </div>
     );
