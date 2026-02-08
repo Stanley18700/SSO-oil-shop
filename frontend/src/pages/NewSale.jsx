@@ -22,6 +22,12 @@ import { CSS } from '@dnd-kit/utilities';
 
 const LANGUAGE_STORAGE_KEY = 'sso_language';
 const OIL_ORDER_STORAGE_KEY = 'sso_oil_order';
+const CATEGORY_ORDER = ['peanut', 'sesame', 'palm'];
+const CATEGORY_DIVIDERS = {
+  peanut: { id: 'divider:peanut', label: 'Peanut Oils' },
+  sesame: { id: 'divider:sesame', label: 'Sesame Oils' },
+  palm: { id: 'divider:palm', label: 'Palm Oils' },
+};
 
 /**
  * NewSale - Single-page shop counter selling screen
@@ -58,6 +64,7 @@ export const NewSale = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [isReorderMode, setIsReorderMode] = useState(false);
+  const [displayOrder, setDisplayOrder] = useState([]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -85,7 +92,9 @@ export const NewSale = () => {
     try {
       const data = await getOils();
       const activeOils = data.filter(oil => oil.is_active);
-      setOils(sortOilsByStoredOrder(activeOils));
+      setOils(activeOils);
+      const defaultOrder = buildDefaultDisplayOrder(activeOils);
+      setDisplayOrder(loadStoredDisplayOrder(defaultOrder));
     } catch (err) {
       setError('Failed to load oils: ' + err.message);
     } finally {
@@ -93,21 +102,52 @@ export const NewSale = () => {
     }
   };
 
-  const sortOilsByStoredOrder = (items) => {
+  const getCategoryKey = (oil) => {
+    const name = `${oil.name_en || ''} ${oil.name_my || ''}`.toLowerCase();
+    if (name.includes('peanut') || name.includes('groundnut')) return 'peanut';
+    if (name.includes('sesame')) return 'sesame';
+    if (name.includes('palm')) return 'palm';
+    return 'other';
+  };
+
+  const buildDefaultDisplayOrder = (items) => {
+    const grouped = {
+      peanut: [],
+      sesame: [],
+      palm: [],
+      other: [],
+    };
+
+    items.forEach(oil => {
+      const key = getCategoryKey(oil);
+      grouped[key].push(oil);
+    });
+
+    const order = [];
+    CATEGORY_ORDER.forEach(key => {
+      if (grouped[key].length > 0) {
+        order.push(CATEGORY_DIVIDERS[key].id);
+        order.push(...grouped[key].map(oil => oil.id));
+      }
+    });
+
+    if (grouped.other.length > 0) {
+      order.push(...grouped.other.map(oil => oil.id));
+    }
+
+    return order;
+  };
+
+  const loadStoredDisplayOrder = (defaultOrder) => {
     try {
       const stored = JSON.parse(localStorage.getItem(OIL_ORDER_STORAGE_KEY) || '[]');
-      if (!Array.isArray(stored) || stored.length === 0) return items;
-      const orderMap = new Map(stored.map((id, index) => [id, index]));
-      return [...items].sort((a, b) => {
-        const aIndex = orderMap.get(a.id);
-        const bIndex = orderMap.get(b.id);
-        if (aIndex === undefined && bIndex === undefined) return 0;
-        if (aIndex === undefined) return 1;
-        if (bIndex === undefined) return -1;
-        return aIndex - bIndex;
-      });
+      if (!Array.isArray(stored) || stored.length === 0) return defaultOrder;
+      const allowed = new Set(defaultOrder);
+      const cleaned = stored.filter(id => allowed.has(id));
+      const missing = defaultOrder.filter(id => !cleaned.includes(id));
+      return [...cleaned, ...missing];
     } catch {
-      return items;
+      return defaultOrder;
     }
   };
 
@@ -275,10 +315,6 @@ export const NewSale = () => {
       setSelectedOilId(null);
       setShowConfirmModal(false);
       
-      // Navigate back after short delay
-      setTimeout(() => {
-        navigate('/', { replace: false });
-      }, 300);
     } catch (err) {
       setSaveError(err?.message || 'Failed to confirm sale');
     } finally {
@@ -296,20 +332,26 @@ export const NewSale = () => {
 
   const handleOilReorder = ({ active, over }) => {
     if (!over || active.id === over.id) return;
-    setOils(prev => {
-      const oldIndex = prev.findIndex(oil => oil.id === active.id);
-      const newIndex = prev.findIndex(oil => oil.id === over.id);
+    setDisplayOrder(prev => {
+      const oldIndex = prev.indexOf(active.id);
+      const newIndex = prev.indexOf(over.id);
       if (oldIndex < 0 || newIndex < 0) return prev;
       const reordered = arrayMove(prev, oldIndex, newIndex);
-      localStorage.setItem(
-        OIL_ORDER_STORAGE_KEY,
-        JSON.stringify(reordered.map(oil => oil.id))
-      );
+      localStorage.setItem(OIL_ORDER_STORAGE_KEY, JSON.stringify(reordered));
       return reordered;
     });
   };
 
-  const oilIds = useMemo(() => oils.map(oil => oil.id), [oils]);
+  const displayItems = useMemo(() => {
+    const oilMap = new Map(oils.map(oil => [oil.id, { type: 'oil', oil }]));
+    const dividerMap = new Map(
+      Object.values(CATEGORY_DIVIDERS).map(divider => [divider.id, { type: 'divider', divider }])
+    );
+
+    return displayOrder
+      .map(id => oilMap.get(id) || dividerMap.get(id))
+      .filter(Boolean);
+  }, [displayOrder, oils]);
 
   const SortableOilCard = ({ oil, oilName, isSelected, onSelect, language, isReorderMode }) => {
     const {
@@ -360,6 +402,36 @@ export const NewSale = () => {
     );
   };
 
+  const SortableDividerCard = ({ divider, isReorderMode }) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: divider.id, disabled: !isReorderMode });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      touchAction: isReorderMode ? 'none' : 'auto',
+    };
+
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className={`col-span-full rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-amber-900 font-bold ${
+          isDragging ? 'opacity-70' : ''
+        } ${isReorderMode ? 'cursor-grab active:cursor-grabbing' : ''}`}
+        {...(isReorderMode ? { ...attributes, ...listeners } : {})}
+      >
+        {divider.label}
+      </div>
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -399,7 +471,7 @@ export const NewSale = () => {
 
       {/* Main Content - 2 column on tablet+, stacked on mobile */}
       <div className="flex-1 min-h-0 w-full max-w-7xl mx-auto p-4 landscape:p-2 pb-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 landscape:gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 landscape:gap-3">
           
           {/* LEFT SIDE - INPUT / SELECTION */}
           <div className="flex flex-col gap-4 landscape:gap-3">
@@ -436,9 +508,20 @@ export const NewSale = () => {
                     collisionDetection={closestCenter}
                     onDragEnd={handleOilReorder}
                   >
-                    <SortableContext items={oilIds} strategy={rectSortingStrategy}>
+                    <SortableContext items={displayOrder} strategy={rectSortingStrategy}>
                       <div className="grid gap-2 landscape:gap-1.5 [grid-template-columns:repeat(auto-fit,minmax(125px,1fr))] landscape:[grid-template-columns:repeat(auto-fit,minmax(115px,1fr))]">
-                        {oils.map((oil) => {
+                        {displayItems.map((item) => {
+                          if (item.type === 'divider') {
+                            return (
+                              <SortableDividerCard
+                                key={item.divider.id}
+                                divider={item.divider}
+                                isReorderMode={isReorderMode}
+                              />
+                            );
+                          }
+
+                          const oil = item.oil;
                           const isSelected = selectedOilId === oil.id;
                           const oilName = language === 'en' ? oil.name_en : oil.name_my;
                           return (
