@@ -324,13 +324,14 @@ export const NewSale = () => {
     const style = {
       transform: CSS.Transform.toString(transform),
       transition,
+      touchAction: isReorderMode ? 'none' : 'auto',
     };
 
     return (
       <div
         ref={setNodeRef}
         style={style}
-        className={`relative ${isDragging ? 'opacity-70' : ''} ${isReorderMode ? 'cursor-move' : ''}`}
+        className={`relative ${isDragging ? 'opacity-70' : ''} ${isReorderMode ? 'cursor-grab active:cursor-grabbing' : ''}`}
         {...(isReorderMode ? { ...attributes, ...listeners } : {})}
       >
         <button
