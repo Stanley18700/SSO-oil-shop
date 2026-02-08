@@ -787,6 +787,7 @@ export const NewSale = () => {
             ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
             : 'bg-amber-600 hover:bg-amber-700 text-white'
         } ${pendingSelections.length > 0 ? 'animate-pulse' : ''}`}
+        style={pendingSelections.length > 0 ? { animationDuration: '1s' } : undefined}
         aria-label={t.sell?.addToCart || 'Add to Cart'}
       >
         <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
