@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getOils, confirmSale } from '../api/api';
 import { LanguageToggle } from '../components/LanguageToggle';
@@ -28,6 +28,85 @@ const CATEGORY_DIVIDERS = {
   sesame: { id: 'divider:sesame', label: 'Sesame Oils' },
   palm: { id: 'divider:palm', label: 'Palm Oils' },
 };
+
+const SortableOilCard = memo(({ oil, oilName, isSelected, language, isReorderMode, onSelect }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: oil.id, disabled: !isReorderMode });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    touchAction: isReorderMode ? 'none' : 'auto',
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`relative ${isDragging ? 'opacity-70' : ''} ${isReorderMode ? 'cursor-grab active:cursor-grabbing' : ''}`}
+      {...(isReorderMode ? { ...attributes, ...listeners } : {})}
+    >
+      <button
+        onClick={isReorderMode ? undefined : () => onSelect(oil.id)}
+        className={`w-full p-2.5 landscape:p-2 rounded-lg border-2 transition-all text-left ${
+          isSelected
+            ? 'border-amber-500 bg-amber-50 shadow-md ring-2 ring-amber-200 ring-opacity-50'
+            : 'border-gray-200 bg-white hover:border-amber-300 hover:bg-amber-25 shadow-sm'
+        } ${isReorderMode ? 'pointer-events-none' : ''}`}
+      >
+        <div className={`font-bold text-gray-900 leading-snug truncate ${language === 'my' ? 'text-base' : 'text-sm'}`}>
+          {oilName}
+        </div>
+        <div className={`mt-1 truncate font-extrabold tracking-wide ${
+          isSelected ? 'text-amber-900' : 'text-emerald-900'
+        } ${language === 'my' ? 'text-base' : 'text-sm'}`}>
+          {parseFloat(oil.price_per_unit).toLocaleString()} MMK / {getUnitLabel(oil.unit, language)}
+        </div>
+      </button>
+      {isReorderMode && (
+        <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold">
+          Drag
+        </div>
+      )}
+    </div>
+  );
+});
+
+const SortableDividerCard = memo(({ divider, isReorderMode }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: divider.id, disabled: !isReorderMode });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    touchAction: isReorderMode ? 'none' : 'auto',
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`col-span-full rounded-lg border border-amber-200 bg-amber-50 px-3 py-1 text-amber-900 font-bold ${
+        isDragging ? 'opacity-70' : ''
+      } ${isReorderMode ? 'cursor-grab active:cursor-grabbing' : ''}`}
+      {...(isReorderMode ? { ...attributes, ...listeners } : {})}
+    >
+      {divider.label}
+    </div>
+  );
+});
 
 /**
  * NewSale - Single-page shop counter selling screen
@@ -159,9 +238,9 @@ export const NewSale = () => {
   const cartTotalQuantity = cart.reduce((sum, item) => sum + item.totalQuantityViss, 0);
 
   // Handlers
-  const handleOilSelect = (oilId) => {
+  const handleOilSelect = useCallback((oilId) => {
     setSelectedOilId(oilId);
-  };
+  }, []);
 
   const handleVissButton = (viss) => {
     // Toggle: if same button clicked, deselect (set to 0)
@@ -330,7 +409,7 @@ export const NewSale = () => {
     setPendingSelections(prev => prev.filter(item => item.oilId !== oilId));
   };
 
-  const handleOilReorder = ({ active, over }) => {
+  const handleOilReorder = useCallback(({ active, over }) => {
     if (!over || active.id === over.id) return;
     setDisplayOrder(prev => {
       const oldIndex = prev.indexOf(active.id);
@@ -340,7 +419,7 @@ export const NewSale = () => {
       localStorage.setItem(OIL_ORDER_STORAGE_KEY, JSON.stringify(reordered));
       return reordered;
     });
-  };
+  }, []);
 
   const displayItems = useMemo(() => {
     const oilMap = new Map(oils.map(oil => [oil.id, { type: 'oil', oil }]));
@@ -353,84 +432,6 @@ export const NewSale = () => {
       .filter(Boolean);
   }, [displayOrder, oils]);
 
-  const SortableOilCard = ({ oil, oilName, isSelected, onSelect, language, isReorderMode }) => {
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
-      isDragging,
-    } = useSortable({ id: oil.id, disabled: !isReorderMode });
-
-    const style = {
-      transform: CSS.Transform.toString(transform),
-      transition,
-      touchAction: isReorderMode ? 'none' : 'auto',
-    };
-
-    return (
-      <div
-        ref={setNodeRef}
-        style={style}
-        className={`relative ${isDragging ? 'opacity-70' : ''} ${isReorderMode ? 'cursor-grab active:cursor-grabbing' : ''}`}
-        {...(isReorderMode ? { ...attributes, ...listeners } : {})}
-      >
-        <button
-          onClick={isReorderMode ? undefined : onSelect}
-          className={`w-full p-2.5 landscape:p-2 rounded-lg border-2 transition-all text-left ${
-            isSelected
-              ? 'border-amber-500 bg-amber-50 shadow-md ring-2 ring-amber-200 ring-opacity-50'
-              : 'border-gray-200 bg-white hover:border-amber-300 hover:bg-amber-25 shadow-sm'
-          } ${isReorderMode ? 'pointer-events-none' : ''}`}
-        >
-          <div className={`font-bold text-gray-900 leading-snug truncate ${language === 'my' ? 'text-base' : 'text-sm'}`}>
-            {oilName}
-          </div>
-          <div className={`mt-1 truncate font-extrabold tracking-wide ${
-            isSelected ? 'text-amber-900' : 'text-emerald-900'
-          } ${language === 'my' ? 'text-base' : 'text-sm'}`}>
-            {parseFloat(oil.price_per_unit).toLocaleString()} MMK / {getUnitLabel(oil.unit, language)}
-          </div>
-        </button>
-        {isReorderMode && (
-          <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold">
-            Drag
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const SortableDividerCard = ({ divider, isReorderMode }) => {
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
-      isDragging,
-    } = useSortable({ id: divider.id, disabled: !isReorderMode });
-
-    const style = {
-      transform: CSS.Transform.toString(transform),
-      transition,
-      touchAction: isReorderMode ? 'none' : 'auto',
-    };
-
-    return (
-      <div
-        ref={setNodeRef}
-        style={style}
-        className={`col-span-full rounded-lg border border-amber-200 bg-amber-50 px-3 py-1 text-amber-900 font-bold ${
-          isDragging ? 'opacity-70' : ''
-        } ${isReorderMode ? 'cursor-grab active:cursor-grabbing' : ''}`}
-        {...(isReorderMode ? { ...attributes, ...listeners } : {})}
-      >
-        {divider.label}
-      </div>
-    );
-  };
 
   if (isLoading) {
     return (
@@ -532,7 +533,7 @@ export const NewSale = () => {
                               isSelected={isSelected}
                               language={language}
                               isReorderMode={isReorderMode}
-                              onSelect={() => handleOilSelect(oil.id)}
+                              onSelect={handleOilSelect}
                             />
                           );
                         })}
@@ -784,8 +785,8 @@ export const NewSale = () => {
         className={`fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40 rounded-full px-6 py-4 shadow-xl transition-all transform active:scale-95 flex items-center gap-3 text-lg font-bold ${
           pendingSelections.length === 0
             ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-            : 'bg-amber-600 hover:bg-amber-700 text-white animate-pulse'
-        }`}
+            : 'bg-amber-600 hover:bg-amber-700 text-white'
+        } ${pendingSelections.length > 0 ? 'animate-pulse' : ''}`}
         aria-label={t.sell?.addToCart || 'Add to Cart'}
       >
         <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
