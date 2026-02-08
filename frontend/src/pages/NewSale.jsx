@@ -54,18 +54,18 @@ const SortableOilCard = memo(({ oil, oilName, isSelected, language, isReorderMod
     >
       <button
         onClick={isReorderMode ? undefined : () => onSelect(oil.id)}
-        className={`w-full p-2.5 landscape:p-2 rounded-lg border-2 transition-all text-left ${
+        className={`w-full p-2 landscape:p-1.5 rounded-md border-2 transition-all text-left ${
           isSelected
             ? 'border-amber-500 bg-amber-50 shadow-md ring-2 ring-amber-200 ring-opacity-50'
             : 'border-gray-200 bg-white hover:border-amber-300 hover:bg-amber-25 shadow-sm'
         } ${isReorderMode ? 'pointer-events-none' : ''}`}
       >
-        <div className={`font-bold text-gray-900 leading-snug truncate ${language === 'my' ? 'text-base' : 'text-sm'}`}>
+        <div className={`font-bold text-gray-900 leading-snug truncate ${language === 'my' ? 'text-sm' : 'text-xs'}`}>
           {oilName}
         </div>
-        <div className={`mt-1 truncate font-extrabold tracking-wide ${
+        <div className={`mt-0.5 truncate font-extrabold tracking-wide ${
           isSelected ? 'text-amber-900' : 'text-emerald-900'
-        } ${language === 'my' ? 'text-base' : 'text-sm'}`}>
+        } ${language === 'my' ? 'text-sm' : 'text-xs'}`}>
           {parseFloat(oil.price_per_unit).toLocaleString()} MMK / {getUnitLabel(oil.unit, language)}
         </div>
       </button>
@@ -98,7 +98,7 @@ const SortableDividerCard = memo(({ divider, isReorderMode }) => {
     <div
       ref={setNodeRef}
       style={style}
-      className={`col-span-full rounded-lg border border-amber-200 bg-amber-50 px-3 py-1 text-amber-900 font-bold ${
+      className={`col-span-full rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-amber-900 font-semibold text-xs ${
         isDragging ? 'opacity-70' : ''
       } ${isReorderMode ? 'cursor-grab active:cursor-grabbing' : ''}`}
       {...(isReorderMode ? { ...attributes, ...listeners } : {})}
@@ -475,18 +475,18 @@ export const NewSale = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 landscape:gap-3">
           
           {/* LEFT SIDE - INPUT / SELECTION */}
-          <div className="flex flex-col gap-4 landscape:gap-3">
+          <div className="flex flex-col gap-3 landscape:gap-2 text-[14px]">
             
             {/* 1. Available Oils */}
-            <div className="bg-white rounded-lg shadow-md p-1.5 sm:p-2 landscape:p-1 !overflow-visible !max-h-none">
+            <div className="bg-white rounded-lg shadow-md p-1 sm:p-1.5 landscape:p-1 !overflow-visible !max-h-none">
               <div className="flex items-center justify-between gap-2 mb-2 landscape:mb-1">
-                <h2 className="text-base font-semibold landscape:text-sm text-gray-800">
+                <h2 className="text-sm font-semibold landscape:text-xs text-gray-800">
                   {t.admin?.oilList || 'Available Oils'}
                 </h2>
                 <button
                   type="button"
                   onClick={() => setIsReorderMode(prev => !prev)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-bold border transition-all ${
+                  className={`px-2 py-1 rounded-md text-xs font-bold border transition-all ${
                     isReorderMode
                       ? 'bg-amber-600 text-white border-amber-600'
                       : 'bg-white text-amber-700 border-amber-300 hover:bg-amber-50'
@@ -496,7 +496,7 @@ export const NewSale = () => {
                 </button>
               </div>
               {isReorderMode && (
-                <div className="text-sm text-amber-700 mb-2">
+                <div className="text-xs text-amber-700 mb-1">
                   Drag a card by the small handle to reorder.
                 </div>
               )}
@@ -510,7 +510,7 @@ export const NewSale = () => {
                     onDragEnd={handleOilReorder}
                   >
                     <SortableContext items={displayOrder} strategy={rectSortingStrategy}>
-                      <div className="grid gap-2 landscape:gap-1.5 [grid-template-columns:repeat(auto-fit,minmax(125px,1fr))] landscape:[grid-template-columns:repeat(auto-fit,minmax(115px,1fr))]">
+                      <div className="grid gap-1.5 landscape:gap-1 [grid-template-columns:repeat(auto-fit,minmax(110px,1fr))] landscape:[grid-template-columns:repeat(auto-fit,minmax(100px,1fr))]">
                         {displayItems.map((item) => {
                           if (item.type === 'divider') {
                             return (
@@ -545,23 +545,23 @@ export const NewSale = () => {
             </div>
 
             {/* 2. Quantity Selection Buttons */}
-            <div className="bg-white rounded-lg shadow-md p-3 landscape:p-2">
-              <h2 className="text-lg font-semibold mb-2 landscape:mb-2 landscape:text-base text-gray-800">
+            <div className="bg-white rounded-lg shadow-md p-2 landscape:p-1.5">
+              <h2 className="text-sm font-semibold mb-1 landscape:mb-1 landscape:text-xs text-gray-800">
                 {t.sell?.selectQuantity || 'Select Quantity'}
               </h2>
               
               {/* Row 1 - Viss (whole) */}
-              <div className="mb-4 landscape:mb-2">
-                <div className="text-base font-bold text-gray-800 mb-2 flex items-center gap-2">
-                  <span className="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-xs">1</span>
+              <div className="mb-2 landscape:mb-1">
+                <div className="text-sm font-semibold text-gray-800 mb-1 flex items-center gap-2">
+                  <span className="bg-amber-100 text-amber-800 px-1 py-0.5 rounded text-[10px]">1</span>
                   {getUnitLabel('viss', language)} Only
                 </div>
-                <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5 sm:gap-2">
+                <div className="grid grid-cols-5 sm:grid-cols-10 gap-1 sm:gap-1.5">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(v => (
                     <button
                       key={v}
                       onClick={() => handleVissButton(v)}
-                      className={`h-9 sm:h-9 py-1 flex items-center justify-center text-sm rounded-lg border-2 font-bold transition-all shadow-sm ${
+                      className={`h-8 sm:h-8 py-0.5 flex items-center justify-center text-xs rounded-md border-2 font-bold transition-all shadow-sm ${
                         entryViss === v
                           ? 'border-amber-600 bg-amber-600 text-white shadow-md transform scale-105'
                           : 'border-gray-300 bg-white text-gray-800 hover:border-amber-400 hover:bg-amber-50'
@@ -574,17 +574,17 @@ export const NewSale = () => {
               </div>
 
               {/* Row 2 - Ticals (0.1 to 90) */}
-              <div className="mb-4 landscape:mb-2">
-                <div className="text-base font-bold text-gray-800 mb-2 flex items-center gap-2">
-                  <span className="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-xs">2</span>
+              <div className="mb-2 landscape:mb-1">
+                <div className="text-sm font-semibold text-gray-800 mb-1 flex items-center gap-2">
+                  <span className="bg-blue-100 text-blue-800 px-1 py-0.5 rounded text-[10px]">2</span>
                   Ticals (Fractions)
                 </div>
-                <div className="grid grid-cols-5 sm:grid-cols-9 gap-1.5 sm:gap-2 mb-2">
+                <div className="grid grid-cols-5 sm:grid-cols-9 gap-1 sm:gap-1.5 mb-1.5">
                   {[10, 20, 30, 40, 50, 60, 70, 80, 90].map(t => (
                     <button
                       key={t}
                       onClick={() => handleTicalButtonToggle(t)}
-                      className={`h-9 sm:h-9 flex items-center justify-center text-sm rounded-lg border-2 font-bold transition-all shadow-sm ${
+                      className={`h-8 sm:h-8 flex items-center justify-center text-xs rounded-md border-2 font-bold transition-all shadow-sm ${
                         selectedTicalButtons.includes(t.toString())
                           ? 'border-blue-600 bg-blue-600 text-white shadow-md transform scale-105'
                           : 'border-gray-300 bg-white text-gray-800 hover:border-blue-400 hover:bg-blue-50'
@@ -594,12 +594,12 @@ export const NewSale = () => {
                     </button>
                   ))}
                 </div>
-                <div className="grid grid-cols-5 sm:grid-cols-9 gap-1.5 sm:gap-2 mb-2">
+                <div className="grid grid-cols-5 sm:grid-cols-9 gap-1 sm:gap-1.5 mb-1.5">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(t => (
                     <button
                       key={t}
                       onClick={() => handleTicalButtonToggle(t)}
-                      className={`h-9 sm:h-9 flex items-center justify-center text-sm rounded-lg border-2 font-bold transition-all shadow-sm ${
+                      className={`h-8 sm:h-8 flex items-center justify-center text-xs rounded-md border-2 font-bold transition-all shadow-sm ${
                         selectedTicalButtons.includes(t.toString())
                           ? 'border-blue-600 bg-blue-600 text-white shadow-md transform scale-105'
                           : 'border-gray-300 bg-white text-gray-800 hover:border-blue-400 hover:bg-blue-50'
@@ -609,12 +609,12 @@ export const NewSale = () => {
                     </button>
                   ))}
                 </div>
-                <div className="grid grid-cols-5 sm:grid-cols-9 gap-1.5 sm:gap-2">
+                <div className="grid grid-cols-5 sm:grid-cols-9 gap-1 sm:gap-1.5">
                   {[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9].map(t => (
                     <button
                       key={t}
                       onClick={() => handleTicalButtonToggle(t)}
-                      className={`h-9 sm:h-9 flex items-center justify-center text-sm rounded-lg border-2 font-bold transition-all shadow-sm ${
+                      className={`h-8 sm:h-8 flex items-center justify-center text-xs rounded-md border-2 font-bold transition-all shadow-sm ${
                         selectedTicalButtons.includes(t.toString())
                           ? 'border-blue-600 bg-blue-600 text-white shadow-md transform scale-105'
                           : 'border-gray-300 bg-white text-gray-800 hover:border-blue-400 hover:bg-blue-50'
@@ -626,17 +626,17 @@ export const NewSale = () => {
                 </div>
               </div>
 
-              <div className="sticky bottom-2 z-20 bg-white rounded-xl shadow-md p-2">
+              <div className="sticky bottom-2 z-20 bg-white rounded-lg shadow-sm p-1.5">
                 <button
                   onClick={handleAddQuantity}
                   disabled={!selectedOil || (entryViss === 0 && entryTicals === 0)}
-                  className={`w-full py-2.5 px-4 font-bold text-base rounded-xl shadow-md transition-all transform active:scale-95 flex items-center justify-center gap-2 ${
+                  className={`w-full py-2 px-3 font-bold text-sm rounded-lg shadow-sm transition-all transform active:scale-95 flex items-center justify-center gap-1.5 ${
                     !selectedOil || (entryViss === 0 && entryTicals === 0)
                       ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                       : 'bg-green-600 hover:bg-green-700 text-white'
                   }`}
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
                   Add Quantity
