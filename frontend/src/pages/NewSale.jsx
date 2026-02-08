@@ -1,12 +1,27 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getOils, confirmSale } from '../api/api';
 import { LanguageToggle } from '../components/LanguageToggle';
 import { getUnitLabel } from '../utils/units';
 import enTranslations from '../i18n/en.json';
 import myTranslations from '../i18n/my.json';
+import {
+  DndContext,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  rectSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const LANGUAGE_STORAGE_KEY = 'sso_language';
+const OIL_ORDER_STORAGE_KEY = 'sso_oil_order';
 
 /**
  * NewSale - Single-page shop counter selling screen
@@ -42,6 +57,13 @@ export const NewSale = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [isReorderMode, setIsReorderMode] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 6 },
+    })
+  );
 
   const t = language === 'en' ? enTranslations : myTranslations;
   const formatTicals = (value) => {
@@ -63,11 +85,29 @@ export const NewSale = () => {
     try {
       const data = await getOils();
       const activeOils = data.filter(oil => oil.is_active);
-      setOils(activeOils);
+      setOils(sortOilsByStoredOrder(activeOils));
     } catch (err) {
       setError('Failed to load oils: ' + err.message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const sortOilsByStoredOrder = (items) => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(OIL_ORDER_STORAGE_KEY) || '[]');
+      if (!Array.isArray(stored) || stored.length === 0) return items;
+      const orderMap = new Map(stored.map((id, index) => [id, index]));
+      return [...items].sort((a, b) => {
+        const aIndex = orderMap.get(a.id);
+        const bIndex = orderMap.get(b.id);
+        if (aIndex === undefined && bIndex === undefined) return 0;
+        if (aIndex === undefined) return 1;
+        if (bIndex === undefined) return -1;
+        return aIndex - bIndex;
+      });
+    } catch {
+      return items;
     }
   };
 
@@ -254,6 +294,78 @@ export const NewSale = () => {
     setPendingSelections(prev => prev.filter(item => item.oilId !== oilId));
   };
 
+  const handleOilReorder = ({ active, over }) => {
+    if (!over || active.id === over.id) return;
+    setOils(prev => {
+      const oldIndex = prev.findIndex(oil => oil.id === active.id);
+      const newIndex = prev.findIndex(oil => oil.id === over.id);
+      if (oldIndex < 0 || newIndex < 0) return prev;
+      const reordered = arrayMove(prev, oldIndex, newIndex);
+      localStorage.setItem(
+        OIL_ORDER_STORAGE_KEY,
+        JSON.stringify(reordered.map(oil => oil.id))
+      );
+      return reordered;
+    });
+  };
+
+  const oilIds = useMemo(() => oils.map(oil => oil.id), [oils]);
+
+  const SortableOilCard = ({ oil, oilName, isSelected, onSelect, language, isReorderMode }) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: oil.id, disabled: !isReorderMode });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
+
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className={`relative ${isDragging ? 'opacity-70' : ''}`}
+      >
+        <button
+          onClick={onSelect}
+          className={`w-full p-3 landscape:p-2 rounded-lg border-2 transition-all text-left ${
+            isSelected
+              ? 'border-amber-500 bg-amber-50 shadow-md ring-2 ring-amber-200 ring-opacity-50'
+              : 'border-gray-200 bg-white hover:border-amber-300 hover:bg-amber-25 shadow-sm'
+          }`}
+        >
+          <div className={`font-bold text-gray-900 leading-snug truncate ${language === 'my' ? 'text-lg' : 'text-base'}`}>
+            {oilName}
+          </div>
+          <div className={`mt-1 truncate font-bold ${
+            isSelected ? 'text-amber-800' : 'text-blue-700'
+          } ${language === 'my' ? 'text-base' : 'text-sm'}`}>
+            {parseFloat(oil.price_per_unit).toLocaleString()} MMK / {getUnitLabel(oil.unit, language)}
+          </div>
+        </button>
+        {isReorderMode && (
+          <button
+            type="button"
+            aria-label="Drag to reorder"
+            className="absolute top-2 right-2 p-1.5 rounded-md bg-white border border-amber-200 text-amber-700 hover:text-amber-900 shadow"
+            {...attributes}
+            {...listeners}
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M7 4a1 1 0 11-2 0 1 1 0 012 0zm0 6a1 1 0 11-2 0 1 1 0 012 0zm-1 5a1 1 0 100 2 1 1 0 000-2zm8-11a1 1 0 11-2 0 1 1 0 012 0zm-1 5a1 1 0 100 2 1 1 0 000-2zm1 6a1 1 0 11-2 0 1 1 0 012 0z" />
+            </svg>
+          </button>
+        )}
+      </div>
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -300,39 +412,56 @@ export const NewSale = () => {
             
             {/* 1. Available Oils */}
             <div className="bg-white rounded-lg shadow-md p-2 sm:p-3 landscape:p-2 !overflow-visible !max-h-none">
-              <h2 className="text-lg font-semibold mb-2 landscape:mb-1 landscape:text-base text-gray-800">
-                {t.admin?.oilList || 'Available Oils'}
-              </h2>
+              <div className="flex items-center justify-between gap-2 mb-2 landscape:mb-1">
+                <h2 className="text-lg font-semibold landscape:text-base text-gray-800">
+                  {t.admin?.oilList || 'Available Oils'}
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setIsReorderMode(prev => !prev)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-bold border transition-all ${
+                    isReorderMode
+                      ? 'bg-amber-600 text-white border-amber-600'
+                      : 'bg-white text-amber-700 border-amber-300 hover:bg-amber-50'
+                  }`}
+                >
+                  {isReorderMode ? 'Done' : 'Arrange'}
+                </button>
+              </div>
+              {isReorderMode && (
+                <div className="text-sm text-amber-700 mb-2">
+                  Drag a card by the small handle to reorder.
+                </div>
+              )}
               {oils.length === 0 ? (
                 <p className="text-gray-500">{t.admin?.noOils || 'No oils available'}</p>
               ) : (
                 <div className="!overflow-visible !max-h-none">
-                  <div className="grid gap-2 landscape:gap-1 [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))] landscape:[grid-template-columns:repeat(auto-fit,minmax(120px,1fr))]">
-                    {oils.map((oil) => {
-                      const isSelected = selectedOilId === oil.id;
-                      const oilName = language === 'en' ? oil.name_en : oil.name_my;
-                      return (
-                        <button
-                          key={oil.id}
-                          onClick={() => handleOilSelect(oil.id)}
-                          className={`p-3 landscape:p-2 rounded-lg border-2 transition-all text-left ${
-                            isSelected
-                              ? 'border-amber-500 bg-amber-50 shadow-md ring-2 ring-amber-200 ring-opacity-50'
-                              : 'border-gray-200 bg-white hover:border-amber-300 hover:bg-amber-25 shadow-sm'
-                          }`}
-                        >
-                          <div className={`font-bold text-gray-900 leading-snug truncate ${language === 'my' ? 'text-lg' : 'text-base'}`}>
-                            {oilName}
-                          </div>
-                          <div className={`mt-1 truncate font-bold ${
-                            isSelected ? 'text-amber-800' : 'text-blue-700'
-                          } ${language === 'my' ? 'text-base' : 'text-sm'}`}>
-                            {parseFloat(oil.price_per_unit).toLocaleString()} MMK / {getUnitLabel(oil.unit, language)}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleOilReorder}
+                  >
+                    <SortableContext items={oilIds} strategy={rectSortingStrategy}>
+                      <div className="grid gap-2 landscape:gap-1 [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))] landscape:[grid-template-columns:repeat(auto-fit,minmax(120px,1fr))]">
+                        {oils.map((oil) => {
+                          const isSelected = selectedOilId === oil.id;
+                          const oilName = language === 'en' ? oil.name_en : oil.name_my;
+                          return (
+                            <SortableOilCard
+                              key={oil.id}
+                              oil={oil}
+                              oilName={oilName}
+                              isSelected={isSelected}
+                              language={language}
+                              isReorderMode={isReorderMode}
+                              onSelect={() => handleOilSelect(oil.id)}
+                            />
+                          );
+                        })}
+                      </div>
+                    </SortableContext>
+                  </DndContext>
                 </div>
               )}
             </div>
