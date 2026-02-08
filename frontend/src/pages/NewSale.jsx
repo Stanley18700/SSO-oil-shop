@@ -376,7 +376,7 @@ export const NewSale = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col text-[16px] leading-relaxed">
+    <div className="min-h-screen bg-gray-50 flex flex-col text-[15px] leading-relaxed">
       {/* Header */}
       <div className="bg-gradient-to-r from-amber-600 to-amber-500 text-white shadow-sm">
         <div className="max-w-7xl mx-auto px-3 py-1 flex items-center justify-between">
@@ -404,7 +404,7 @@ export const NewSale = () => {
           <div className="flex flex-col gap-4 landscape:gap-3">
             
             {/* 1. Available Oils */}
-            <div className="bg-white rounded-lg shadow-md p-2 sm:p-2.5 landscape:p-1.5 !overflow-visible !max-h-none">
+            <div className="bg-white rounded-lg shadow-md p-1.5 sm:p-2 landscape:p-1 !overflow-visible !max-h-none">
               <div className="flex items-center justify-between gap-2 mb-2 landscape:mb-1">
                 <h2 className="text-base font-semibold landscape:text-sm text-gray-800">
                   {t.admin?.oilList || 'Available Oils'}
@@ -436,7 +436,7 @@ export const NewSale = () => {
                     onDragEnd={handleOilReorder}
                   >
                     <SortableContext items={oilIds} strategy={rectSortingStrategy}>
-                      <div className="grid gap-2 landscape:gap-1 [grid-template-columns:repeat(auto-fit,minmax(120px,1fr))] landscape:[grid-template-columns:repeat(auto-fit,minmax(110px,1fr))]">
+                      <div className="grid gap-1.5 landscape:gap-1 [grid-template-columns:repeat(auto-fit,minmax(110px,1fr))] landscape:[grid-template-columns:repeat(auto-fit,minmax(100px,1fr))]">
                         {oils.map((oil) => {
                           const isSelected = selectedOilId === oil.id;
                           const oilName = language === 'en' ? oil.name_en : oil.name_my;
@@ -471,12 +471,12 @@ export const NewSale = () => {
                   <span className="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-xs">1</span>
                   {getUnitLabel('viss', language)} Only
                 </div>
-                <div className="grid grid-cols-5 sm:grid-cols-10 gap-2 sm:gap-2">
+                <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5 sm:gap-2">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(v => (
                     <button
                       key={v}
                       onClick={() => handleVissButton(v)}
-                      className={`h-10 sm:h-10 py-1.5 flex items-center justify-center text-base rounded-lg border-2 font-bold transition-all shadow-sm ${
+                      className={`h-9 sm:h-9 py-1 flex items-center justify-center text-sm rounded-lg border-2 font-bold transition-all shadow-sm ${
                         entryViss === v
                           ? 'border-amber-600 bg-amber-600 text-white shadow-md transform scale-105'
                           : 'border-gray-300 bg-white text-gray-800 hover:border-amber-400 hover:bg-amber-50'
@@ -494,12 +494,12 @@ export const NewSale = () => {
                   <span className="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-xs">2</span>
                   Ticals (Fractions)
                 </div>
-                <div className="grid grid-cols-5 sm:grid-cols-9 gap-2 sm:gap-2 mb-2">
+                <div className="grid grid-cols-5 sm:grid-cols-9 gap-1.5 sm:gap-2 mb-2">
                   {[10, 20, 30, 40, 50, 60, 70, 80, 90].map(t => (
                     <button
                       key={t}
                       onClick={() => handleTicalButtonToggle(t)}
-                      className={`h-10 sm:h-10 flex items-center justify-center text-base rounded-lg border-2 font-bold transition-all shadow-sm ${
+                      className={`h-9 sm:h-9 flex items-center justify-center text-sm rounded-lg border-2 font-bold transition-all shadow-sm ${
                         selectedTicalButtons.includes(t.toString())
                           ? 'border-blue-600 bg-blue-600 text-white shadow-md transform scale-105'
                           : 'border-gray-300 bg-white text-gray-800 hover:border-blue-400 hover:bg-blue-50'
@@ -509,12 +509,12 @@ export const NewSale = () => {
                     </button>
                   ))}
                 </div>
-                <div className="grid grid-cols-5 sm:grid-cols-9 gap-2 sm:gap-2 mb-2">
+                <div className="grid grid-cols-5 sm:grid-cols-9 gap-1.5 sm:gap-2 mb-2">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(t => (
                     <button
                       key={t}
                       onClick={() => handleTicalButtonToggle(t)}
-                      className={`h-10 sm:h-10 flex items-center justify-center text-base rounded-lg border-2 font-bold transition-all shadow-sm ${
+                      className={`h-9 sm:h-9 flex items-center justify-center text-sm rounded-lg border-2 font-bold transition-all shadow-sm ${
                         selectedTicalButtons.includes(t.toString())
                           ? 'border-blue-600 bg-blue-600 text-white shadow-md transform scale-105'
                           : 'border-gray-300 bg-white text-gray-800 hover:border-blue-400 hover:bg-blue-50'
@@ -524,12 +524,12 @@ export const NewSale = () => {
                     </button>
                   ))}
                 </div>
-                <div className="grid grid-cols-5 sm:grid-cols-9 gap-2 sm:gap-2">
+                <div className="grid grid-cols-5 sm:grid-cols-9 gap-1.5 sm:gap-2">
                   {[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9].map(t => (
                     <button
                       key={t}
                       onClick={() => handleTicalButtonToggle(t)}
-                      className={`h-10 sm:h-10 flex items-center justify-center text-base rounded-lg border-2 font-bold transition-all shadow-sm ${
+                      className={`h-9 sm:h-9 flex items-center justify-center text-sm rounded-lg border-2 font-bold transition-all shadow-sm ${
                         selectedTicalButtons.includes(t.toString())
                           ? 'border-blue-600 bg-blue-600 text-white shadow-md transform scale-105'
                           : 'border-gray-300 bg-white text-gray-800 hover:border-blue-400 hover:bg-blue-50'
@@ -545,7 +545,7 @@ export const NewSale = () => {
                 <button
                   onClick={handleAddQuantity}
                   disabled={!selectedOil || (entryViss === 0 && entryTicals === 0)}
-                  className={`w-full py-3 px-4 font-bold text-lg rounded-xl shadow-md transition-all transform active:scale-95 flex items-center justify-center gap-2 ${
+                  className={`w-full py-2.5 px-4 font-bold text-base rounded-xl shadow-md transition-all transform active:scale-95 flex items-center justify-center gap-2 ${
                     !selectedOil || (entryViss === 0 && entryTicals === 0)
                       ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                       : 'bg-green-600 hover:bg-green-700 text-white'
@@ -564,7 +564,7 @@ export const NewSale = () => {
               <button
                 onClick={handleAddToCart}
                 disabled={pendingSelections.length === 0}
-                className={`w-full py-3.5 landscape:py-3 px-5 font-bold text-xl landscape:text-lg rounded-xl shadow-md transition-all transform active:scale-95 flex items-center justify-center gap-2 ${
+                className={`w-full py-3 landscape:py-2.5 px-5 font-bold text-lg landscape:text-base rounded-xl shadow-md transition-all transform active:scale-95 flex items-center justify-center gap-2 ${
                   pendingSelections.length === 0
                     ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     : 'bg-amber-600 hover:bg-amber-700 text-white'
