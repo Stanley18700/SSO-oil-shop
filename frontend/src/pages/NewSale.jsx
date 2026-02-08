@@ -344,8 +344,8 @@ export const NewSale = () => {
           <div className={`font-bold text-gray-900 leading-snug truncate ${language === 'my' ? 'text-base' : 'text-sm'}`}>
             {oilName}
           </div>
-          <div className={`mt-1 truncate font-bold ${
-            isSelected ? 'text-amber-800' : 'text-blue-700'
+          <div className={`mt-1 truncate font-extrabold tracking-wide ${
+            isSelected ? 'text-amber-900' : 'text-emerald-800'
           } ${language === 'my' ? 'text-sm' : 'text-xs'}`}>
             {parseFloat(oil.price_per_unit).toLocaleString()} MMK / {getUnitLabel(oil.unit, language)}
           </div>
@@ -587,7 +587,7 @@ export const NewSale = () => {
                   <div className="text-xs text-gray-500 uppercase">
                     {t.sell?.totalAmount || 'TOTAL'}
                   </div>
-                  <div className="text-2xl font-bold text-amber-600">
+                  <div className="text-3xl font-extrabold text-black tracking-wide">
                     {cartTotal > 0 ? `${cartTotal.toLocaleString()} MMK` : '0 MMK'}
                   </div>
                   {cart.length > 0 && (
