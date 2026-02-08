@@ -335,7 +335,7 @@ export const NewSale = () => {
       >
         <button
           onClick={isReorderMode ? undefined : onSelect}
-          className={`w-full p-2 landscape:p-1.5 rounded-lg border-2 transition-all text-left ${
+          className={`w-full p-2.5 landscape:p-2 rounded-lg border-2 transition-all text-left ${
             isSelected
               ? 'border-amber-500 bg-amber-50 shadow-md ring-2 ring-amber-200 ring-opacity-50'
               : 'border-gray-200 bg-white hover:border-amber-300 hover:bg-amber-25 shadow-sm'
@@ -345,8 +345,8 @@ export const NewSale = () => {
             {oilName}
           </div>
           <div className={`mt-1 truncate font-extrabold tracking-wide ${
-            isSelected ? 'text-amber-900' : 'text-emerald-800'
-          } ${language === 'my' ? 'text-sm' : 'text-xs'}`}>
+            isSelected ? 'text-amber-900' : 'text-emerald-900'
+          } ${language === 'my' ? 'text-base' : 'text-sm'}`}>
             {parseFloat(oil.price_per_unit).toLocaleString()} MMK / {getUnitLabel(oil.unit, language)}
           </div>
         </button>
@@ -436,7 +436,7 @@ export const NewSale = () => {
                     onDragEnd={handleOilReorder}
                   >
                     <SortableContext items={oilIds} strategy={rectSortingStrategy}>
-                      <div className="grid gap-1.5 landscape:gap-1 [grid-template-columns:repeat(auto-fit,minmax(110px,1fr))] landscape:[grid-template-columns:repeat(auto-fit,minmax(100px,1fr))]">
+                      <div className="grid gap-2 landscape:gap-1.5 [grid-template-columns:repeat(auto-fit,minmax(125px,1fr))] landscape:[grid-template-columns:repeat(auto-fit,minmax(115px,1fr))]">
                         {oils.map((oil) => {
                           const isSelected = selectedOilId === oil.id;
                           const oilName = language === 'en' ? oil.name_en : oil.name_my;
